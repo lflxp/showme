@@ -16,3 +16,5 @@ linux fast command for ops & dev
 1. go-prompt
 2. gocui/tcell/tview/ncurses/goncurses
 3. 提示选项分为两种： 一、命令参数 dashboard status 二、配置参数 dashboard --status
+4. github.com/jroimartin/gocui
+5. github.com/gdamore/tcell

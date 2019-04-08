@@ -1,4 +1,4 @@
-package executors
+package dashboard
 
 import (
 	"fmt"

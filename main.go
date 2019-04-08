@@ -61,8 +61,9 @@ func executor(in string) {
 		LivePrefixState.IsEnable = false
 		LivePrefixState.LivePrefix = in
 		return
-	} else if in == "dashboard show" {
-		executors.Run()
+	} else {
+		thisisit := executors.ParseExecutors(in)
+		thisisit()
 	}
 	LivePrefixState.LivePrefix = in + "> "
 	LivePrefixState.IsEnable = true
