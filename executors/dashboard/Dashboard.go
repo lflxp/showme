@@ -76,7 +76,7 @@ func collect() []string {
 	rs := []string{}
 	v, _ := mem.VirtualMemory()
 	c, _ := cpu.Info()
-	cc, _ := cpu.Percent(time.Second, false)
+	// cc, _ := cpu.Percent(time.Second, false)
 	d, _ := disk.Usage("/")
 	n, _ := host.Info()
 	nv, _ := net.IOCounters(true)
@@ -99,7 +99,7 @@ func collect() []string {
 	}
 	rs = append(rs, fmt.Sprintf("        Network: %v bytes / %v bytes\n", nv[0].BytesRecv, nv[0].BytesSent))
 	rs = append(rs, fmt.Sprintf("        SystemBoot:%v\n", btime))
-	rs = append(rs, fmt.Sprintf("        CPU Used    : used %f%% \n", cc[0]))
+	// rs = append(rs, fmt.Sprintf("        CPU Used    : used %f%% \n", cc[0]))
 	rs = append(rs, fmt.Sprintf("        HD        : %v GB  Free: %v GB Usage:%f%%\n", d.Total/1024/1024/1024, d.Free/1024/1024/1024, d.UsedPercent))
 	rs = append(rs, fmt.Sprintf("        OS        : %v(%v)   %v  \n", n.Platform, n.PlatformFamily, n.PlatformVersion))
 	rs = append(rs, fmt.Sprintf("        Hostname  : %v  \n", n.Hostname))
