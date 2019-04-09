@@ -18,3 +18,11 @@ linux fast command for ops & dev
 3. 提示选项分为两种： 一、命令参数 dashboard status 二、配置参数 dashboard --status
 4. github.com/jroimartin/gocui
 5. github.com/gdamore/tcell
+
+# 新增操作
+
+0. suggests/commands.go 添加首字符命令添加提示
+1. completers/options.go 添加含【-】的参数
+2. completers/common.go -> FirstCommandFunc 添加命令提示 添加基于首字符的二级字符命令提示
+3. executors 添加目录实现命令gocui展示
+4. executors/executors.go 添加command对应的执行命令

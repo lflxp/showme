@@ -57,7 +57,16 @@ func FirstCommandFunc(d prompt.Document, args []string) []prompt.Suggest {
 			subcommands := []prompt.Suggest{
 				{Text: "help"},
 				{Text: "show", Description: "console for show me"},
-				{Text: "tcell", Description: "dashboard for tcell cellviews.go"},
+				{Text: "helloworld", Description: "dashboard for tcell cellviews.go"},
+			}
+			return prompt.FilterHasPrefix(subcommands, second, true)
+		}
+	case "gocui":
+		second := args[1]
+		if len(args) == 2 {
+			subcommands := []prompt.Suggest{
+				{Text: "help", Description: "帮助文档"},
+				{Text: "active", Description: "界面布局"},
 			}
 			return prompt.FilterHasPrefix(subcommands, second, true)
 		}

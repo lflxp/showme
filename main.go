@@ -62,8 +62,10 @@ func executor(in string) {
 		LivePrefixState.LivePrefix = in
 		return
 	} else {
-		thisisit := executors.ParseExecutors(in)
-		thisisit()
+		thisisit, status := executors.ParseExecutors(in)
+		if status {
+			thisisit()
+		}
 	}
 	LivePrefixState.LivePrefix = in + "> "
 	LivePrefixState.IsEnable = true
