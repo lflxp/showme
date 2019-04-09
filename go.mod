@@ -9,4 +9,5 @@ require (
 	github.com/nsf/termbox-go v0.0.0-20190325093121-288510b9734e // indirect
 	github.com/pkg/term v0.0.0-20190109203006-aa71e9d9e942 // indirect
 	github.com/shirou/gopsutil v2.18.12+incompatible
+	golang.org/x/sys v0.0.0-20190405154228-4b34438f7a67 // indirect
 )
