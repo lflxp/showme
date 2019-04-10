@@ -90,6 +90,8 @@ func OptionsCompleters(args []string, long bool) []prompt.Suggest {
 	switch commandArgs[0] {
 	case "dashboard":
 		sug = suggests.DashboardOptions
+	case "monitor":
+		sug = suggests.MonitorOptions
 	default:
 		sug = optionHelp
 	}
