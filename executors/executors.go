@@ -2,11 +2,13 @@ package executors
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/lflxp/showme/executors/dashboard"
 	"github.com/lflxp/showme/executors/helloworld"
 	"github.com/lflxp/showme/executors/layout"
 	"github.com/lflxp/showme/executors/monitor"
+	"github.com/lflxp/showme/utils"
 )
 
 /** 解析执行命令函数
@@ -37,13 +39,13 @@ func ParseExecutors(in string) (func(), bool) {
 			dashboard.Dashboard()
 		}
 		status = true
-	} else if in == "monitor -lazy" {
+	} else if strings.Contains(in, "monitor") {
 		result = func() {
 			monitor.Run()
 		}
 		status = true
 	} else {
-		fmt.Println(monitor.Colorize(in, "red", "black", true, true), " not found executors")
+		fmt.Println(utils.Colorize(in, "red", "black", true, true), " not found executors")
 	}
 	return result, status
 }
