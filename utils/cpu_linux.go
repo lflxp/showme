@@ -9,11 +9,11 @@ import (
 	"github.com/shirou/gopsutil/cpu"
 )
 
-var BeforeMonitorCpu *MonitorCpu
+var before *MonitorCpu
 var err error
 
 func init() {
-	BeforeMonitorCpu, err = NewMonitorCpu()
+	before, err = NewMonitorCpu()
 }
 
 type MonitorCpu struct {
@@ -58,7 +58,7 @@ func NewMonitorCpu() (*MonitorCpu, error) {
 	return data, err
 }
 
-func CpuPercent(before *MonitorCpu) (string, error) {
+func CpuPercent() (string, error) {
 	var rs string
 	after, err := NewMonitorCpu()
 	if err != nil {

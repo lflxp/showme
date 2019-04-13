@@ -41,7 +41,7 @@ func ParseExecutors(in string) (func(), bool) {
 		status = true
 	} else if strings.Contains(in, "monitor") {
 		result = func() {
-			monitor.Run()
+			monitor.Run(in)
 		}
 		status = true
 	} else {
