@@ -2,11 +2,17 @@ package utils
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 )
 
 func GetNowTime() string {
-	return fmt.Sprintf("%s", time.Now().Format("2006-01-02 15:04:05"))
+	return fmt.Sprintf("%s", time.Now().Format("15:04:05"))
+}
+
+func floatToString(x float64, f int) string {
+	rs := strconv.FormatFloat(x, 'f', f, 64)
+	return rs
 }
 
 // 文字字体 参数介绍：text->文本内容 status->文字颜色 background->背景颜色 underline->是否下划线 highshow->是否高亮

@@ -1,8 +1,7 @@
-// +build linux
-
 package utils
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -18,6 +17,7 @@ func init() {
 
 type MonitorCpu struct {
 	//cpu
+	cpu_cores      float64
 	cpu_stolen     float64
 	cpu_usr        float64
 	cpu_nice       float64
@@ -38,6 +38,8 @@ func (this *MonitorCpu) Get() error {
 		return err
 	}
 
+	c, _ := cpu.Info()
+	this.cpu_cores, _ = strconv.ParseFloat(fmt.Sprintf("%d", c[0].Cores), 64)
 	this.cpu_stolen = t[0].Stolen
 	this.cpu_usr = t[0].User
 	this.cpu_nice = t[0].Nice
@@ -82,13 +84,13 @@ func CpuPercent() (string, error) {
 	if sys > 10.0 {
 		rs += Colorize(strings.Repeat(" ", 3-len(strconv.Itoa(int(sys))))+strconv.Itoa(int(sys))+" ", "red", "", false, true)
 	} else {
-		rs += Colorize(strings.Repeat(" ", 3-len(strconv.Itoa(int(sys))))+strconv.Itoa(int(sys))+" ", "", "", false, false)
+		rs += Colorize(strings.Repeat(" ", 3-len(strconv.Itoa(int(sys))))+strconv.Itoa(int(sys))+" ", "green", "", false, false)
 	}
 
-	if idl > 10.0 {
+	if idl < 10.0 {
 		rs += Colorize(strings.Repeat(" ", 3-len(strconv.Itoa(int(idl))))+strconv.Itoa(int(idl))+" ", "red", "", false, true)
 	} else {
-		rs += Colorize(strings.Repeat(" ", 3-len(strconv.Itoa(int(idl))))+strconv.Itoa(int(idl))+" ", "", "", false, false)
+		rs += Colorize(strings.Repeat(" ", 3-len(strconv.Itoa(int(idl))))+strconv.Itoa(int(idl))+" ", "green", "", false, false)
 	}
 
 	if iow > 10.0 {

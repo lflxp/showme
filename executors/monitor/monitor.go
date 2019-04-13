@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/lflxp/showme/utils"
@@ -22,8 +23,7 @@ func Run(cmd string) {
 	interval := 10
 	num := 0
 
-	fmt.Println(utils.GetCpuTitle())
-	fmt.Println(utils.GetCpuColumns())
+	FilterTitle(cmd, num, interval)
 
 	for {
 		num++
@@ -33,21 +33,64 @@ func Run(cmd string) {
 			ok = false
 			break
 		case <-t.C:
-			if num%interval == 0 {
-				fmt.Println(utils.GetCpuTitle())
-				fmt.Println(utils.GetCpuColumns())
-			}
-			// fmt.Println(utils.Colorize(utils.GetNowTime(), "red", "black", true, true))
-			s, err := utils.CpuPercent()
-			if err != nil {
-				fmt.Println(err.Error())
-			} else {
-				fmt.Println(s)
-			}
+			FilterTitle(cmd, num, interval)
+			FilterValue(cmd)
 		}
 		// 终止循环
 		if !ok {
 			break
 		}
 	}
+}
+
+// 组装标题
+func FilterTitle(in string, count, interval int) {
+	title := utils.GetTimeTitle()
+	columns := utils.GetTimeColumns()
+
+	if strings.Contains(in, "-l") {
+		title += utils.GetLoadTitle()
+		columns += utils.GetLoadColumns()
+	}
+
+	if strings.Contains(in, "-c") {
+		title += utils.GetCpuTitle()
+		columns += utils.GetCpuColumns()
+	}
+
+	if count%interval == 0 {
+		fmt.Println(title)
+		fmt.Println(columns)
+	}
+}
+
+// 抽象命令
+// if 顺序决定展示命令
+func FilterValue(in string) {
+
+	value, err := utils.TimeNow()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	if strings.Contains(in, "-l") {
+		tmp_load, err := utils.CpuLoad()
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		value += tmp_load
+	}
+
+	if strings.Contains(in, "-c") {
+		tmp_cpu, err := utils.CpuPercent()
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		value += tmp_cpu
+	}
+
+	fmt.Println(value)
 }
