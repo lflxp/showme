@@ -28,7 +28,7 @@ func (this *MonitorLoad) Get() (string, error) {
 		if this.load_1 >= 10.0 {
 			data_detail += Colorize(strings.Repeat(" ", 5-len(floatToString(this.load_1, 2)))+floatToString(this.load_1, 2), "red", "", false, true)
 		} else {
-			data_detail += Colorize(strings.Repeat(" ", 5-len(floatToString(this.load_1, 2)))+floatToString(this.load_1, 2), "red", "", false, true)
+			data_detail += Colorize(strings.Repeat(" ", 5-len(floatToString(this.load_1, 2)))+floatToString(this.load_1, 2), "green", "", false, true)
 		}
 	} else {
 		data_detail += Colorize(strings.Repeat(" ", 5-len(floatToString(this.load_1, 2)))+floatToString(this.load_1, 2), "", "", false, false)
@@ -38,7 +38,7 @@ func (this *MonitorLoad) Get() (string, error) {
 		if this.load_1 >= 10.0 {
 			data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(this.load_5, 2)))+floatToString(this.load_5, 2), "red", "", false, true)
 		} else {
-			data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(this.load_5, 2)))+floatToString(this.load_5, 2), "red", "", false, true)
+			data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(this.load_5, 2)))+floatToString(this.load_5, 2), "green", "", false, true)
 		}
 	} else {
 		data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(this.load_5, 2)))+floatToString(this.load_5, 2), "", "", false, false)
@@ -48,7 +48,7 @@ func (this *MonitorLoad) Get() (string, error) {
 		if this.load_1 >= 10.0 {
 			data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(this.load_15, 2)))+floatToString(this.load_15, 2), "red", "", false, true) + Colorize("|", "dgreen", "", false, false)
 		} else {
-			data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(this.load_15, 2)))+floatToString(this.load_15, 2), "red", "", false, true) + Colorize("|", "dgreen", "", false, false)
+			data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(this.load_15, 2)))+floatToString(this.load_15, 2), "green", "", false, true) + Colorize("|", "dgreen", "", false, false)
 		}
 	} else {
 		data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(this.load_15, 2)))+floatToString(this.load_15, 2), "", "", false, false) + Colorize("|", "dgreen", "", false, false)

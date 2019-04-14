@@ -23,3 +23,11 @@ func GetLoadTitle() string {
 func GetLoadColumns() string {
 	return Colorize("  1m    5m   15m |", "dgreen", "", true, false)
 }
+
+func GetSwapTitle() string {
+	return Colorize("---swap--- ", "dgreen", "", false, false)
+}
+
+func GetSwapColumns() string {
+	return Colorize("   si   so|", "dgreen", "", true, false)
+}

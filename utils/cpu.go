@@ -100,5 +100,6 @@ func CpuPercent() (string, error) {
 	}
 
 	rs += Colorize("|", "dgreen", "", false, false)
+	before = after
 	return rs, nil
 }

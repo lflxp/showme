@@ -20,7 +20,7 @@ func Run(cmd string) {
 
 	ok := true
 
-	interval := 10
+	interval := 20
 	num := 0
 
 	FilterTitle(cmd, num, interval)
