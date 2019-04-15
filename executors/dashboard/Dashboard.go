@@ -106,7 +106,7 @@ func collect() []string {
 	rs := []string{}
 	v, _ := mem.VirtualMemory()
 	c, _ := cpu.Info()
-	// cc, _ := cpu.Percent(time.Second, false)
+	cc, _ := cpu.Percent(time.Second, false)
 	d, _ := disk.Usage("/")
 	n, _ := host.Info()
 	nv, _ := net1.IOCounters(true)
@@ -129,7 +129,7 @@ func collect() []string {
 	}
 	rs = append(rs, fmt.Sprintf("%s: %v bytes / %v bytes\n", monitor.Colorize("        Network   ", "white", "red", true, true), nv[0].BytesRecv, nv[0].BytesSent))
 	rs = append(rs, fmt.Sprintf("%s:%v\n", monitor.Colorize("        SystemBoot", "white", "red", true, true), btime))
-	// rs = append(rs, fmt.Sprintf("        CPU Used    : used %f%% \n", cc[0]))
+	rs = append(rs, fmt.Sprintf("%s: used %f%% \n", monitor.Colorize("        CPU Used    ", "white", "red", true, true), cc[0]))
 	rs = append(rs, fmt.Sprintf("%s: %v GB  Free: %v GB Usage:%f%%\n", monitor.Colorize("        HD        ", "white", "red", true, true), d.Total/1024/1024/1024, d.Free/1024/1024/1024, d.UsedPercent))
 	rs = append(rs, fmt.Sprintf("%s :%v(%v)   %v  \n", monitor.Colorize("        OS        ", "white", "red", true, true), n.Platform, n.PlatformFamily, n.PlatformVersion))
 	rs = append(rs, fmt.Sprintf("%s: %v  \n", monitor.Colorize("        Hostname  ", "white", "red", true, true), n.Hostname))
