@@ -4,79 +4,13 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
+
+	"github.com/lflxp/showme/utils"
 )
 
-func getNowTime() string {
-	return fmt.Sprintf("%s", time.Now().Format("2006-01-02 15:04:05"))
-}
-
-// 文字字体 参数介绍：文本内容 文字颜色 背景颜色 是否下划线 是否高亮
-// http://www.cnblogs.com/frydsh/p/4139922.html
-func Colorize(text string, status string, background string, underline bool, highshow bool) string {
-	out_one := "\033["
-	out_two := ""
-	out_three := ""
-	out_four := ""
-	//可动态配置字体颜色 背景色 高亮
-	// 显示：0(默认)、1(粗体/高亮)、22(非粗体)、4(单条下划线)、24(无下划线)、5(闪烁)、25(无闪烁)、7(反显、翻转前景色和背景色)、27(无反显)
-	// 颜色：0(黑)、1(红)、2(绿)、 3(黄)、4(蓝)、5(洋红)、6(青)、7(白)
-	//  前景色为30+颜色值，如31表示前景色为红色；背景色为40+颜色值，如41表示背景色为红色。
-	if underline == true && highshow == true {
-		out_four = ";1;4m" //高亮
-	} else if underline != true && highshow == true {
-		out_four = ";1m"
-	} else if underline == true && highshow != true {
-		out_four = ";4m"
-	} else {
-		out_four = ";22m"
-	}
-
-	switch status {
-	case "black":
-		out_two = "30"
-	case "red":
-		out_two = "31"
-	case "green":
-		out_two = "32"
-	case "yellow":
-		out_two = "33"
-	case "blue":
-		out_two = "34"
-	case "purple":
-		out_two = "35"
-	case "dgreen":
-		out_two = "36"
-	case "white":
-		out_two = "37"
-	default:
-		out_two = ""
-	}
-
-	switch background {
-	case "black":
-		out_three = "40;"
-	case "red":
-		out_three = "41;"
-	case "green":
-		out_three = "42;"
-	case "yellow":
-		out_three = "43;"
-	case "blue":
-		out_three = "44;"
-	case "purple":
-		out_three = "45;"
-	case "dgreen":
-		out_three = "46;"
-	case "white":
-		out_three = "47;"
-	default:
-		out_three = ""
-	}
-	return out_one + out_three + out_two + out_four + text + "\033[0m"
-}
-
-func Run() {
+func Run(cmd string) {
 	t := time.NewTicker(time.Second)
 	defer t.Stop()
 
@@ -86,18 +20,77 @@ func Run() {
 
 	ok := true
 
+	interval := 20
+	num := 0
+
+	FilterTitle(cmd, num, interval)
+
 	for {
+		num++
 		select {
 		case s := <-c:
 			fmt.Printf("\n\033[1;4;31m%s:罒灬罒:小伙子走了哟！\033[0m\n", s)
 			ok = false
 			break
 		case <-t.C:
-			fmt.Println(Colorize(getNowTime(), "red", "black", true, true))
+			FilterTitle(cmd, num, interval)
+			FilterValue(cmd)
 		}
 		// 终止循环
 		if !ok {
 			break
 		}
 	}
+}
+
+// 组装标题
+func FilterTitle(in string, count, interval int) {
+	title := utils.GetTimeTitle()
+	columns := utils.GetTimeColumns()
+
+	if strings.Contains(in, "-l") {
+		title += utils.GetLoadTitle()
+		columns += utils.GetLoadColumns()
+	}
+
+	if strings.Contains(in, "-c") {
+		title += utils.GetCpuTitle()
+		columns += utils.GetCpuColumns()
+	}
+
+	if count%interval == 0 {
+		fmt.Println(title)
+		fmt.Println(columns)
+	}
+}
+
+// 抽象命令
+// if 顺序决定展示命令
+func FilterValue(in string) {
+
+	value, err := utils.TimeNow()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	if strings.Contains(in, "-l") {
+		tmp_load, err := utils.CpuLoad()
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		value += tmp_load
+	}
+
+	if strings.Contains(in, "-c") {
+		tmp_cpu, err := utils.CpuPercent()
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		value += tmp_cpu
+	}
+
+	fmt.Println(value)
 }

@@ -3,15 +3,15 @@ package dashboard
 import (
 	"fmt"
 	"log"
-	"net"
 	"strings"
 	"time"
 
 	"github.com/jroimartin/gocui"
-	"github.com/lflxp/showme/executors/monitor"
+	"github.com/lflxp/showme/utils"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/host"
+	"github.com/shirou/gopsutil/load"
 	"github.com/shirou/gopsutil/mem"
 	net1 "github.com/shirou/gopsutil/net"
 )
@@ -41,7 +41,7 @@ func nextViewDashboard(g *gocui.Gui, v *gocui.View) error {
 		fmt.Fprintln(v, x)
 	}
 
-	fmt.Fprintln(out, monitor.Colorize(time.Now().Format("2006-01-02 15:04:05"), "white", "green", false, true))
+	fmt.Fprintln(out, utils.Colorize(time.Now().Format("2006-01-02 15:04:05"), "white", "green", false, true))
 
 	if _, err = setCurrentViewOnTop(g, "hello"); err != nil {
 		return err
@@ -81,59 +81,40 @@ func Dashboard() {
 
 // }
 
-func getIps() []string {
-	rs := []string{}
-	addrs, err := net.InterfaceAddrs()
-
-	if err != nil {
-		rs = append(rs, err.Error())
-		return rs
-	}
-
-	for _, address := range addrs {
-
-		// 检查ip地址判断是否回环地址
-		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if ipnet.IP.To4() != nil {
-				rs = append(rs, ipnet.IP.String())
-			}
-		}
-	}
-	return rs
-}
-
 func collect() []string {
 	rs := []string{}
 	v, _ := mem.VirtualMemory()
 	c, _ := cpu.Info()
-	cc, _ := cpu.Percent(time.Second, false)
+	load, _ := load.Avg()
+	// cc, _ := cpu.Percent(time.Second, false)
 	d, _ := disk.Usage("/")
 	n, _ := host.Info()
 	nv, _ := net1.IOCounters(true)
 	boottime, _ := host.BootTime()
 	btime := time.Unix(int64(boottime), 0).Format("2006-01-02 15:04:05")
-	rs = append(rs, fmt.Sprintf("%s: %v MB  Free: %v MB Used:%v Usage:%f%%\n", monitor.Colorize("        Mem       ", "white", "red", true, true), v.Total/1024/1024, v.Available/1024/1024, v.Used/1024/1024, v.UsedPercent))
+	rs = append(rs, fmt.Sprintf("%s: %v MB  Free: %v MB Used:%v Usage:%f%%\n", utils.Colorize("        Mem       ", "white", "red", true, true), v.Total/1024/1024, v.Available/1024/1024, v.Used/1024/1024, v.UsedPercent))
 	// fmt.Printf("        Mem       : %v MB  Free: %v MB Used:%v Usage:%f%%\n", v.Total/1024/1024, v.Available/1024/1024, v.Used/1024/1024, v.UsedPercent)
 	if len(c) > 1 {
 		for _, sub_cpu := range c {
 			modelname := sub_cpu.ModelName
 			cores := sub_cpu.Cores
 			// fmt.Printf("        CPU       : %v   %v cores \n", modelname, cores)
-			rs = append(rs, fmt.Sprintf("%s: %v   %v cores \n", monitor.Colorize("        CPU       ", "white", "red", true, true), modelname, cores))
+			rs = append(rs, fmt.Sprintf("%s: %v   %v cores \n", utils.Colorize("        CPU       ", "white", "red", true, true), modelname, cores))
 		}
 	} else {
 		sub_cpu := c[0]
 		modelname := sub_cpu.ModelName
 		cores := sub_cpu.Cores
-		rs = append(rs, fmt.Sprintf("%s: %v   %v cores \n", monitor.Colorize("        CPU       ", "white", "red", true, true), modelname, cores))
+		rs = append(rs, fmt.Sprintf("%s: %v   %v cores \n", utils.Colorize("        CPU       ", "white", "red", true, true), modelname, cores))
 	}
-	rs = append(rs, fmt.Sprintf("%s: %v bytes / %v bytes\n", monitor.Colorize("        Network   ", "white", "red", true, true), nv[0].BytesRecv, nv[0].BytesSent))
-	rs = append(rs, fmt.Sprintf("%s:%v\n", monitor.Colorize("        SystemBoot", "white", "red", true, true), btime))
-	rs = append(rs, fmt.Sprintf("%s: used %f%% \n", monitor.Colorize("        CPU Used    ", "white", "red", true, true), cc[0]))
-	rs = append(rs, fmt.Sprintf("%s: %v GB  Free: %v GB Usage:%f%%\n", monitor.Colorize("        HD        ", "white", "red", true, true), d.Total/1024/1024/1024, d.Free/1024/1024/1024, d.UsedPercent))
-	rs = append(rs, fmt.Sprintf("%s :%v(%v)   %v  \n", monitor.Colorize("        OS        ", "white", "red", true, true), n.Platform, n.PlatformFamily, n.PlatformVersion))
-	rs = append(rs, fmt.Sprintf("%s: %v  \n", monitor.Colorize("        Hostname  ", "white", "red", true, true), n.Hostname))
-	rs = append(rs, fmt.Sprintf("%s: %s", monitor.Colorize("        IpLists   ", "white", "red", true, true), strings.Join(getIps(), ",")))
+	rs = append(rs, fmt.Sprintf("%s: %.2f %.2f %.2f \n", utils.Colorize("        LOAD      ", "white", "red", true, true), load.Load1, load.Load5, load.Load15))
+	rs = append(rs, fmt.Sprintf("%s: %v bytes / %v bytes\n", utils.Colorize("        Network   ", "white", "red", true, true), nv[0].BytesRecv, nv[0].BytesSent))
+	rs = append(rs, fmt.Sprintf("%s:%v\n", utils.Colorize("        SystemBoot", "white", "red", true, true), btime))
+	// rs = append(rs, fmt.Sprintf("        CPU Used    : used %f%% \n", cc[0]))
+	rs = append(rs, fmt.Sprintf("%s: %v GB  Free: %v GB Usage:%f%%\n", utils.Colorize("        HD        ", "white", "red", true, true), d.Total/1024/1024/1024, d.Free/1024/1024/1024, d.UsedPercent))
+	rs = append(rs, fmt.Sprintf("%s :%v %v(%v)   %v  \n", utils.Colorize("        OS        ", "white", "red", true, true), n.OS, n.Platform, n.PlatformFamily, n.PlatformVersion))
+	rs = append(rs, fmt.Sprintf("%s: %v  \n", utils.Colorize("        Hostname  ", "white", "red", true, true), n.Hostname))
+	rs = append(rs, fmt.Sprintf("%s: %s", utils.Colorize("        IpLists   ", "white", "red", true, true), strings.Join(utils.GetIps(), ",")))
 	return rs
 }
 
