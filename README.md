@@ -2,6 +2,24 @@
 
 linux fast command for ops & dev
 
+# Usage
+
+> go get github.com/lflxp/showme
+> go run main.go
+
+# Operation
+
+1. 命令提示
+
+- monitor args...
+- dashboard args...
+- gocui active
+![command.png](https://github.com/lflxp/showme/blob/master/command.png)
+
+2. monitor 监控展示
+
+![monitor.png](https://github.com/lflxp/showme/blob/master/monitor.png)
+
 # feature
 
 1. 非网络连接
