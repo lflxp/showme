@@ -4,8 +4,10 @@ linux fast command for ops & dev
 
 # Usage
 
-> go get github.com/lflxp/showme
-> go run main.go
+```
+go get github.com/lflxp/showme
+go run main.go
+```
 
 # Operation
 
