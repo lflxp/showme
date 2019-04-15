@@ -24,35 +24,24 @@ func (this *MonitorLoad) Get() (string, error) {
 	this.load_15 = l.Load15
 	data_detail := ""
 
-	if this.load_1 > before.cpu_cores {
-		if this.load_1 >= 10.0 {
-			data_detail += Colorize(strings.Repeat(" ", 5-len(floatToString(this.load_1, 2)))+floatToString(this.load_1, 2), "red", "", false, true)
-		} else {
-			data_detail += Colorize(strings.Repeat(" ", 5-len(floatToString(this.load_1, 2)))+floatToString(this.load_1, 2), "green", "", false, true)
-		}
+	if this.load_1 >= 10.0 {
+		data_detail += Colorize(strings.Repeat(" ", 5-len(floatToString(this.load_1, 2)))+floatToString(this.load_1, 2), "red", "", false, true)
 	} else {
-		data_detail += Colorize(strings.Repeat(" ", 5-len(floatToString(this.load_1, 2)))+floatToString(this.load_1, 2), "", "", false, false)
+		data_detail += Colorize(strings.Repeat(" ", 5-len(floatToString(this.load_1, 2)))+floatToString(this.load_1, 2), "green", "", false, false)
 	}
 
-	if this.load_5 > before.cpu_cores {
-		if this.load_1 >= 10.0 {
-			data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(this.load_5, 2)))+floatToString(this.load_5, 2), "red", "", false, true)
-		} else {
-			data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(this.load_5, 2)))+floatToString(this.load_5, 2), "green", "", false, true)
-		}
+	if this.load_1 >= 10.0 {
+		data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(this.load_5, 2)))+floatToString(this.load_5, 2), "red", "", false, true)
 	} else {
-		data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(this.load_5, 2)))+floatToString(this.load_5, 2), "", "", false, false)
+		data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(this.load_5, 2)))+floatToString(this.load_5, 2), "green", "", false, false)
 	}
 
-	if this.load_15 > before.cpu_cores {
-		if this.load_1 >= 10.0 {
-			data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(this.load_15, 2)))+floatToString(this.load_15, 2), "red", "", false, true) + Colorize("|", "dgreen", "", false, false)
-		} else {
-			data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(this.load_15, 2)))+floatToString(this.load_15, 2), "green", "", false, true) + Colorize("|", "dgreen", "", false, false)
-		}
+	if this.load_1 >= 10.0 {
+		data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(this.load_15, 2)))+floatToString(this.load_15, 2), "red", "", false, true) + Colorize("|", "dgreen", "", false, false)
 	} else {
-		data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(this.load_15, 2)))+floatToString(this.load_15, 2), "", "", false, false) + Colorize("|", "dgreen", "", false, false)
+		data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(this.load_15, 2)))+floatToString(this.load_15, 2), "green", "", false, false) + Colorize("|", "dgreen", "", false, false)
 	}
+
 	return data_detail, nil
 }
 

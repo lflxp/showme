@@ -112,7 +112,7 @@ func collect() []string {
 	rs = append(rs, fmt.Sprintf("%s:%v\n", utils.Colorize("        SystemBoot", "white", "red", true, true), btime))
 	// rs = append(rs, fmt.Sprintf("        CPU Used    : used %f%% \n", cc[0]))
 	rs = append(rs, fmt.Sprintf("%s: %v GB  Free: %v GB Usage:%f%%\n", utils.Colorize("        HD        ", "white", "red", true, true), d.Total/1024/1024/1024, d.Free/1024/1024/1024, d.UsedPercent))
-	rs = append(rs, fmt.Sprintf("%s :%v %v(%v)   %v  \n", utils.Colorize("        OS        ", "white", "red", true, true), n.OS, n.Platform, n.PlatformFamily, n.PlatformVersion))
+	rs = append(rs, fmt.Sprintf("%s :%v %v(%v)   %v  %v\n", utils.Colorize("        OS        ", "white", "red", true, true), n.OS, n.Platform, n.PlatformFamily, n.PlatformVersion, n.KernelVersion))
 	rs = append(rs, fmt.Sprintf("%s: %v  \n", utils.Colorize("        Hostname  ", "white", "red", true, true), n.Hostname))
 	rs = append(rs, fmt.Sprintf("%s: %s", utils.Colorize("        IpLists   ", "white", "red", true, true), strings.Join(utils.GetIps(), ",")))
 	return rs

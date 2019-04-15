@@ -23,6 +23,21 @@ func Run(cmd string) {
 	interval := 20
 	num := 0
 
+	// 主机信息
+	for _, x := range utils.CollectEasy() {
+		fmt.Println(x)
+	}
+
+	// print net info
+	// xo := utils.MonitorNet{}
+	// xo.Get()
+
+	// err := utils.GetHostInfo()
+	// if err != nil {
+	// 	fmt.Println(err.Error())
+	// 	return
+	// }
+
 	FilterTitle(cmd, num, interval)
 
 	for {
@@ -48,14 +63,48 @@ func FilterTitle(in string, count, interval int) {
 	title := utils.GetTimeTitle()
 	columns := utils.GetTimeColumns()
 
-	if strings.Contains(in, "-l") {
+	if strings.Contains(in, "-lazy") {
 		title += utils.GetLoadTitle()
 		columns += utils.GetLoadColumns()
-	}
 
-	if strings.Contains(in, "-c") {
 		title += utils.GetCpuTitle()
 		columns += utils.GetCpuColumns()
+
+		title += utils.GetSwapTitle()
+		columns += utils.GetSwapColumns()
+
+		title += utils.GetNetTitle(true)
+		columns += utils.GetNetColumns(true)
+	} else {
+		if strings.Contains(in, "-l") {
+			title += utils.GetLoadTitle()
+			columns += utils.GetLoadColumns()
+		}
+
+		if strings.Contains(in, "-c") {
+			title += utils.GetCpuTitle()
+			columns += utils.GetCpuColumns()
+		}
+
+		if strings.Contains(in, "-s") {
+			title += utils.GetSwapTitle()
+			columns += utils.GetSwapColumns()
+		}
+
+		if strings.Contains(in, "-n") {
+			title += utils.GetNetTitle(true)
+			columns += utils.GetNetColumns(true)
+		}
+
+		if strings.Contains(in, "-N") {
+			title += utils.GetNetTitle(false)
+			columns += utils.GetNetColumns(false)
+		}
+	}
+
+	if strings.Contains(in, "-d") {
+		title += utils.GetDiskTitle()
+		columns += utils.GetDiskColumns()
 	}
 
 	if count%interval == 0 {
@@ -74,22 +123,88 @@ func FilterValue(in string) {
 		return
 	}
 
-	if strings.Contains(in, "-l") {
+	if strings.Contains(in, "-lazy") {
 		tmp_load, err := utils.CpuLoad()
 		if err != nil {
 			fmt.Println(err.Error())
 			return
 		}
 		value += tmp_load
-	}
 
-	if strings.Contains(in, "-c") {
 		tmp_cpu, err := utils.CpuPercent()
 		if err != nil {
 			fmt.Println(err.Error())
 			return
 		}
 		value += tmp_cpu
+
+		tmp_swap, err := utils.SwapIO()
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		value += tmp_swap
+
+		tmp_net, err := utils.NetInfo(true)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		value += tmp_net
+	} else {
+		if strings.Contains(in, "-l") {
+			tmp_load, err := utils.CpuLoad()
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			value += tmp_load
+		}
+
+		if strings.Contains(in, "-c") {
+			tmp_cpu, err := utils.CpuPercent()
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			value += tmp_cpu
+		}
+
+		if strings.Contains(in, "-s") {
+			tmp_swap, err := utils.SwapIO()
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			value += tmp_swap
+		}
+
+		if strings.Contains(in, "-n") {
+			tmp_net, err := utils.NetInfo(true)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			value += tmp_net
+		}
+
+		if strings.Contains(in, "-N") {
+			tmp_net, err := utils.NetInfo(false)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			value += tmp_net
+		}
+	}
+
+	if strings.Contains(in, "-d") {
+		tmp_disk, err := utils.DiskInfo()
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		value += tmp_disk
 	}
 
 	fmt.Println(value)

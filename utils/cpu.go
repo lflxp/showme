@@ -84,13 +84,13 @@ func CpuPercent() (string, error) {
 	if sys > 10.0 {
 		rs += Colorize(strings.Repeat(" ", 3-len(strconv.Itoa(int(sys))))+strconv.Itoa(int(sys))+" ", "red", "", false, true)
 	} else {
-		rs += Colorize(strings.Repeat(" ", 3-len(strconv.Itoa(int(sys))))+strconv.Itoa(int(sys))+" ", "green", "", false, false)
+		rs += Colorize(strings.Repeat(" ", 3-len(strconv.Itoa(int(sys))))+strconv.Itoa(int(sys))+" ", "white", "", false, false)
 	}
 
-	if idl < 10.0 {
+	if idl < 30.0 {
 		rs += Colorize(strings.Repeat(" ", 3-len(strconv.Itoa(int(idl))))+strconv.Itoa(int(idl))+" ", "red", "", false, true)
 	} else {
-		rs += Colorize(strings.Repeat(" ", 3-len(strconv.Itoa(int(idl))))+strconv.Itoa(int(idl))+" ", "green", "", false, false)
+		rs += Colorize(strings.Repeat(" ", 3-len(strconv.Itoa(int(idl))))+strconv.Itoa(int(idl))+" ", "white", "", false, false)
 	}
 
 	if iow > 10.0 {
