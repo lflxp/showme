@@ -104,19 +104,25 @@ func NetInfo(detail bool) (string, error) {
 	netOut := float64(after.BytesSent-beforeNet.BytesSent) / 0.99
 
 	if netIn/1024/1024 >= 1.0 {
-		rs += Colorize(strings.Repeat(" ", 6-len(floatToString(netIn/1024/1024, 1)))+floatToString(netIn/1024/1024, 1)+"m", "red", "", false, true)
+		// rs += Colorize(strings.Repeat(" ", 6-len(floatToString(netIn/1024/1024, 1)))+floatToString(netIn/1024/1024, 1)+"m", "red", "", false, true)
+		rs += Colorize(parseRepeatSpace(floatToString(netIn/1024/1024, 1), 6)+"m", "red", "", false, true)
 	} else if netIn/1024 < 1.0 {
-		rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(netIn))))+strconv.Itoa(int(netIn)), "white", "", false, false)
+		// rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(netIn))))+strconv.Itoa(int(netIn)), "white", "", false, false)
+		rs += Colorize(parseRepeatSpace(strconv.Itoa(int(netIn)), 7), "white", "", false, false)
 	} else if netIn/1024/1024 < 1.0 && netIn/1024 >= 1.0 {
-		rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(netIn)/1024)))+strconv.Itoa(int(netIn)/1024)+"k", "yellow", "", false, false)
+		// rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(netIn)/1024)))+strconv.Itoa(int(netIn)/1024)+"k", "yellow", "", false, false)
+		rs += Colorize(parseRepeatSpace(strconv.Itoa(int(netIn)/1024), 6)+"k", "yellow", "", false, false)
 	}
 
 	if netOut/1024/1024 >= 1.0 {
-		rs += Colorize(strings.Repeat(" ", 6-len(floatToString(float64(netOut)/1024/1024, 1)))+floatToString(float64(netOut)/1024/1024, 1)+"m", "red", "", false, true)
+		// rs += Colorize(strings.Repeat(" ", 6-len(floatToString(float64(netOut)/1024/1024, 1)))+floatToString(float64(netOut)/1024/1024, 1)+"m", "red", "", false, true)
+		rs += Colorize(parseRepeatSpace(floatToString(float64(netOut)/1024/1024, 1), 6)+"m", "red", "", false, true)
 	} else if netOut/1024 < 1.0 {
-		rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(netOut))))+strconv.Itoa(int(netOut)), "white", "", false, false)
+		// rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(netOut))))+strconv.Itoa(int(netOut)), "white", "", false, false)
+		rs += Colorize(parseRepeatSpace(strconv.Itoa(int(netOut)), 7), "white", "", false, false)
 	} else if netOut/1024/1024 < 1.0 && netOut/1024 >= 1.0 {
-		rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(netOut)/1024)))+strconv.Itoa(int(netOut)/1024)+"k", "yellow", "", false, false)
+		// rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(netOut)/1024)))+strconv.Itoa(int(netOut)/1024)+"k", "yellow", "", false, false)
+		rs += Colorize(parseRepeatSpace(strconv.Itoa(int(netOut)/1024), 6)+"k", "yellow", "", false, false)
 	}
 
 	if detail == false {
@@ -124,76 +130,100 @@ func NetInfo(detail bool) (string, error) {
 		packetsOut := float64(after.PacketsSent - beforeNet.PacketsSent)
 
 		if packetsIn/1000/1000 >= 1.0 {
-			rs += Colorize(strings.Repeat(" ", 6-len(floatToString(packetsIn/1000/1000, 1)))+floatToString(packetsIn/1000/1000, 1)+"m", "red", "", false, true)
+			// rs += Colorize(strings.Repeat(" ", 6-len(floatToString(packetsIn/1000/1000, 1)))+floatToString(packetsIn/1000/1000, 1)+"m", "red", "", false, true)
+			rs += Colorize(parseRepeatSpace(floatToString(packetsIn/1000/1000, 1), 6)+"m", "red", "", false, true)
 		} else if packetsIn/1000 < 1.0 {
-			rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(packetsIn))))+strconv.Itoa(int(packetsIn)), "white", "", false, false)
+			// rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(packetsIn))))+strconv.Itoa(int(packetsIn)), "white", "", false, false)
+			rs += Colorize(parseRepeatSpace(strconv.Itoa(int(packetsIn)), 7), "white", "", false, false)
 		} else if packetsIn/1000/1000 < 1.0 && packetsIn/1000 >= 1.0 {
-			rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(packetsIn)/1000)))+strconv.Itoa(int(packetsIn)/1000)+"k", "yellow", "", false, false)
+			// rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(packetsIn)/1000)))+strconv.Itoa(int(packetsIn)/1000)+"k", "yellow", "", false, false)
+			rs += Colorize(parseRepeatSpace(strconv.Itoa(int(packetsIn)/1000), 6)+"k", "yellow", "", false, false)
 		}
 
 		if packetsOut/1000/1000 >= 1.0 {
-			rs += Colorize(strings.Repeat(" ", 6-len(floatToString(float64(packetsOut)/1000/1000, 1)))+floatToString(float64(packetsOut)/1000/1000, 1)+"m", "red", "", false, true)
+			// rs += Colorize(strings.Repeat(" ", 6-len(floatToString(float64(packetsOut)/1000/1000, 1)))+floatToString(float64(packetsOut)/1000/1000, 1)+"m", "red", "", false, true)
+			rs += Colorize(parseRepeatSpace(floatToString(float64(packetsOut)/1000/1000, 1), 6)+"m", "red", "", false, true)
 		} else if packetsOut/1000 < 1.0 {
-			rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(packetsOut))))+strconv.Itoa(int(packetsOut)), "white", "", false, false)
+			// rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(packetsOut))))+strconv.Itoa(int(packetsOut)), "white", "", false, false)
+			rs += Colorize(parseRepeatSpace(strconv.Itoa(int(packetsOut)), 7), "white", "", false, false)
 		} else if packetsOut/1000/1000 < 1.0 && packetsOut/1000 >= 1.0 {
-			rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(packetsOut)/1000)))+strconv.Itoa(int(packetsOut)/1000)+"k", "yellow", "", false, false)
+			// rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(packetsOut)/1000)))+strconv.Itoa(int(packetsOut)/1000)+"k", "yellow", "", false, false)
+			rs += Colorize(parseRepeatSpace(strconv.Itoa(int(packetsOut)/1000), 6)+"k", "yellow", "", false, false)
 		}
 
 		errIn := float64(after.Errin - beforeNet.Errin)
 		errOut := float64(after.Errout - beforeNet.Errout)
 
 		if errIn/1000/1000 >= 1.0 {
-			rs += Colorize(strings.Repeat(" ", 6-len(floatToString(errIn/1000/1000, 1)))+floatToString(errIn/1000/1000, 1)+"m", "red", "", false, true)
+			// rs += Colorize(strings.Repeat(" ", 6-len(floatToString(errIn/1000/1000, 1)))+floatToString(errIn/1000/1000, 1)+"m", "red", "", false, true)
+			rs += Colorize(parseRepeatSpace(floatToString(errIn/1000/1000, 1), 6)+"m", "red", "", false, true)
 		} else if errIn/1000 < 1.0 {
-			rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(errIn))))+strconv.Itoa(int(errIn)), "white", "", false, false)
+			// rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(errIn))))+strconv.Itoa(int(errIn)), "white", "", false, false)
+			rs += Colorize(parseRepeatSpace(strconv.Itoa(int(errIn)), 7), "white", "", false, false)
 		} else if errIn/1000/1000 < 1.0 && errIn/1000 >= 1.0 {
-			rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(errIn)/1000)))+strconv.Itoa(int(errIn)/1000)+"k", "yellow", "", false, false)
+			// rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(errIn)/1000)))+strconv.Itoa(int(errIn)/1000)+"k", "yellow", "", false, false)
+			rs += Colorize(parseRepeatSpace(strconv.Itoa(int(errIn)/1000), 6)+"k", "yellow", "", false, false)
 		}
 
 		if errOut/1000/1000 >= 1.0 {
-			rs += Colorize(strings.Repeat(" ", 6-len(floatToString(float64(errOut)/1000/1000, 1)))+floatToString(float64(errOut)/1000/1000, 1)+"m", "red", "", false, true)
+			// rs += Colorize(strings.Repeat(" ", 6-len(floatToString(float64(errOut)/1000/1000, 1)))+floatToString(float64(errOut)/1000/1000, 1)+"m", "red", "", false, true)
+			rs += Colorize(parseRepeatSpace(floatToString(float64(errOut)/1000/1000, 1), 6)+"m", "red", "", false, true)
 		} else if errOut/1000 < 1.0 {
-			rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(errOut))))+strconv.Itoa(int(errOut)), "white", "", false, false)
+			// rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(errOut))))+strconv.Itoa(int(errOut)), "white", "", false, false)
+			rs += Colorize(parseRepeatSpace(strconv.Itoa(int(errOut)), 7), "white", "", false, false)
 		} else if errOut/1000/1000 < 1.0 && errOut/1000 >= 1.0 {
-			rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(errOut)/1000)))+strconv.Itoa(int(errOut)/1000)+"k", "yellow", "", false, false)
+			// rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(errOut)/1000)))+strconv.Itoa(int(errOut)/1000)+"k", "yellow", "", false, false)
+			rs += Colorize(parseRepeatSpace(strconv.Itoa(int(errOut)/1000), 7)+"k", "yellow", "", false, false)
 		}
 
 		dropIn := float64(after.Dropin - beforeNet.Dropin)
 		dropOut := float64(after.Dropout - beforeNet.Dropout)
 
 		if dropIn/1000/1000 >= 1.0 {
-			rs += Colorize(strings.Repeat(" ", 6-len(floatToString(dropIn/1000/1000, 1)))+floatToString(dropIn/1000/1000, 1)+"m", "red", "", false, true)
+			// rs += Colorize(strings.Repeat(" ", 6-len(floatToString(dropIn/1000/1000, 1)))+floatToString(dropIn/1000/1000, 1)+"m", "red", "", false, true)
+			rs += Colorize(parseRepeatSpace(floatToString(dropIn/1000/1000, 1), 6)+"m", "red", "", false, true)
 		} else if dropIn/1000 < 1.0 {
-			rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(dropIn))))+strconv.Itoa(int(dropIn)), "white", "", false, false)
+			// rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(dropIn))))+strconv.Itoa(int(dropIn)), "white", "", false, false)
+			rs += Colorize(parseRepeatSpace(strconv.Itoa(int(dropIn)), 7), "white", "", false, false)
 		} else if dropIn/1000/1000 < 1.0 && dropIn/1000 >= 1.0 {
-			rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(dropIn)/1000)))+strconv.Itoa(int(dropIn)/1000)+"k", "yellow", "", false, false)
+			// rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(dropIn)/1000)))+strconv.Itoa(int(dropIn)/1000)+"k", "yellow", "", false, false)
+			rs += Colorize(parseRepeatSpace(strconv.Itoa(int(dropIn)/1000), 6)+"k", "yellow", "", false, false)
 		}
 
 		if dropOut/1000/1000 >= 1.0 {
-			rs += Colorize(strings.Repeat(" ", 6-len(floatToString(float64(dropOut)/1000/1000, 1)))+floatToString(float64(dropOut)/1000/1000, 1)+"m", "red", "", false, true)
+			// rs += Colorize(strings.Repeat(" ", 6-len(floatToString(float64(dropOut)/1000/1000, 1)))+floatToString(float64(dropOut)/1000/1000, 1)+"m", "red", "", false, true)
+			rs += Colorize(parseRepeatSpace(floatToString(float64(dropOut)/1000/1000, 1), 6)+"m", "red", "", false, true)
 		} else if dropOut/1000 < 1.0 {
-			rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(dropOut))))+strconv.Itoa(int(dropOut)), "white", "", false, false)
+			// rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(dropOut))))+strconv.Itoa(int(dropOut)), "white", "", false, false)
+			rs += Colorize(parseRepeatSpace(strconv.Itoa(int(dropOut)), 7), "white", "", false, false)
 		} else if dropOut/1000/1000 < 1.0 && dropOut/1000 >= 1.0 {
-			rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(dropOut)/1000)))+strconv.Itoa(int(dropOut)/1000)+"k", "yellow", "", false, false)
+			// rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(dropOut)/1000)))+strconv.Itoa(int(dropOut)/1000)+"k", "yellow", "", false, false)
+			rs += Colorize(parseRepeatSpace(strconv.Itoa(int(dropOut)/1000), 6)+"k", "yellow", "", false, false)
 		}
 
 		ffIn := float64(after.Fifoin - beforeNet.Fifoin)
 		ffOut := float64(after.Fifoout - beforeNet.Fifoout)
 
 		if ffIn/1000/1000 >= 1.0 {
-			rs += Colorize(strings.Repeat(" ", 6-len(floatToString(ffIn/1000/1000, 1)))+floatToString(ffIn/1000/1000, 1)+"m", "red", "", false, true)
+			// rs += Colorize(strings.Repeat(" ", 6-len(floatToString(ffIn/1000/1000, 1)))+floatToString(ffIn/1000/1000, 1)+"m", "red", "", false, true)
+			rs += Colorize(parseRepeatSpace(floatToString(ffIn/1000/1000, 1), 6)+"m", "red", "", false, true)
 		} else if ffIn/1000 < 1.0 {
-			rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(ffIn))))+strconv.Itoa(int(ffIn)), "white", "", false, false)
+			// rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(ffIn))))+strconv.Itoa(int(ffIn)), "white", "", false, false)
+			rs += Colorize(parseRepeatSpace(strconv.Itoa(int(ffIn)), 7), "white", "", false, false)
 		} else if ffIn/1000/1000 < 1.0 && ffIn/1000 >= 1.0 {
-			rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(ffIn)/1000)))+strconv.Itoa(int(ffIn)/1000)+"k", "yellow", "", false, false)
+			// rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(ffIn)/1000)))+strconv.Itoa(int(ffIn)/1000)+"k", "yellow", "", false, false)
+			rs += Colorize(parseRepeatSpace(strconv.Itoa(int(ffIn)/1000), 6)+"k", "yellow", "", false, false)
 		}
 
 		if ffOut/1000/1000 >= 1.0 {
-			rs += Colorize(strings.Repeat(" ", 6-len(floatToString(float64(ffOut)/1000/1000, 1)))+floatToString(float64(ffOut)/1000/1000, 1)+"m", "red", "", false, true)
+			// rs += Colorize(strings.Repeat(" ", 6-len(floatToString(float64(ffOut)/1000/1000, 1)))+floatToString(float64(ffOut)/1000/1000, 1)+"m", "red", "", false, true)
+			rs += Colorize(parseRepeatSpace(floatToString(float64(ffOut)/1000/1000, 1), 6)+"m", "red", "", false, true)
 		} else if ffOut/1000 < 1.0 {
-			rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(ffOut))))+strconv.Itoa(int(ffOut)), "white", "", false, false)
+			// rs += Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(ffOut))))+strconv.Itoa(int(ffOut)), "white", "", false, false)
+			rs += Colorize(parseRepeatSpace(strconv.Itoa(int(ffOut)), 7), "white", "", false, false)
 		} else if ffOut/1000/1000 < 1.0 && ffOut/1000 >= 1.0 {
-			rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(ffOut)/1000)))+strconv.Itoa(int(ffOut)/1000)+"k", "yellow", "", false, false)
+			// rs += Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(ffOut)/1000)))+strconv.Itoa(int(ffOut)/1000)+"k", "yellow", "", false, false)
+			rs += Colorize(parseRepeatSpace(strconv.Itoa(int(ffOut)/1000), 6)+"k", "yellow", "", false, false)
 		}
 	}
 

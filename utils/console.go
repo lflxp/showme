@@ -22,6 +22,15 @@ func floatToString(x float64, f int) string {
 	return rs
 }
 
+// lambda for check length of Repeat " "
+func parseRepeatSpace(info string, lens int) string {
+	replace := "oops"
+	if len(info) > lens {
+		info = replace
+	}
+	return strings.Repeat(" ", lens-len(info)) + info
+}
+
 func CollectEasy() []string {
 	rs := []string{}
 	v, _ := mem.VirtualMemory()

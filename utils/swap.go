@@ -3,7 +3,6 @@ package utils
 // swap in mem functions
 import (
 	"fmt"
-	"strings"
 
 	"github.com/shirou/gopsutil/mem"
 )
@@ -45,8 +44,10 @@ func SwapIO() (string, error) {
 	si := after.swap_in - beforeSwap.swap_in
 	so := after.swap_out - beforeSwap.swap_out
 
-	in := strings.Repeat(" ", 5-len(fmt.Sprintf("%d", si))) + fmt.Sprintf("%d", si)
-	out := strings.Repeat(" ", 5-len(fmt.Sprintf("%d", so))) + fmt.Sprintf("%d", so)
+	// in := strings.Repeat(" ", 5-len(fmt.Sprintf("%d", si))) + fmt.Sprintf("%d", si)
+	in := parseRepeatSpace(fmt.Sprintf("%d", si), 5)
+	// out := strings.Repeat(" ", 5-len(fmt.Sprintf("%d", so))) + fmt.Sprintf("%d", so)
+	out := parseRepeatSpace(fmt.Sprintf("%d", so), 5)
 
 	if si > 0 {
 		rs += Colorize(in, "red", "", false, true)
