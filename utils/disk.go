@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/shirou/gopsutil/disk"
 )
@@ -101,57 +100,75 @@ func DiskInfo() (string, error) {
 	// fmt.Println(rs_disk, ws_disk, rkbs_disk, wkbs_disk, queue_disk, await_disk, svctm_disk, util_disk)
 	// fmt.Println(strings.Repeat(" ", 6-len(floatToString(rs_disk, 1))) + floatToString(rs_disk, 1))
 	if 1 != 1 {
-		data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(rs_disk, 1)))+floatToString(rs_disk, 1), "red", "", false, true)
+		// data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(rs_disk, 1)))+floatToString(rs_disk, 1), "red", "", false, true)
+		data_detail += Colorize(parseRepeatSpace(floatToString(rs_disk, 1), 6), "red", "", false, true)
 	} else {
-		data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(rs_disk, 1)))+floatToString(rs_disk, 1), "", "", false, false)
+		// data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(rs_disk, 1)))+floatToString(rs_disk, 1), "", "", false, false)
+		data_detail += Colorize(parseRepeatSpace(floatToString(rs_disk, 1), 6), "", "", false, false)
 	}
 
 	if 1 != 1 {
-		data_detail += Colorize(strings.Repeat(" ", 7-len(floatToString(ws_disk, 1)))+floatToString(ws_disk, 1), "red", "", false, true)
+		// data_detail += Colorize(strings.Repeat(" ", 7-len(floatToString(ws_disk, 1)))+floatToString(ws_disk, 1), "red", "", false, true)
+		data_detail += Colorize(parseRepeatSpace(floatToString(ws_disk, 1), 7), "red", "", false, true)
 	} else {
-		data_detail += Colorize(strings.Repeat(" ", 7-len(floatToString(ws_disk, 1)))+floatToString(ws_disk, 1), "", "", false, false)
+		// data_detail += Colorize(strings.Repeat(" ", 7-len(floatToString(ws_disk, 1)))+floatToString(ws_disk, 1), "", "", false, false)
+		data_detail += Colorize(parseRepeatSpace(floatToString(ws_disk, 1), 7), "", "", false, false)
 	}
 
 	if rkbs_disk/1024/1024 >= 1.0 {
-		data_detail += Colorize(strings.Repeat(" ", 7-len(floatToString(rkbs_disk/1024/1024, 1)))+floatToString(rkbs_disk/1024/1024, 1)+"M", "red", "", false, true)
+		// data_detail += Colorize(strings.Repeat(" ", 7-len(floatToString(rkbs_disk/1024/1024, 1)))+floatToString(rkbs_disk/1024/1024, 1)+"M", "red", "", false, true)
+		data_detail += Colorize(parseRepeatSpace(floatToString(rkbs_disk/1024/1024, 1), 7)+"M", "red", "", false, true)
 	} else if rkbs_disk/1024 < 1.0 {
-		data_detail += Colorize(strings.Repeat(" ", 8-len(floatToString(rkbs_disk, 1)))+floatToString(rkbs_disk, 1), "", "", false, false)
+		// data_detail += Colorize(strings.Repeat(" ", 8-len(floatToString(rkbs_disk, 1)))+floatToString(rkbs_disk, 1), "", "", false, false)
+		data_detail += Colorize(parseRepeatSpace(floatToString(rkbs_disk, 1), 8), "", "", false, false)
 	} else if rkbs_disk/1024/1024 < 1.0 && rkbs_disk/1024 > 1.0 {
-		data_detail += Colorize(strings.Repeat(" ", 7-len(floatToString(rkbs_disk/1024, 1)))+floatToString(rkbs_disk/1024, 1)+"K", "", "", false, false)
+		// data_detail += Colorize(strings.Repeat(" ", 7-len(floatToString(rkbs_disk/1024, 1)))+floatToString(rkbs_disk/1024, 1)+"K", "", "", false, false)
+		data_detail += Colorize(parseRepeatSpace(floatToString(rkbs_disk/1024, 1), 7)+"K", "", "", false, false)
 	}
 
 	if wkbs_disk/1024/1024 > 1.0 {
-		data_detail += Colorize(strings.Repeat(" ", 7-len(floatToString(wkbs_disk/1024/1024, 1)))+floatToString(wkbs_disk/1024/1024, 1)+"M", "red", "", false, true)
+		// data_detail += Colorize(strings.Repeat(" ", 7-len(floatToString(wkbs_disk/1024/1024, 1)))+floatToString(wkbs_disk/1024/1024, 1)+"M", "red", "", false, true)
+		data_detail += Colorize(parseRepeatSpace(floatToString(wkbs_disk/1024/1024, 1), 7)+"M", "red", "", false, true)
 	} else if wkbs_disk/1024 < 1.0 {
-		data_detail += Colorize(strings.Repeat(" ", 8-len(floatToString(wkbs_disk, 1)))+floatToString(wkbs_disk, 1), "", "", false, false)
+		// data_detail += Colorize(strings.Repeat(" ", 8-len(floatToString(wkbs_disk, 1)))+floatToString(wkbs_disk, 1), "", "", false, false)
+		data_detail += Colorize(parseRepeatSpace(floatToString(wkbs_disk, 1), 8), "", "", false, false)
 	} else {
-		data_detail += Colorize(strings.Repeat(" ", 7-len(floatToString(wkbs_disk/1024, 1)))+floatToString(wkbs_disk/1024, 1)+"K", "", "", false, false)
+		// data_detail += Colorize(strings.Repeat(" ", 7-len(floatToString(wkbs_disk/1024, 1)))+floatToString(wkbs_disk/1024, 1)+"K", "", "", false, false)
+		data_detail += Colorize(parseRepeatSpace(floatToString(wkbs_disk/1024, 1), 7)+"K", "", "", false, false)
 	}
 
 	if after.IopsInProgress > 10 {
-		data_detail += Colorize(strings.Repeat(" ", 4-len(queue_disk))+queue_disk+".0 ", "red", "", false, true)
+		// data_detail += Colorize(strings.Repeat(" ", 4-len(queue_disk))+queue_disk+".0 ", "red", "", false, true)
+		data_detail += Colorize(parseRepeatSpace(queue_disk, 4)+".0 ", "red", "", false, true)
 	} else {
-		data_detail += Colorize(strings.Repeat(" ", 4-len(queue_disk))+queue_disk+".0 ", "", "", false, false)
+		// data_detail += Colorize(strings.Repeat(" ", 4-len(queue_disk))+queue_disk+".0 ", "", "", false, false)
+		data_detail += Colorize(parseRepeatSpace(queue_disk, 4)+".0 ", "", "", false, false)
 	}
 
 	if await_disk > 5.0 {
-		data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(await_disk, 1)))+floatToString(await_disk, 1), "red", "", false, true)
+		// data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(await_disk, 1)))+floatToString(await_disk, 1), "red", "", false, true)
+		data_detail += Colorize(parseRepeatSpace(floatToString(await_disk, 1), 6), "red", "", false, true)
 	} else {
-		data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(await_disk, 1)))+floatToString(await_disk, 1), "green", "", false, false)
+		// data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(await_disk, 1)))+floatToString(await_disk, 1), "green", "", false, false)
+		data_detail += Colorize(parseRepeatSpace(floatToString(await_disk, 1), 6), "green", "", false, false)
 	}
 
 	if svctm_disk > 5.0 {
-		data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(svctm_disk, 1)))+floatToString(svctm_disk, 1), "red", "", false, true)
+		// data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(svctm_disk, 1)))+floatToString(svctm_disk, 1), "red", "", false, true)
+		data_detail += Colorize(parseRepeatSpace(floatToString(svctm_disk, 1), 6), "red", "", false, true)
 	} else {
-		data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(svctm_disk, 1)))+floatToString(svctm_disk, 1), "", "", false, false)
+		// data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(svctm_disk, 1)))+floatToString(svctm_disk, 1), "", "", false, false)
+		data_detail += Colorize(parseRepeatSpace(floatToString(svctm_disk, 1), 6), "", "", false, false)
 	}
 
 	if util_disk > 80.0 {
-		data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(util_disk, 1)))+floatToString(util_disk, 1), "red", "", false, true)
+		// data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(util_disk, 1)))+floatToString(util_disk, 1), "red", "", false, true)
+		data_detail += Colorize(parseRepeatSpace(floatToString(util_disk, 1), 6), "red", "", false, true)
 	} else if util_disk > 100.0 {
 		data_detail += Colorize(" 100.0", "green", "", false, false)
 	} else {
-		data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(util_disk, 1)))+floatToString(util_disk, 1), "green", "", false, false)
+		// data_detail += Colorize(strings.Repeat(" ", 6-len(floatToString(util_disk, 1)))+floatToString(util_disk, 1), "green", "", false, false)
+		data_detail += Colorize(parseRepeatSpace(floatToString(util_disk, 1), 6), "green", "", false, false)
 	}
 
 	data_detail += Colorize("|", "dgreen", "", false, false)

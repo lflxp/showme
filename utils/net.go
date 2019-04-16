@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/c-bata/go-prompt"
 	net1 "github.com/shirou/gopsutil/net"
 )
 
@@ -34,6 +35,29 @@ func GetIps() []string {
 		}
 	}
 	return rs
+}
+
+func GetCurrentInterfaceCommands() ([]prompt.Suggest, error) {
+	var rs []prompt.Suggest
+	data, err := net1.Interfaces()
+	if err != nil {
+		return rs, err
+	}
+
+	if len(data) > 0 {
+		rs = []prompt.Suggest{}
+		for _, x := range data {
+			ips := []string{}
+			for _, y := range x.Addrs {
+				ips = append(ips, y.Addr)
+			}
+			rs = append(rs, prompt.Suggest{
+				Text:        x.Name,
+				Description: fmt.Sprintf("%s %s", strings.Join(ips, ","), x.HardwareAddr),
+			})
+		}
+	}
+	return rs, nil
 }
 
 type MonitorNet struct {

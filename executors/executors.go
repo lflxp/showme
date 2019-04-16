@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/lflxp/showme/completers"
 	"github.com/lflxp/showme/executors/dashboard"
+	"github.com/lflxp/showme/executors/gopacket"
 	"github.com/lflxp/showme/executors/helloworld"
 	"github.com/lflxp/showme/executors/layout"
 	"github.com/lflxp/showme/executors/monitor"
-	"github.com/lflxp/showme/suggests"
 	"github.com/lflxp/showme/utils"
 )
 
@@ -47,7 +48,19 @@ func ParseExecutors(in string) (func(), bool) {
 		status = true
 	} else if in == "help" {
 		result = func() {
-			suggests.Help()
+			completers.Help()
+		}
+		status = true
+	} else if strings.Contains(in, "gopacket") {
+		if strings.Contains(in, "gopacket in") {
+			result = func() {
+				gopacket.Run(in)
+			}
+		}
+		if strings.Contains(in, "gopacket screen") {
+			result = func() {
+				gopacket.Gopacket(in)
+			}
 		}
 		status = true
 	} else {
