@@ -8,6 +8,7 @@ import (
 	"github.com/lflxp/showme/executors/helloworld"
 	"github.com/lflxp/showme/executors/layout"
 	"github.com/lflxp/showme/executors/monitor"
+	"github.com/lflxp/showme/suggests"
 	"github.com/lflxp/showme/utils"
 )
 
@@ -42,6 +43,11 @@ func ParseExecutors(in string) (func(), bool) {
 	} else if strings.Contains(in, "monitor") {
 		result = func() {
 			monitor.Run(in)
+		}
+		status = true
+	} else if in == "help" {
+		result = func() {
+			suggests.Help()
 		}
 		status = true
 	} else {

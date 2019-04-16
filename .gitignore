@@ -1,6 +1,7 @@
 # project
 *.swp
 showme
+showme.*
 *.db
 *.log
 
