@@ -60,7 +60,7 @@ func ParseExecutors(in string) (func(), bool) {
 		if strings.Contains(in, "gopacket screen") {
 			result = func() {
 				// gopacket.Gopacket(in)
-				gopacket.Screen()
+				gopacket.Screen(strings.Split(in, " ")[2])
 			}
 		}
 		status = true

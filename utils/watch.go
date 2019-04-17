@@ -264,3 +264,125 @@ func WatchDog(datainfo chan interface{}, name string) {
 		// fmt.Println()
 	}
 }
+
+func WatchDogData(limit int, name string) []*Data {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in f", r)
+		}
+	}()
+	handle, err := NewDevice(name)
+	if err != nil {
+		fmt.Println("w eerr", err.Error())
+	}
+	defer handle.Handle.Close()
+
+	num := 0
+	rs := []*Data{}
+
+	// Use the handle as a packet source to process all packets
+	packetSource := gopacket.NewPacketSource(handle.Handle, handle.Handle.LinkType())
+	for p := range packetSource.Packets() {
+		if num > limit {
+			break
+			return rs
+		}
+		info := &Data{}
+
+		eth := p.Layer(layers.LayerTypeEthernet)
+		if eth != nil {
+			ethernetPacket, _ := eth.(*layers.Ethernet)
+			info.SrcMac = ethernetPacket.SrcMAC.String()
+			info.DstMac = ethernetPacket.DstMAC.String()
+		}
+
+		// // Let's see if the packet is IP ∂(even though the ether type told us)
+		ipLayer := p.Layer(layers.LayerTypeIPv4)
+		if ipLayer != nil {
+			// fmt.Println("IPv4 layer detected.")
+			ip, _ := ipLayer.(*layers.IPv4)
+
+			info.SrcIp = ip.SrcIP.String()
+			info.DstIp = ip.DstIP.String()
+			info.Protocol = ip.Protocol.String()
+		}
+
+		tcpLayer := p.Layer(layers.LayerTypeTCP)
+		if tcpLayer != nil {
+			tcp, _ := tcpLayer.(*layers.TCP)
+
+			info.SrcPort = tcp.SrcPort.String()
+			info.DstPort = tcp.DstPort.String()
+		}
+
+		// Let's see if the packet is TCP
+		udpLayer := p.Layer(layers.LayerTypeUDP)
+		if udpLayer != nil {
+			// fmt.Println("UDP layer detected.")
+			udp, _ := udpLayer.(*layers.UDP)
+
+			info.SrcPort = udp.SrcPort.String()
+			info.DstPort = udp.DstPort.String()
+		}
+		// sflowlayer := p.Layer(layers.LayerTypeSFlow)
+		// if sflowlayer != nil {
+		// 	fmt.Println("SFLOW layer detected")
+		// }
+
+		// When iterating through packet.Layers() above,
+		// if it lists Payload layer then that is the same as
+		// this applicationLayer. applicationLayer contains the payload
+		applicationLayer := p.ApplicationLayer()
+		if applicationLayer != nil {
+			// fmt.Println("Application layer/Payload found.")
+			// fmt.Printf("%d %s\n", len(applicationLayer.Payload()), applicationLayer.Payload())
+			// Search for a string inside the payload
+			if strings.Contains(string(applicationLayer.Payload()), "HTTP") {
+				// fmt.Println("HTTP found!")
+				// fmt.Println(applicationLayer.LayerType().String())
+				// fmt.Println(p.Dump())
+				decoder := http.Decoder{}
+				decoder.SetFilter("")
+				decoder.Buf = bufio.NewReader(bytes.NewReader(applicationLayer.Payload()))
+				_data, err := decoder.DecodeHttp()
+				if err != nil {
+					fmt.Println(err)
+				}
+
+				// req := _data.(*http.HttpReq)
+				// if req != nil {
+				// 	fmt.Println("Request", req)
+				// }
+
+				// resp := _data.(*http.HttpResp)
+				// if resp != nil {
+				// 	fmt.Println("Response", resp)
+				// }
+				info.Time = time.Now().Format("2006-01-02 15:04:05")
+				switch _data.(type) {
+				case *http.HttpReq:
+					// fmt.Println("Request", _data.(*http.HttpReq), string(_data.(*http.HttpReq).RawBody()))
+					tmp := _data.(*http.HttpReq)
+					info.Type = "request"
+					info.Method = tmp.Method
+					info.Url = tmp.Url
+					info.Version = tmp.Version
+					info.Headers = tmp.Headers
+					info.Response = string(tmp.RawBody())
+				case *http.HttpResp:
+					// fmt.Println("Response", _data.(*http.HttpResp), string(_data.(*http.HttpResp).RawBody()))
+					tmp := _data.(*http.HttpResp)
+					info.Type = "response"
+					info.Version = tmp.Version
+					info.StatusCode = tmp.StatusCode
+					info.StatusMsg = tmp.StatusMsg
+					info.Headers = tmp.Headers
+					info.Response = string(tmp.RawBody())
+				}
+			}
+		}
+		num++
+		rs = append(rs, info)
+	}
+	return rs
+}
