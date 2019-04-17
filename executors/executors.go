@@ -59,7 +59,8 @@ func ParseExecutors(in string) (func(), bool) {
 		}
 		if strings.Contains(in, "gopacket screen") {
 			result = func() {
-				gopacket.Gopacket(in)
+				// gopacket.Gopacket(in)
+				gopacket.Screen()
 			}
 		}
 		status = true
