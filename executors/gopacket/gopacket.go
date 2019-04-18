@@ -57,7 +57,8 @@ func Run(in string) {
 	bigChan := make(chan interface{}, 1000)
 	defer close(bigChan)
 
-	go utils.WatchDog(bigChan, tmp[2])
+	// go utils.WatchDog(bigChan, tmp[2])
+	go utils.WatchDogString(bigChan, tmp[2])
 
 	num := 0
 	for {
@@ -80,6 +81,8 @@ func Run(in string) {
 					fmt.Println(err.Error())
 				}
 				fmt.Println(string(json))
+			case string:
+				fmt.Println(data.(string))
 			}
 		}
 

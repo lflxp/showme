@@ -78,10 +78,33 @@ func WatchDogEasy(name string) {
 	}
 }
 
+func WatchDogString(datainfo chan interface{}, name string) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Safe quit WatchDogString")
+		}
+	}()
+	// fmt.Println("watchDog", name)
+	handle, err := NewDevice(name)
+	if err != nil {
+		fmt.Println("w eerr", err.Error())
+	}
+	defer handle.Handle.Close()
+
+	// Use the handle as a packet source to process all packets
+	packetSource := gopacket.NewPacketSource(handle.Handle, handle.Handle.LinkType())
+	for p := range packetSource.Packets() {
+		// Process packet here
+		// fmt.Println(p)
+		// fmt.Println(p.String())
+		datainfo <- p.String()
+	}
+}
+
 func WatchDog(datainfo chan interface{}, name string) {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("Recovered in f", r)
+			fmt.Println("Safe quit WatchDog", r)
 		}
 	}()
 	// fmt.Println("watchDog", name)
