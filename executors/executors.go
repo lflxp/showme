@@ -10,6 +10,7 @@ import (
 	"github.com/lflxp/showme/executors/helloworld"
 	"github.com/lflxp/showme/executors/layout"
 	"github.com/lflxp/showme/executors/monitor"
+	"github.com/lflxp/showme/executors/scan"
 	"github.com/lflxp/showme/utils"
 )
 
@@ -62,6 +63,11 @@ func ParseExecutors(in string) (func(), bool) {
 				// gopacket.Gopacket(in)
 				gopacket.Screen(strings.Split(in, " ")[2])
 			}
+		}
+		status = true
+	} else if strings.Contains(in, "scan") {
+		result = func() {
+			scan.Scan(in)
 		}
 		status = true
 	} else {

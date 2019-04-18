@@ -220,7 +220,7 @@ func layout(g *gocui.Gui) error {
 		fmt.Fprintln(v, utils.Colorize("Enter  -> get current line info into input", "green", "", false, true))
 		fmt.Fprintln(v, utils.Colorize("CtrlS  -> Save Side View", "green", "", false, true))
 		fmt.Fprintln(v, utils.Colorize("CtrlW  -> Save Visual Side View", "green", "", false, true))
-		v.Editable = true
+		// v.Editable = true
 		v.Frame = true
 		v.Wrap = true
 		v.SelFgColor = gocui.ColorGreen
@@ -235,6 +235,14 @@ func layout(g *gocui.Gui) error {
 		v.Wrap = true
 		v.SelFgColor = gocui.ColorGreen
 		fmt.Fprintln(v, "Waiting for Tabs it!")
+		list, err := utils.ParseIps("10.1.1.1-200")
+		if err != nil {
+			fmt.Fprintln(v, err.Error())
+		} else {
+			for _, x := range list {
+				fmt.Fprintln(v, x)
+			}
+		}
 	}
 	if v, err := g.SetView("side", -1, maxY/3, maxX, maxY); err != nil {
 		if err != gocui.ErrUnknownView {
@@ -267,7 +275,13 @@ func GetPacketOrigin(w io.Writer, width int) {
 	num := 0
 	for {
 		select {
-		case s := <-bigChan:
+		case s, ok := <-bigChan:
+			if !ok {
+				return
+			}
+			if num > 10000 {
+				return
+			}
 			num++
 
 			tableNow := table.NewTable(width)
