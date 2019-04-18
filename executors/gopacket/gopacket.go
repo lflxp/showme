@@ -55,7 +55,7 @@ func Run(in string) {
 	signal.Notify(c, os.Interrupt, os.Kill)
 
 	bigChan := make(chan interface{}, 1000)
-	// defer close(bigChan)
+	defer close(bigChan)
 
 	go utils.WatchDog(bigChan, tmp[2])
 
@@ -66,8 +66,8 @@ func Run(in string) {
 		case s := <-c:
 			fmt.Printf("\n\033[1;4;31m%s:罒灬罒:小伙子走了哟！\033[0m\n", s)
 			ok = false
-			close(bigChan)
 			break
+			goto QUIT
 		case data, ok := <-bigChan:
 			if !ok {
 				fmt.Println("is ok?")
@@ -86,6 +86,11 @@ func Run(in string) {
 		if !ok {
 			break
 		}
+		if num > 20000 {
+			goto QUIT
+		}
 		fmt.Println("num", num)
 	}
+QUIT:
+	return
 }

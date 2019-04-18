@@ -16,6 +16,8 @@ go run main.go
 - monitor args...
 - dashboard args...
 - gocui active
+- gopacket args...
+
 ![command.png](https://github.com/lflxp/showme/blob/master/command.png)
 
 2. monitor 监控展示
@@ -41,6 +43,7 @@ go run main.go
 4. 本地性能、监控、操作
 5. 快速定位
 6. command visio
+7. 网络监听（原始报文解析和展示）
 
 # functions
 

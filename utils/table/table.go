@@ -65,7 +65,8 @@ func (this *Table) CalColumnWidths() error {
 // 顺序添加列名
 func (this *Table) AddCol(title string) *Col {
 	t := &Col{Data: title}
-	this.Rows = append(this.Rows, []*Col{t})
+	this.Header = append(this.Header, t)
+	this.Rows = append(this.Rows, []*Col{})
 	return t
 }
 
@@ -76,13 +77,82 @@ func (this *Table) AddRow(row int, Data *Col) {
 	this.Rows[row] = tmp
 }
 
+// 顺序增加第row行的数据 指定index
+func (this *Table) AddRowByIndex(row int, Data *Col) {
+	tmp := this.Rows[row]
+	tmp[0] = Data
+	this.Rows[row] = tmp
+}
+
+func (this Table) FprintHeader(w io.Writer) {
+	width := this.width / len(this.Header)
+	for i := 0; i < len(this.Header); i++ {
+		tmp := this.Header[i]
+		var s string
+		switch tmp.TextAlign {
+		case TextLeft:
+			s = AlignLeft(tmp.Data, width)
+		case TextRight:
+			s = AlignRight(tmp.Data, width)
+		case TextCenter:
+			s = AlignCenter(tmp.Data, width)
+		}
+		fmt.Fprintf(w, utils.Colorize(s, tmp.Color, tmp.BgColor, false, true))
+	}
+	fmt.Fprintln(w, "")
+}
+
 // 打印内容
+// 正序其实打印数据只有一个
 func (this *Table) Fprint(w io.Writer) {
 	// 字段个数
 	colNum := len(this.Rows)
 	count := len(this.Rows[0])
 	// 行列转换
+	// 倒序打印
 	for cc := 0; cc < count; cc++ {
+		for col := 0; col < colNum; col++ {
+			tmp := this.Rows[col][cc]
+			var s string
+			switch tmp.TextAlign {
+			case TextLeft:
+				s = AlignLeft(tmp.Data, this.ColumnWidths[col])
+			case TextRight:
+				s = AlignRight(tmp.Data, this.ColumnWidths[col])
+			case TextCenter:
+				s = AlignCenter(tmp.Data, this.ColumnWidths[col])
+			}
+			fmt.Fprintf(w, utils.Colorize(s, tmp.Color, tmp.BgColor, false, true))
+		}
+		fmt.Fprintln(w, "")
+	}
+	// for rlength, r := range this.Rows {
+	// 	for _, col := range r {
+	// 		// fmt.Fprintln(w, fmt.Sprintf("%s %d %d", col.Data, this.ColumnWidths[n], n))
+	// 		var s string
+	// 		switch col.TextAlign {
+	// 		case TextLeft:
+	// 			s = AlignLeft(col.Data, this.ColumnWidths[rlength])
+	// 		case TextRight:
+	// 			s = AlignRight(col.Data, this.ColumnWidths[rlength])
+	// 		case TextCenter:
+	// 			s = AlignCenter(col.Data, this.ColumnWidths[rlength])
+	// 		}
+	// 		fmt.Fprintf(w, s)
+	// 	}
+	// 	fmt.Fprintln(w, "\n")
+	// }
+}
+
+// 打印内容
+// 倒序必须是全量数据
+func (this *Table) FprintOrderDesc(w io.Writer) {
+	// 字段个数
+	colNum := len(this.Rows)
+	count := len(this.Rows[0])
+	// 行列转换
+	// 倒序打印
+	for cc := count - 1; cc >= 0; cc-- {
 		for col := 0; col < colNum; col++ {
 			tmp := this.Rows[col][cc]
 			var s string

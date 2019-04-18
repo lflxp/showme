@@ -62,7 +62,7 @@ func NewDevice(deviceName string) (*Device, error) {
 }
 
 func WatchDogEasy(name string) {
-	fmt.Println("watchDog", name)
+	// fmt.Println("watchDog", name)
 	handle, err := NewDevice(name)
 	if err != nil {
 		fmt.Println("w eerr", err.Error())
@@ -84,13 +84,12 @@ func WatchDog(datainfo chan interface{}, name string) {
 			fmt.Println("Recovered in f", r)
 		}
 	}()
-	fmt.Println("watchDog", name)
+	// fmt.Println("watchDog", name)
 	handle, err := NewDevice(name)
 	if err != nil {
 		fmt.Println("w eerr", err.Error())
 	}
 	defer handle.Handle.Close()
-
 	// Use the handle as a packet source to process all packets
 	packetSource := gopacket.NewPacketSource(handle.Handle, handle.Handle.LinkType())
 	for p := range packetSource.Packets() {
