@@ -249,6 +249,7 @@ func layout(g *gocui.Gui) error {
 			return err
 		}
 		v.Highlight = true
+		v.Autoscroll = true
 		v.SelBgColor = gocui.ColorGreen
 		v.SelFgColor = gocui.ColorBlack
 		// fmt.Fprintln(v, "Item 1")

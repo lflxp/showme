@@ -62,7 +62,7 @@ func dlayout(g *gocui.Gui) error {
 		}
 		v.Title = "IP列表"
 		v.Wrap = true
-		v.Autoscroll = true
+		v.Autoscroll = false
 		v.Editable = true
 
 		data, err := utils.ParseIps(ips)
