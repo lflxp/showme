@@ -92,11 +92,14 @@ func dlayout(g *gocui.Gui) error {
 		data, err := utils.ParseIps(ips)
 		if err != nil {
 			fmt.Fprintln(v, err.Error())
-		} else {
-			for _, x := range data {
-				fmt.Fprintln(v, x)
-			}
 		}
+		// else {
+		// 	for _, x := range data {
+		// 		fmt.Fprintln(v, x)
+		// 	}
+		// }
+
+		utils.Pings2(data, v)
 
 		if _, err = setCurrentViewOnTop(g, "top"); err != nil {
 			return err

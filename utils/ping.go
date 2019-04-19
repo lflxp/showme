@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"strconv"
 	"strings"
@@ -78,6 +79,38 @@ func ParseIps(in string) ([]string, error) {
 		rs = append(rs, in)
 	}
 	return rs, nil
+}
+
+func Pings2(ips []string, w io.Writer) error {
+	p := fastping.NewPinger()
+
+	for _, x := range ips {
+		ra, err := net.ResolveIPAddr("ip4:icmp", x)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		p.AddIPAddr(ra)
+	}
+
+	p.OnRecv = func(addr *net.IPAddr, rtt time.Duration) {
+		// fmt.Printf("IP Addr: %s receive, RTT: %v\n", addr.String(), rtt)
+		// tmp := PingResult{
+		// 	Ip:  addr.String(),
+		// 	Rtt: fmt.Sprintf("%v", rtt),
+		// }
+		// rs <- tmp
+		fmt.Fprintln(w, fmt.Sprintf("IP Addr: %s receive, RTT: %v\n", addr.String(), rtt))
+	}
+	// p.OnIdle = func() {
+	// 	fmt.Println("finish")
+	// }
+	err := p.Run()
+	if err != nil {
+		return err
+	}
+	defer p.Stop()
+	return nil
 }
 
 // 通过chan获取ip
