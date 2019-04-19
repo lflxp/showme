@@ -56,7 +56,7 @@ func dlayout(g *gocui.Gui) error {
 	// }
 
 	// log.Println(data)
-	if v, err := g.SetView("help", 0, 0, maxX-1, maxY-1); err != nil {
+	if v, err := g.SetView("help", 0, 0, 11, maxY-1); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
@@ -75,6 +75,54 @@ func dlayout(g *gocui.Gui) error {
 		}
 
 		if _, err = setCurrentViewOnTop(g, "help"); err != nil {
+			return err
+		}
+		// fmt.Fprintf(v, time.Now().Format("2006-01-02 15:04:05"))
+		// fmt.Fprintln(v, fmt.Sprintf("Total: %v, Free:%v, UsedPercent:%f%%\n", m.Total, m.Free, m.UsedPercent))
+	}
+	if v, err := g.SetView("top", 11, 0, maxX, maxY/2); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		v.Title = "top"
+		v.Wrap = true
+		v.Autoscroll = false
+		v.Editable = true
+
+		data, err := utils.ParseIps(ips)
+		if err != nil {
+			fmt.Fprintln(v, err.Error())
+		} else {
+			for _, x := range data {
+				fmt.Fprintln(v, x)
+			}
+		}
+
+		if _, err = setCurrentViewOnTop(g, "top"); err != nil {
+			return err
+		}
+		// fmt.Fprintf(v, time.Now().Format("2006-01-02 15:04:05"))
+		// fmt.Fprintln(v, fmt.Sprintf("Total: %v, Free:%v, UsedPercent:%f%%\n", m.Total, m.Free, m.UsedPercent))
+	}
+	if v, err := g.SetView("bottom", 11, maxY/2, maxX-1, maxY-1); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		v.Title = "bottom"
+		v.Wrap = true
+		v.Autoscroll = false
+		v.Editable = true
+
+		data, err := utils.ParseIps(ips)
+		if err != nil {
+			fmt.Fprintln(v, err.Error())
+		} else {
+			for _, x := range data {
+				fmt.Fprintln(v, x)
+			}
+		}
+
+		if _, err = setCurrentViewOnTop(g, "bottom"); err != nil {
 			return err
 		}
 		// fmt.Fprintf(v, time.Now().Format("2006-01-02 15:04:05"))
