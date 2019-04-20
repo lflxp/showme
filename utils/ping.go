@@ -3,7 +3,6 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"io"
 	"net"
 	"strconv"
 	"strings"
@@ -81,7 +80,7 @@ func ParseIps(in string) ([]string, error) {
 	return rs, nil
 }
 
-func Pings2(ips []string, w io.Writer) error {
+func Pings2(ips []string, stop chan string) error {
 	p := fastping.NewPinger()
 
 	for _, x := range ips {
@@ -100,14 +99,47 @@ func Pings2(ips []string, w io.Writer) error {
 		// 	Rtt: fmt.Sprintf("%v", rtt),
 		// }
 		// rs <- tmp
-		fmt.Fprintln(w, fmt.Sprintf("IP Addr: %s receive, RTT: %v\n", addr.String(), rtt))
+		// fmt.Fprintln(w, fmt.Sprintf("IP Addr: %s receive, RTT: %v\n", addr.String(), rtt))
+		stop <- fmt.Sprintf("IP Addr: %s receive, RTT: %v\n", addr.String(), rtt)
 	}
 	// p.OnIdle = func() {
 	// 	fmt.Println("finish")
 	// }
 	err := p.Run()
 	if err != nil {
-		return err
+		// return err
+		stop <- err.Error()
+	}
+	defer p.Stop()
+	return nil
+}
+
+func Pings3(ips []string, stop chan string) error {
+	p := fastping.NewPinger()
+
+	for _, x := range ips {
+		ra, err := net.ResolveIPAddr("ip4:icmp", x)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		p.AddIPAddr(ra)
+	}
+
+	p.OnRecv = func(addr *net.IPAddr, rtt time.Duration) {
+		for i := 0; i <= 3306; i++ {
+			if ScanPort(addr.String(), string(i)) {
+				stop <- fmt.Sprintf("IP Addr:port %s:%d  receive, RTT: %v\n", addr.String(), i, rtt)
+			}
+		}
+	}
+	// p.OnIdle = func() {
+	// 	fmt.Println("finish")
+	// }
+	err := p.Run()
+	if err != nil {
+		// return err
+		stop <- err.Error()
 	}
 	defer p.Stop()
 	return nil
