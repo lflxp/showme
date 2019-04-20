@@ -8,9 +8,11 @@ import (
 
 	"github.com/jroimartin/gocui"
 	"github.com/lflxp/showme/utils"
+	"github.com/lflxp/showme/utils/table"
 )
 
 var ips string
+var selectId string
 
 func Scan(in string) {
 	ips = strings.Split(in, " ")[1]
@@ -50,15 +52,37 @@ func keybindings(g *gocui.Gui) error {
 	if err := g.SetKeybinding("bottom", gocui.KeyTab, gocui.ModNone, nextView); err != nil {
 		return err
 	}
-	if err := g.SetKeybinding("help", gocui.KeyArrowDown, gocui.ModNone, cursorDown); err != nil {
+	if err := g.SetKeybinding("top", gocui.KeyArrowDown, gocui.ModNone, cursorDown); err != nil {
 		return err
 	}
-	if err := g.SetKeybinding("help", gocui.KeyArrowUp, gocui.ModNone, cursorUp); err != nil {
+	if err := g.SetKeybinding("top", gocui.KeyArrowUp, gocui.ModNone, cursorUp); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("top", gocui.KeyEnter, gocui.ModNone, getLine); err != nil {
 		return err
 	}
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, dquit); err != nil {
 		return err
 	}
+	if err := g.SetKeybinding("msg", gocui.KeyEnter, gocui.ModNone, delMsg); err != nil {
+		return err
+	}
+	return nil
+}
+
+func delMsg(g *gocui.Gui, v *gocui.View) error {
+	if err := g.DeleteView("msg"); err != nil {
+		return err
+	}
+	if v, err := g.SetCurrentView("bottom"); err != nil {
+		return err
+	} else {
+		v.Highlight = true
+		v.Autoscroll = true
+
+		fmt.Fprintln(v, selectId)
+	}
+
 	return nil
 }
 
@@ -115,7 +139,33 @@ func setCurrentViewOnTop(g *gocui.Gui, name string) (*gocui.View, error) {
 	return g.SetViewOnTop(name)
 }
 
-func ScanIp(w io.Writer) {
+func getLine(g *gocui.Gui, v *gocui.View) error {
+	var l string
+	var err error
+
+	_, cy := v.Cursor()
+	if l, err = v.Line(cy); err != nil {
+		l = ""
+	}
+
+	maxX, maxY := g.Size()
+	if v, err := g.SetView("msg", maxX/2-30, maxY/2, maxX/2+30, maxY/2+2); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+
+		v.Editable = true
+		// fmt.Fprintln(v, strings.Trim(l, " "))
+		fmt.Fprintln(v, l)
+		selectId = strings.Trim(l, " ")
+		if _, err := g.SetCurrentView("msg"); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func ScanIp(w io.Writer, width int) {
 	stop := make(chan string)
 	defer close(stop)
 
@@ -125,13 +175,45 @@ func ScanIp(w io.Writer) {
 	}
 	go utils.Pings2(data, stop)
 
+	num := 0
 	for {
 		select {
 		case s, ok := <-stop:
+			num++
 			if !ok {
 				break
 			}
-			fmt.Fprintln(w, s)
+			tableNow := table.NewTable(width)
+
+			tableNow.AddCol("ID").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+			tableNow.AddCol("IPAddress").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+			tableNow.AddCol("RTT").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+			tableNow.CalColumnWidths()
+			if num%50 == 0 || num == 1 {
+				tableNow.FprintHeader(w)
+			}
+
+			tmp := strings.Split(s, ":")
+			id := table.NewCol()
+			id.Data = fmt.Sprintf("%d", num)
+			id.TextAlign = table.TextCenter
+			id.Color = "yellow"
+			tableNow.AddRow(0, id)
+
+			ip := table.NewCol()
+			ip.Data = tmp[0]
+			ip.TextAlign = table.TextCenter
+			ip.Color = "green"
+			tableNow.AddRow(1, ip)
+
+			rt := table.NewCol()
+			rt.Data = strings.Trim(tmp[1], "\n")
+			rt.TextAlign = table.TextCenter
+			rt.Color = "red"
+			tableNow.AddRow(2, rt)
+
+			// fmt.Fprintln(w, s)
+			tableNow.Fprint(w)
 		}
 	}
 }
@@ -150,6 +232,7 @@ func ScanIpPorts(w io.Writer) {
 		select {
 		case s, ok := <-stop:
 			if !ok {
+				fmt.Println("scanipport error")
 				break
 			}
 			fmt.Fprintln(w, s)
@@ -198,10 +281,13 @@ func dlayout(g *gocui.Gui) error {
 		}
 		v.Title = "top"
 		v.Wrap = true
-		v.Autoscroll = false
-		v.Editable = true
+		v.Highlight = true
+		v.Autoscroll = true
+		v.SelBgColor = gocui.ColorGreen
+		v.SelFgColor = gocui.ColorBlack
+		// v.Editable = true
 		// fmt.Fprintf(v, time.Now().Format("2006-01-02 15:04:05"))
-		go ScanIp(v)
+		go ScanIp(v, maxX-18)
 		if _, err = setCurrentViewOnTop(g, "top"); err != nil {
 			return err
 		}

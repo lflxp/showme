@@ -100,7 +100,8 @@ func Pings2(ips []string, stop chan string) error {
 		// }
 		// rs <- tmp
 		// fmt.Fprintln(w, fmt.Sprintf("IP Addr: %s receive, RTT: %v\n", addr.String(), rtt))
-		stop <- fmt.Sprintf("IP Addr: %s receive, RTT: %v\n", addr.String(), rtt)
+		// stop <- fmt.Sprintf("IP Addr: %s receive, RTT: %v\n", addr.String(), rtt)
+		stop <- fmt.Sprintf("%s:%v", addr.String(), rtt)
 	}
 	// p.OnIdle = func() {
 	// 	fmt.Println("finish")
