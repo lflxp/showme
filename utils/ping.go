@@ -16,6 +16,40 @@ type PingResult struct {
 	Rtt string
 }
 
+// 80,3306,25-200
+func ParsePorts(ports string) ([]int, error) {
+	rs := []int{}
+	tmp := strings.Split(ports, ",")
+	for _, x := range tmp {
+		if strings.Contains(x, "-") {
+			t1 := strings.Split(x, "-")
+			start, err := strconv.Atoi(t1[0])
+			if err != nil {
+				return rs, err
+			}
+			end, err := strconv.Atoi(t1[1])
+			if err != nil {
+				return rs, err
+			}
+
+			if start > end {
+				return rs, errors.New(fmt.Sprintf("%s start biger than end", x))
+			}
+
+			for i := start; i <= end; i++ {
+				rs = append(rs, i)
+			}
+		} else {
+			n, err := strconv.Atoi(x)
+			if err != nil {
+				return rs, err
+			}
+			rs = append(rs, n)
+		}
+	}
+	return rs, nil
+}
+
 // 10.1.1.1
 // 10-20.1.1.0
 // 1.2.3.4-200
@@ -191,4 +225,19 @@ func ScanPort(host, port string) bool {
 	defer conn.Close()
 	// fmt.Printf("ok==%s:%s\r\n", host, port)
 	return true
+}
+
+func ScanPort2H(ip string, ports string, stop chan string) error {
+	// ip = strings.Split(ip, "|")[1]
+	// stop <- fmt.Sprintf("ip %s  port range %s", ip, ports)
+	pports, err := ParsePorts(ports)
+	if err != nil {
+		return err
+	}
+	for _, port := range pports {
+		if ScanPort(ip, fmt.Sprintf("%d", port)) {
+			stop <- fmt.Sprintf("%s:%d", ip, port)
+		}
+	}
+	return nil
 }

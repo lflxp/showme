@@ -13,6 +13,7 @@ import (
 
 var ips string
 var selectId string
+var port string
 
 func Scan(in string) {
 	ips = strings.Split(in, " ")[1]
@@ -64,9 +65,38 @@ func keybindings(g *gocui.Gui) error {
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, dquit); err != nil {
 		return err
 	}
-	if err := g.SetKeybinding("msg", gocui.KeyEnter, gocui.ModNone, delMsg); err != nil {
+	if err := g.SetKeybinding("msg", gocui.KeyEnter, gocui.ModNone, getPort); err != nil {
 		return err
 	}
+	if err := g.SetKeybinding("port", gocui.KeyEnter, gocui.ModNone, delPort); err != nil {
+		return err
+	}
+	return nil
+}
+
+func delPort(g *gocui.Gui, v *gocui.View) error {
+	if err := g.DeleteView("port"); err != nil {
+		return err
+	}
+
+	var l string
+	var err error
+
+	_, cy := v.Cursor()
+	if l, err = v.Line(cy); err != nil {
+		l = ""
+	}
+	port = l
+	maxX, _ := g.Size()
+	if v, err := g.SetCurrentView("bottom"); err != nil {
+		return err
+	} else {
+		v.Highlight = true
+		v.Autoscroll = true
+		v.Clear()
+		go ScanIpPorts(v, maxX-18)
+	}
+
 	return nil
 }
 
@@ -74,15 +104,20 @@ func delMsg(g *gocui.Gui, v *gocui.View) error {
 	if err := g.DeleteView("msg"); err != nil {
 		return err
 	}
-	if v, err := g.SetCurrentView("bottom"); err != nil {
-		return err
-	} else {
+
+	maxX, maxY := g.Size()
+	if v, err := g.SetView("port", maxX/2-30, maxY/2+3, maxX/2+30, maxY/2+5); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+
 		v.Highlight = true
-		v.Autoscroll = true
+		v.Editable = true
 
-		fmt.Fprintln(v, selectId)
+		if _, err := g.SetCurrentView("port"); err != nil {
+			return err
+		}
 	}
-
 	return nil
 }
 
@@ -154,14 +189,45 @@ func getLine(g *gocui.Gui, v *gocui.View) error {
 			return err
 		}
 
-		v.Editable = true
+		v.Highlight = true
+		v.Title = "Your Selectd"
+		// v.Editable = true
 		// fmt.Fprintln(v, strings.Trim(l, " "))
-		fmt.Fprintln(v, l)
-		selectId = strings.Trim(l, " ")
+		// fmt.Fprintln(v, l)
+		// selectId = strings.Trim(l, " ")
+		selectId = strings.Split(l, "|")[1]
+		fmt.Fprintln(v, selectId)
 		if _, err := g.SetCurrentView("msg"); err != nil {
 			return err
 		}
 	}
+
+	return nil
+}
+
+func getPort(g *gocui.Gui, v *gocui.View) error {
+	if err := g.DeleteView("msg"); err != nil {
+		return err
+	}
+
+	maxX, maxY := g.Size()
+	if v, err := g.SetView("port", maxX/2-30, maxY/2, maxX/2+30, maxY/2+2); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+
+		v.Title = "Input Port Range(eg: 80,3306,25-100)"
+		v.Highlight = true
+		v.Editable = true
+		// fmt.Fprintln(v, strings.Trim(l, " "))
+		// fmt.Fprintln(v, l)
+		// selectId = strings.Trim(l, " ")
+		// fmt.Fprintln(v, fmt.Sprintf("Your Selectd Range: %s", l))
+		if _, err := g.SetCurrentView("port"); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -201,7 +267,7 @@ func ScanIp(w io.Writer, width int) {
 			tableNow.AddRow(0, id)
 
 			ip := table.NewCol()
-			ip.Data = tmp[0]
+			ip.Data = fmt.Sprintf("|%s|", tmp[0])
 			ip.TextAlign = table.TextCenter
 			ip.Color = "green"
 			tableNow.AddRow(1, ip)
@@ -218,24 +284,59 @@ func ScanIp(w io.Writer, width int) {
 	}
 }
 
-func ScanIpPorts(w io.Writer) {
+func ScanIpPorts(w io.Writer, width int) {
 	stop := make(chan string)
 	defer close(stop)
 
-	data, err := utils.ParseIps(ips)
-	if err != nil {
-		fmt.Fprintln(w, err.Error())
-	}
-	go utils.Pings3(data, stop)
+	go utils.ScanPort2H(selectId, port, stop)
 
+	num := 0
 	for {
 		select {
 		case s, ok := <-stop:
+			num++
 			if !ok {
 				fmt.Println("scanipport error")
 				break
 			}
-			fmt.Fprintln(w, s)
+			if !strings.Contains(s, "range") {
+				tablePort := table.NewTable(width)
+				tablePort.AddCol("ID").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
+				tablePort.AddCol("IPAddress").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
+				tablePort.AddCol("Port").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
+				tablePort.AddCol("Status").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
+				tablePort.CalColumnWidths()
+				if num%50 == 0 || num == 1 {
+					tablePort.FprintHeader(w)
+				}
+
+				tmp := strings.Split(s, ":")
+				id := table.NewCol()
+				id.Data = fmt.Sprintf("%d", num)
+				id.TextAlign = table.TextCenter
+				id.Color = "yellow"
+				tablePort.AddRow(0, id)
+
+				ip := table.NewCol()
+				ip.Data = tmp[0]
+				ip.TextAlign = table.TextCenter
+				ip.Color = "green"
+				tablePort.AddRow(1, ip)
+
+				rt := table.NewCol()
+				rt.Data = tmp[1]
+				rt.TextAlign = table.TextCenter
+				rt.Color = "red"
+				tablePort.AddRow(2, rt)
+
+				st := table.NewCol()
+				st.Data = "Active"
+				st.TextAlign = table.TextCenter
+				st.Color = "yellow"
+				tablePort.AddRow(3, st)
+
+				tablePort.Fprint(w)
+			}
 		}
 	}
 }
@@ -266,20 +367,24 @@ func dlayout(g *gocui.Gui) error {
 		} else {
 			for _, x := range data {
 				fmt.Fprintln(v, x)
-			}
-		}
 
-		// if _, err = setCurrentViewOnTop(g, "help"); err != nil {
-		// 	return err
-		// }
-		// fmt.Fprintf(v, time.Now().Format("2006-01-02 15:04:05"))
-		// fmt.Fprintln(v, fmt.Sprintf("Total: %v, Free:%v, UsedPercent:%f%%\n", m.Total, m.Free, m.UsedPercent))
+			}
+			if _, err = setCurrentViewOnTop(g, "help"); err != nil {
+				return err
+			}
+
+			// if _, err = setCurrentViewOnTop(g, "help"); err != nil {
+			// 	return err
+			// }
+			// fmt.Fprintf(v, time.Now().Format("2006-01-02 15:04:05"))
+			// fmt.Fprintln(v, fmt.Sprintf("Total: %v, Free:%v, UsedPercent:%f%%\n", m.Total, m.Free, m.UsedPercent))
+		}
 	}
 	if v, err := g.SetView("top", 15, 0, maxX-1, maxY/2); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		v.Title = "top"
+		v.Title = "IP Active List"
 		v.Wrap = true
 		v.Highlight = true
 		v.Autoscroll = true
@@ -288,9 +393,6 @@ func dlayout(g *gocui.Gui) error {
 		// v.Editable = true
 		// fmt.Fprintf(v, time.Now().Format("2006-01-02 15:04:05"))
 		go ScanIp(v, maxX-18)
-		if _, err = setCurrentViewOnTop(g, "top"); err != nil {
-			return err
-		}
 
 		// fmt.Fprintf(v, time.Now().Format("2006-01-02 15:04:05"))
 		// fmt.Fprintln(v, fmt.Sprintf("Total: %v, Free:%v, UsedPercent:%f%%\n", m.Total, m.Free, m.UsedPercent))
@@ -299,12 +401,12 @@ func dlayout(g *gocui.Gui) error {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		v.Title = "bottom"
+		v.Title = "PortScan Result"
 		v.Wrap = true
 		v.Autoscroll = false
 		v.Editable = true
 
-		go ScanIpPorts(v)
+		// go ScanIpPorts(v)
 
 		// if _, err = setCurrentViewOnTop(g, "bottom"); err != nil {
 		// 	return err
