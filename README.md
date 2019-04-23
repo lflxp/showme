@@ -60,3 +60,7 @@ go run main.go
 2. completers/common.go -> FirstCommandFunc 添加命令提示 添加基于首字符的二级字符命令提示
 3. executors 添加目录实现命令gocui展示
 4. executors/executors.go 添加command对应的执行命令
+
+# 多线程改造
+
+https://blog.csdn.net/lengyuezuixue/article/details/79664409

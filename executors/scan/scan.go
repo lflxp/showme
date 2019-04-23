@@ -92,7 +92,7 @@ func delPort(g *gocui.Gui, v *gocui.View) error {
 		return err
 	} else {
 		v.Highlight = true
-		v.Autoscroll = true
+		// v.Autoscroll = true
 		v.Clear()
 		go ScanIpPorts(v, maxX-18)
 	}
@@ -387,7 +387,7 @@ func dlayout(g *gocui.Gui) error {
 		v.Title = "IP Active List"
 		v.Wrap = true
 		v.Highlight = true
-		v.Autoscroll = true
+		// v.Autoscroll = true
 		v.SelBgColor = gocui.ColorGreen
 		v.SelFgColor = gocui.ColorBlack
 		// v.Editable = true
@@ -403,7 +403,7 @@ func dlayout(g *gocui.Gui) error {
 		}
 		v.Title = "PortScan Result"
 		v.Wrap = true
-		v.Autoscroll = false
+		// v.Autoscroll = false
 		v.Editable = true
 
 		// go ScanIpPorts(v)
