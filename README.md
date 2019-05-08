@@ -39,8 +39,11 @@ go run main.go
 
 ![scan.png](https://github.com/lflxp/showme/blob/master/scan.png)
 
-- Tab: Next View/Refresh IP or Port                                                               
-- Enter: Select IP/Commit Input                                                                                         - F5: Input New IP range/Refresh IP or Port                                                                             - ↑ ↓: Move View                                                                                                        - ^c: Exit   
+- Tab: Next View/Refresh IP or Port
+- Enter: Select IP/Commit Input
+- F5: Input New IP range/Refresh IP or Port
+- ↑ ↓: Move View
+- ^c: Exit
 
 # feature
 
