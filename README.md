@@ -35,6 +35,13 @@ go run main.go
 - {Text: "-s", Description: "打印swap 信息"}
 - {Text: "-t", Description: "打印当前时间"}
 
+3. scan ip and port
+
+![scan.png](https://github.com/lflxp/showme/blob/master/scan.png)
+
+- Tab: Next View/Refresh IP or Port                                                               
+- Enter: Select IP/Commit Input                                                                                         - F5: Input New IP range/Refresh IP or Port                                                                             - ↑ ↓: Move View                                                                                                        - ^c: Exit   
+
 # feature
 
 1. 非网络连接
