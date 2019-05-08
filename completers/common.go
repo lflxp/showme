@@ -97,8 +97,12 @@ func FirstCommandFunc(d prompt.Document, args []string) []prompt.Suggest {
 		second := args[1]
 		if len(args) == 2 {
 			subcommands := []prompt.Suggest{
-				{Text: "192.168.0.1-255", Description: "192网段"},
+				{Text: "192.168.50.1-255", Description: "192网段"},
+				{Text: "192.168.40.1-255", Description: "192网段"},
+				{Text: "192.168.1.1-255", Description: "192网段"},
 				{Text: "10.128.0.1-255", Description: "10网段"},
+				{Text: "10.128.142.1-255", Description: "10网段"},
+				{Text: "172.16.13.1-255", Description: "172网段"},
 				{Text: "172.168.0.1-255", Description: "172网段"},
 			}
 			return prompt.FilterHasPrefix(subcommands, second, true)

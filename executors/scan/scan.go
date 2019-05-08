@@ -44,13 +44,16 @@ func Scan(in string) {
 
 func keybindings(g *gocui.Gui) error {
 	// 清空side缓存
-	if err := g.SetKeybinding("help", gocui.KeyTab, gocui.ModNone, nextView); err != nil {
-		return err
-	}
+	// if err := g.SetKeybinding("help", gocui.KeyTab, gocui.ModNone, nextView); err != nil {
+	// 	return err
+	// }
 	if err := g.SetKeybinding("top", gocui.KeyTab, gocui.ModNone, nextView); err != nil {
 		return err
 	}
-	if err := g.SetKeybinding("bottom", gocui.KeyTab, gocui.ModNone, nextView); err != nil {
+	if err := g.SetKeybinding("scanport", gocui.KeyF5, gocui.ModNone, nextView); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("scanport", gocui.KeyTab, gocui.ModNone, toTop); err != nil {
 		return err
 	}
 	if err := g.SetKeybinding("top", gocui.KeyArrowDown, gocui.ModNone, cursorDown); err != nil {
@@ -71,6 +74,62 @@ func keybindings(g *gocui.Gui) error {
 	if err := g.SetKeybinding("port", gocui.KeyEnter, gocui.ModNone, delPort); err != nil {
 		return err
 	}
+	if err := g.SetKeybinding("top", gocui.KeyF5, gocui.ModNone, inputIp); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("inputip", gocui.KeyEnter, gocui.ModNone, delinputIp); err != nil {
+		return err
+	}
+	return nil
+}
+
+func inputIp(g *gocui.Gui, v *gocui.View) error {
+	maxX, maxY := g.Size()
+	if v, err := g.SetView("inputip", maxX/2-30, maxY/2, maxX/2+30, maxY/2+2); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+
+		v.Title = "输入IP范围(eg: 10-192.168.1-50.256)"
+		v.Highlight = true
+		v.Editable = true
+		// fmt.Fprintln(v, strings.Trim(l, " "))
+		// fmt.Fprintln(v, l)
+		// selectId = strings.Trim(l, " ")
+		// fmt.Fprintln(v, fmt.Sprintf("Your Selectd Range: %s", l))
+		if _, err := g.SetCurrentView("inputip"); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func delinputIp(g *gocui.Gui, v *gocui.View) error {
+	if err := g.DeleteView("inputip"); err != nil {
+		return err
+	}
+
+	var l string
+	var err error
+
+	_, cy := v.Cursor()
+	if l, err = v.Line(cy); err != nil {
+		l = ""
+	}
+	ips = l
+	maxX, _ := g.Size()
+	// go ScanIp(v, maxX-4)
+
+	// if _, err = setCurrentViewOnTop(g, "top"); err != nil {
+	if vivia, err := g.SetCurrentView("top"); err != nil {
+		return err
+	} else {
+		vivia.Highlight = true
+		vivia.Clear()
+		go ScanIp(vivia, maxX-4)
+	}
+
 	return nil
 }
 
@@ -87,14 +146,28 @@ func delPort(g *gocui.Gui, v *gocui.View) error {
 		l = ""
 	}
 	port = l
-	maxX, _ := g.Size()
-	if v, err := g.SetCurrentView("bottom"); err != nil {
-		return err
-	} else {
+	maxX, maxY := g.Size()
+	if v, err := g.SetView("scanport", maxX/4, maxY/4, maxX*3/4, maxY*3/4); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+
+		v.Title = "端口扫描"
 		v.Highlight = true
-		// v.Autoscroll = true
-		v.Clear()
-		go ScanIpPorts(v, maxX-18)
+		v.Editable = true
+		// fmt.Fprintln(v, strings.Trim(l, " "))
+		// fmt.Fprintln(v, l)
+		// selectId = strings.Trim(l, " ")
+		// fmt.Fprintln(v, fmt.Sprintf("Your Selectd Range: %s", l))
+
+		if v, err := g.SetCurrentView("scanport"); err != nil {
+			return err
+		} else {
+			v.Highlight = true
+			// v.Autoscroll = true
+			v.Clear()
+			go ScanIpPorts(v, maxX/2)
+		}
 	}
 
 	return nil
@@ -147,20 +220,37 @@ func cursorUp(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
+func toTop(g *gocui.Gui, v *gocui.View) error {
+	if err := g.DeleteView("scanport"); err != nil {
+		return err
+	}
+
+	if v == nil || v.Name() == "scanport" {
+		_, err := g.SetCurrentView("top")
+		return err
+	}
+
+	// if _, err = setCurrentViewOnTop(g, "top"); err != nil {
+	// 	return err
+	// }
+	return nil
+}
+
 func nextView(g *gocui.Gui, v *gocui.View) error {
-	if v == nil || v.Name() == "bottom" {
+	if v == nil || v.Name() == "top" {
 		_, err := g.SetCurrentView("top")
 
 		return err
-	}
-	if v == nil || v.Name() == "top" {
-		_, err := g.SetCurrentView("help")
+	} else if v == nil || v.Name() == "scanport" {
+		_, err := g.SetCurrentView("scanport")
+
 		return err
 	}
-	_, err := g.SetCurrentView("bottom")
+
+	// _, err := g.SetCurrentView("top")
 	// maxX, _ := g.Size()
 	// go GetPacket(v, maxX)
-	return err
+	return nil
 }
 
 func dquit(g *gocui.Gui, v *gocui.View) error {
@@ -183,22 +273,27 @@ func getLine(g *gocui.Gui, v *gocui.View) error {
 		l = ""
 	}
 
-	maxX, maxY := g.Size()
-	if v, err := g.SetView("msg", maxX/2-30, maxY/2, maxX/2+30, maxY/2+2); err != nil {
-		if err != gocui.ErrUnknownView {
-			return err
-		}
+	ttt := strings.Split(l, "|")
+	if len(ttt) > 1 {
+		maxX, maxY := g.Size()
+		if v, err := g.SetView("msg", maxX/2-30, maxY/2, maxX/2+30, maxY/2+2); err != nil {
+			if err != gocui.ErrUnknownView {
+				return err
+			}
 
-		v.Highlight = true
-		v.Title = "Your Selectd"
-		// v.Editable = true
-		// fmt.Fprintln(v, strings.Trim(l, " "))
-		// fmt.Fprintln(v, l)
-		// selectId = strings.Trim(l, " ")
-		selectId = strings.Split(l, "|")[1]
-		fmt.Fprintln(v, selectId)
-		if _, err := g.SetCurrentView("msg"); err != nil {
-			return err
+			v.Highlight = true
+			v.Title = "Your Selectd"
+			// v.Editable = true
+			// fmt.Fprintln(v, strings.Trim(l, " "))
+			// fmt.Fprintln(v, l)
+			// selectId = strings.Trim(l, " ")
+
+			selectId = ttt[1]
+			fmt.Fprintln(v, selectId)
+			if _, err := g.SetCurrentView("msg"); err != nil {
+				return err
+			}
+
 		}
 	}
 
@@ -352,39 +447,22 @@ func dlayout(g *gocui.Gui) error {
 	// }
 
 	// log.Println(data)
-	if v, err := g.SetView("help", 0, 0, 15, maxY-1); err != nil {
+	if v, err := g.SetView("help", 0, maxY-7, maxX-1, maxY-1); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		v.Title = "IP列表"
-		v.Wrap = true
-		v.Autoscroll = false
-		v.Editable = true
-
-		data, err := utils.ParseIps(ips)
-		if err != nil {
-			fmt.Fprintln(v, err.Error())
-		} else {
-			for _, x := range data {
-				fmt.Fprintln(v, x)
-
-			}
-			if _, err = setCurrentViewOnTop(g, "help"); err != nil {
-				return err
-			}
-
-			// if _, err = setCurrentViewOnTop(g, "help"); err != nil {
-			// 	return err
-			// }
-			// fmt.Fprintf(v, time.Now().Format("2006-01-02 15:04:05"))
-			// fmt.Fprintln(v, fmt.Sprintf("Total: %v, Free:%v, UsedPercent:%f%%\n", m.Total, m.Free, m.UsedPercent))
-		}
+		v.Title = "Keybindings"
+		fmt.Fprintln(v, "Tab: Next View/Refresh IP or Port")
+		fmt.Fprintln(v, "Enter: Select IP/Commit Input")
+		fmt.Fprintln(v, "F5: Input New IP range/Refresh IP or Port")
+		fmt.Fprintln(v, "↑ ↓: Move View")
+		fmt.Fprintln(v, "^c: Exit")
 	}
-	if v, err := g.SetView("top", 15, 0, maxX-1, maxY/2); err != nil {
+	if v, err := g.SetView("top", 0, 0, maxX-1, maxY-8); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		v.Title = "IP Active List"
+		v.Title = "IP扫描列表"
 		v.Wrap = true
 		v.Highlight = true
 		// v.Autoscroll = true
@@ -392,27 +470,30 @@ func dlayout(g *gocui.Gui) error {
 		v.SelFgColor = gocui.ColorBlack
 		// v.Editable = true
 		// fmt.Fprintf(v, time.Now().Format("2006-01-02 15:04:05"))
-		go ScanIp(v, maxX-18)
+		go ScanIp(v, maxX-4)
 
-		// fmt.Fprintf(v, time.Now().Format("2006-01-02 15:04:05"))
-		// fmt.Fprintln(v, fmt.Sprintf("Total: %v, Free:%v, UsedPercent:%f%%\n", m.Total, m.Free, m.UsedPercent))
-	}
-	if v, err := g.SetView("bottom", 15, maxY/2, maxX-1, maxY-1); err != nil {
-		if err != gocui.ErrUnknownView {
+		if _, err = setCurrentViewOnTop(g, "top"); err != nil {
 			return err
 		}
-		v.Title = "PortScan Result"
-		v.Wrap = true
-		// v.Autoscroll = false
-		v.Editable = true
-
-		// go ScanIpPorts(v)
-
-		// if _, err = setCurrentViewOnTop(g, "bottom"); err != nil {
-		// 	return err
-		// }
 		// fmt.Fprintf(v, time.Now().Format("2006-01-02 15:04:05"))
 		// fmt.Fprintln(v, fmt.Sprintf("Total: %v, Free:%v, UsedPercent:%f%%\n", m.Total, m.Free, m.UsedPercent))
 	}
+	// if v, err := g.SetView("bottom", 0, maxY/2, maxX-1, maxY-1); err != nil {
+	// 	if err != gocui.ErrUnknownView {
+	// 		return err
+	// 	}
+	// 	v.Title = "PortScan Result"
+	// 	v.Wrap = true
+	// 	// v.Autoscroll = false
+	// 	v.Editable = true
+
+	// 	// go ScanIpPorts(v)
+
+	// 	// if _, err = setCurrentViewOnTop(g, "bottom"); err != nil {
+	// 	// 	return err
+	// 	// }
+	// 	// fmt.Fprintf(v, time.Now().Format("2006-01-02 15:04:05"))
+	// 	// fmt.Fprintln(v, fmt.Sprintf("Total: %v, Free:%v, UsedPercent:%f%%\n", m.Total, m.Free, m.UsedPercent))
+	// }
 	return nil
 }

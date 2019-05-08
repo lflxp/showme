@@ -146,6 +146,7 @@ func Pings2(ips []string, stop chan string) error {
 		stop <- err.Error()
 	}
 	defer p.Stop()
+	// defer close(stop)
 	return nil
 }
 
