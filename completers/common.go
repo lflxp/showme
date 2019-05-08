@@ -1,12 +1,10 @@
 package completers
 
 import (
-	"fmt"
 	"strings"
 
 	prompt "github.com/c-bata/go-prompt"
 	"github.com/lflxp/showme/suggests"
-	"github.com/lflxp/showme/utils"
 )
 
 // 解析函数 判断最新参数是否含有-字符
@@ -72,27 +70,27 @@ func FirstCommandFunc(d prompt.Document, args []string) []prompt.Suggest {
 			}
 			return prompt.FilterHasPrefix(subcommands, second, true)
 		}
-	case "gopacket":
-		second := args[1]
-		if len(args) == 2 {
-			subcommands := []prompt.Suggest{
-				{Text: "interface", Description: "制定监听网卡"},
-				{Text: "screen", Description: "gocui 可视化"},
-			}
-			return prompt.FilterHasPrefix(subcommands, second, true)
-		}
+	// case "gopacket":
+	// 	second := args[1]
+	// 	if len(args) == 2 {
+	// 		subcommands := []prompt.Suggest{
+	// 			{Text: "interface", Description: "制定监听网卡"},
+	// 			{Text: "screen", Description: "gocui 可视化"},
+	// 		}
+	// 		return prompt.FilterHasPrefix(subcommands, second, true)
+	// 	}
 
-		third := args[2]
-		if len(args) == 3 {
-			switch second {
-			case "interface", "in", "screen":
-				interfaces, err := utils.GetCurrentInterfaceCommands()
-				if err != nil {
-					fmt.Println(err.Error())
-				}
-				return prompt.FilterContains(interfaces, third, true)
-			}
-		}
+	// 	third := args[2]
+	// 	if len(args) == 3 {
+	// 		switch second {
+	// 		case "interface", "in", "screen":
+	// 			interfaces, err := utils.GetCurrentInterfaceCommands()
+	// 			if err != nil {
+	// 				fmt.Println(err.Error())
+	// 			}
+	// 			return prompt.FilterContains(interfaces, third, true)
+	// 		}
+	// 	}
 	case "scan":
 		second := args[1]
 		if len(args) == 2 {
