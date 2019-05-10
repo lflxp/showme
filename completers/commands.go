@@ -13,7 +13,6 @@ var Commands = []prompt.Suggest{
 	{Text: "dashboard", Description: "computer configeration"},
 	{Text: "gocui", Description: "https://github.com/jroimartin/gocui"},
 	{Text: "monitor", Description: "monitoring Linux/Unix or MacOs status runtime"},
-	{Text: "gopacket", Description: "网络抓包工具"},
 	{Text: "scan", Description: "网络扫描"},
 	{Text: "help", Description: "List All Menu"},
 }
