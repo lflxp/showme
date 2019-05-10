@@ -1,4 +1,4 @@
-// +build !gopacket
+// +build gopacket
 
 package executors
 
@@ -8,6 +8,7 @@ import (
 
 	"github.com/lflxp/showme/completers"
 	"github.com/lflxp/showme/executors/dashboard"
+	"github.com/lflxp/showme/executors/gopacket"
 	"github.com/lflxp/showme/executors/helloworld"
 	"github.com/lflxp/showme/executors/layout"
 	"github.com/lflxp/showme/executors/monitor"
@@ -51,6 +52,19 @@ func ParseExecutors(in string) (func(), bool) {
 	} else if in == "help" {
 		result = func() {
 			completers.Help()
+		}
+		status = true
+	} else if strings.Contains(in, "gopacket") {
+		if strings.Contains(in, "gopacket in") {
+			result = func() {
+				gopacket.Run(in)
+			}
+		}
+		if strings.Contains(in, "gopacket screen") {
+			result = func() {
+				// gopacket.Gopacket(in)
+				gopacket.Screen(strings.Split(in, " ")[2])
+			}
 		}
 		status = true
 	} else if strings.Contains(in, "scan") {

@@ -1,4 +1,5 @@
 // +build gopacket
+
 package utils
 
 import (
