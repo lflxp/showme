@@ -14,6 +14,7 @@ var Commands = []prompt.Suggest{
 	{Text: "gocui", Description: "https://github.com/jroimartin/gocui"},
 	{Text: "monitor", Description: "monitoring Linux/Unix or MacOs status runtime"},
 	{Text: "scan", Description: "网络扫描"},
+	{Text: "httpstatic", Description: "静态文件服务"},
 	{Text: "help", Description: "List All Menu"},
 }
 

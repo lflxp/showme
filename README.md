@@ -17,6 +17,7 @@ go run main.go
 - dashboard args...
 - gocui active
 - gopacket args...
+- httpstatic
 
 ![command.png](https://github.com/lflxp/showme/blob/master/command.png)
 
@@ -44,6 +45,12 @@ go run main.go
 - F5: Input New IP range/Refresh IP or Port
 - ↑ ↓: Move View
 - ^c: Exit
+
+4. static http server
+
+> httpstatic -port 9999
+
+- port: static http port, default: 9090
 
 # feature
 
