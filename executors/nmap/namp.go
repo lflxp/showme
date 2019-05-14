@@ -1,1 +1,2 @@
+// +build scan
 package nmap

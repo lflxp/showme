@@ -1,3 +1,5 @@
+// +build gopacket
+
 package gopacket
 
 import (
