@@ -69,7 +69,7 @@ func executor(in string) {
 	}
 	LivePrefixState.LivePrefix = in + "> "
 	LivePrefixState.IsEnable = true
-	fmt.Println("executor")
+	// fmt.Println("executor")
 }
 
 func main() {

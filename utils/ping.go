@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"strconv"
 	"strings"
@@ -114,35 +115,33 @@ func ParseIps(in string) ([]string, error) {
 	return rs, nil
 }
 
-func Pings2(ips []string, stop chan string) error {
+func Pings2(ips []string, stop chan string, w io.Writer) error {
 	p := fastping.NewPinger()
-
+	t1 := time.Now()
 	for _, x := range ips {
 		ra, err := net.ResolveIPAddr("ip4:icmp", x)
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
+		fmt.Fprintln(w, fmt.Sprintf("[%s] - scaning:  %s", time.Now().Format("2006-01-02 15:04:05"), ra.String()))
 		p.AddIPAddr(ra)
 	}
 
 	p.OnRecv = func(addr *net.IPAddr, rtt time.Duration) {
-		// fmt.Printf("IP Addr: %s receive, RTT: %v\n", addr.String(), rtt)
-		// tmp := PingResult{
-		// 	Ip:  addr.String(),
-		// 	Rtt: fmt.Sprintf("%v", rtt),
-		// }
-		// rs <- tmp
-		// fmt.Fprintln(w, fmt.Sprintf("IP Addr: %s receive, RTT: %v\n", addr.String(), rtt))
-		// stop <- fmt.Sprintf("IP Addr: %s receive, RTT: %v\n", addr.String(), rtt)
+		fmt.Fprintln(w, fmt.Sprintf("IP Addr: %s receive, RTT: %v", addr.String(), rtt))
 		stop <- fmt.Sprintf("%s:%v", addr.String(), rtt)
 	}
-	// p.OnIdle = func() {
-	// 	fmt.Println("finish")
-	// }
+	p.OnIdle = func() {
+		elapsed := time.Since(t1)
+		fmt.Fprintln(w, Colorize(fmt.Sprintf("[%s] - Count:  %d", time.Now().Format("2006-01-02 15:04:05"), len(ips)), "red", "", false, true))
+		fmt.Fprintln(w, Colorize(fmt.Sprintf("[%s] - Elapsed:  %s", time.Now().Format("2006-01-02 15:04:05"), elapsed.String()), "red", "", false, true))
+		fmt.Fprintln(w, Colorize(fmt.Sprintf("[%s] - Finished:  DONE", time.Now().Format("2006-01-02 15:04:05")), "red", "", false, true))
+	}
 	err := p.Run()
 	if err != nil {
 		// return err
+		fmt.Fprintln(w, err.Error())
 		stop <- err.Error()
 	}
 	defer p.Stop()
@@ -228,17 +227,25 @@ func ScanPort(host, port string) bool {
 	return true
 }
 
-func ScanPort2H(ip string, ports string, stop chan string) error {
+func ScanPort2H(ip string, ports string, stop chan string, w io.Writer) error {
 	// ip = strings.Split(ip, "|")[1]
 	// stop <- fmt.Sprintf("ip %s  port range %s", ip, ports)
+	t1 := time.Now()
 	pports, err := ParsePorts(ports)
 	if err != nil {
 		return err
 	}
 	for _, port := range pports {
 		if ScanPort(ip, fmt.Sprintf("%d", port)) {
+			fmt.Fprintln(w, fmt.Sprintf("[%s] - scaning: %s:%d Active", time.Now().Format("2006-01-02 15:04:05"), ip, port))
 			stop <- fmt.Sprintf("%s:%d", ip, port)
+		} else {
+			fmt.Fprintln(w, fmt.Sprintf("[%s] - scaning: %s:%d Failed", time.Now().Format("2006-01-02 15:04:05"), ip, port))
 		}
 	}
+	elapsed := time.Since(t1)
+	fmt.Fprintln(w, Colorize(fmt.Sprintf("[%s] - Count:  %d", time.Now().Format("2006-01-02 15:04:05"), len(pports)), "red", "", false, true))
+	fmt.Fprintln(w, Colorize(fmt.Sprintf("[%s] - Elapsed:  %s", time.Now().Format("2006-01-02 15:04:05"), elapsed.String()), "red", "", false, true))
+	fmt.Fprintln(w, Colorize(fmt.Sprintf("[%s] - Finished:  DONE", time.Now().Format("2006-01-02 15:04:05")), "red", "", false, true))
 	return nil
 }
