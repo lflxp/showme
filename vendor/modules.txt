@@ -36,8 +36,17 @@ github.com/shirou/gopsutil/internal/common
 github.com/shirou/gopsutil/process
 # github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4
 github.com/shirou/w32
+# github.com/tatsushid/go-fastping v0.0.0-20160109021039-d7bb493dee3e
+github.com/tatsushid/go-fastping
 # github.com/ugorji/go v1.1.4
 github.com/ugorji/go/codec
+# golang.org/x/net v0.0.0-20190313220215-9f648a60d977
+golang.org/x/net/icmp
+golang.org/x/net/ipv4
+golang.org/x/net/ipv6
+golang.org/x/net/internal/iana
+golang.org/x/net/internal/socket
+golang.org/x/net/bpf
 # golang.org/x/sys v0.0.0-20190405154228-4b34438f7a67
 golang.org/x/sys/unix
 golang.org/x/sys/windows
