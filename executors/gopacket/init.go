@@ -8,5 +8,5 @@ import (
 )
 
 func init() {
-	completers.Commands = append(completers.Commands, prompt.Suggest{Text: "gopacket", Description: "网络抓包工具"})
+	completers.Commands = append(completers.Commands, prompt.Suggest{Text: "gopacket", Description: "tcp dump by gopacket"})
 }

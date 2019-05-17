@@ -4,9 +4,14 @@ linux fast command for ops & dev
 
 # Usage
 
+tags:
+
+- gopacket
+
 ```
 go get github.com/lflxp/showme
 go run main.go
+go build -tags=gopacket main.go
 ```
 
 # Operation
@@ -51,6 +56,15 @@ go run main.go
 > httpstatic -port 9999
 
 - port: static http port, default: 9090
+
+5. gopacket 网络流量监控
+
+command: 
+- gopacket interface eth0
+- gopacket screen eth0
+
+> TIPS: 条件编译，需要该功能需要在build的指定tags
+> eg: go build -tags=gopacket main.go
 
 # feature
 
