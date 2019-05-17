@@ -221,7 +221,7 @@ func delPort(g *gocui.Gui, v *gocui.View) error {
 	if v, err := g.SetCurrentView("scanport"); err != nil {
 		return err
 	} else {
-		v.Title = fmt.Sprintf("Current IP:   %s     PORTS RANGE:  %s", ips, l)
+		v.Title = fmt.Sprintf("Current IP:   %s     PORTS RANGE:  %s", selectId, l)
 		v.Highlight = true
 		// v.Autoscroll = true
 		v.Clear()
@@ -527,7 +527,7 @@ func dlayout(g *gocui.Gui) error {
 	// }
 
 	// log.Println(data)
-	if v, err := g.SetView("help", 0, maxY-50, maxX-1, maxY-1); err != nil {
+	if v, err := g.SetView("help", 0, maxY/2, maxX-1, maxY-1); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
@@ -538,7 +538,7 @@ func dlayout(g *gocui.Gui) error {
 		fmt.Fprintln(v, "↑ ↓: Move View")
 		fmt.Fprintln(v, "^c: Exit")
 	}
-	if v, err := g.SetView("top", 0, 0, maxX/2-1, maxY-51); err != nil {
+	if v, err := g.SetView("top", 0, 0, maxX/2-1, maxY/2-1); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
@@ -558,7 +558,7 @@ func dlayout(g *gocui.Gui) error {
 		// fmt.Fprintf(v, time.Now().Format("2006-01-02 15:04:05"))
 		// fmt.Fprintln(v, fmt.Sprintf("Total: %v, Free:%v, UsedPercent:%f%%\n", m.Total, m.Free, m.UsedPercent))
 	}
-	if v, err := g.SetView("scanport", maxX/2, 0, maxX-1, maxY-51); err != nil {
+	if v, err := g.SetView("scanport", maxX/2, 0, maxX-1, maxY/2-1); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
