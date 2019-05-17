@@ -24,17 +24,12 @@ func dlayout(g *gocui.Gui) error {
 			return err
 		}
 		v.Title = "Processing"
-		fmt.Fprintln(v, "Tab: Next View/Refresh IP or Port")
-		fmt.Fprintln(v, "Enter: Select IP/Commit Input")
-		fmt.Fprintln(v, "F5: Input New IP range/Refresh IP or Port")
-		fmt.Fprintln(v, "↑ ↓: Move View")
-		fmt.Fprintln(v, "^c: Exit")
 	}
 	if v, err := g.SetView("top", 0, 0, maxX/2-1, maxY/2-1); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		v.Title = "IP List Result"
+		v.Title = "IP List Result(Help: F1)"
 		v.Wrap = true
 		v.Highlight = true
 		// v.Autoscroll = true
@@ -169,6 +164,7 @@ func gethelp(g *gocui.Gui, v *gocui.View) error {
 		fmt.Fprintln(v, utils.Colorize("F5: Input New IP range/Refresh IP or Port", "yellow", "", false, true))
 		fmt.Fprintln(v, utils.Colorize("↑ ↓: Move View", "yellow", "", false, true))
 		fmt.Fprintln(v, utils.Colorize("^c: Exit", "yellow", "", false, true))
+		fmt.Fprintln(v, utils.Colorize("F1: Help", "yellow", "", false, true))
 
 		if _, err := setCurrentViewOnTop(g, "gethelp"); err != nil {
 			return err
