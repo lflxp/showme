@@ -116,6 +116,7 @@ func ParseIps(in string) ([]string, error) {
 }
 
 func Pings2(ips []string, stop chan string, w io.Writer) error {
+	active := 0
 	p := fastping.NewPinger()
 	t1 := time.Now()
 	for _, x := range ips {
@@ -129,14 +130,13 @@ func Pings2(ips []string, stop chan string, w io.Writer) error {
 	}
 
 	p.OnRecv = func(addr *net.IPAddr, rtt time.Duration) {
+		active++
 		fmt.Fprintln(w, fmt.Sprintf("IP Addr: %s receive, RTT: %v", addr.String(), rtt))
 		stop <- fmt.Sprintf("%s:%v", addr.String(), rtt)
 	}
 	p.OnIdle = func() {
 		elapsed := time.Since(t1)
-		fmt.Fprintln(w, Colorize(fmt.Sprintf("[%s] - Count:  %d", time.Now().Format("2006-01-02 15:04:05"), len(ips)), "red", "", false, true))
-		fmt.Fprintln(w, Colorize(fmt.Sprintf("[%s] - Elapsed:  %s", time.Now().Format("2006-01-02 15:04:05"), elapsed.String()), "red", "", false, true))
-		fmt.Fprintln(w, Colorize(fmt.Sprintf("[%s] - Finished:  DONE", time.Now().Format("2006-01-02 15:04:05")), "red", "", false, true))
+		fmt.Fprintln(w, Colorize(fmt.Sprintf("[%s] - Finished:  Count - %d | Online - %d | Elapsed - %s", time.Now().Format("2006-01-02 15:04:05"), len(ips), active, elapsed.String()), "red", "", false, true))
 	}
 	err := p.Run()
 	if err != nil {
