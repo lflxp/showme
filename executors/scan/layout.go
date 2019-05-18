@@ -166,6 +166,7 @@ func gethelp(g *gocui.Gui, v *gocui.View) error {
 		fmt.Fprintln(v, utils.Colorize("↑ ↓: Move View", "yellow", "", false, true))
 		fmt.Fprintln(v, utils.Colorize("^c: Exit", "yellow", "", false, true))
 		fmt.Fprintln(v, utils.Colorize("F1: Help", "yellow", "", false, true))
+		fmt.Fprintln(v, utils.Colorize("Space: search result with ip view and port view", "yellow", "", false, true))
 
 		if _, err := setCurrentViewOnTop(g, "gethelp"); err != nil {
 			return err
