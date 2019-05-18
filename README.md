@@ -95,3 +95,7 @@ command:
 # 多线程改造
 
 https://blog.csdn.net/lengyuezuixue/article/details/79664409
+
+# todo
+
+scan 结果v.result 搜索 ctrl+s
