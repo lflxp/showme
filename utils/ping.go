@@ -230,6 +230,7 @@ func ScanPort(host, port string) bool {
 func ScanPort2H(ip string, ports string, stop chan string, w io.Writer) error {
 	// ip = strings.Split(ip, "|")[1]
 	// stop <- fmt.Sprintf("ip %s  port range %s", ip, ports)
+	active := 0
 	t1 := time.Now()
 	pports, err := ParsePorts(ports)
 	if err != nil {
@@ -237,6 +238,7 @@ func ScanPort2H(ip string, ports string, stop chan string, w io.Writer) error {
 	}
 	for _, port := range pports {
 		if ScanPort(ip, fmt.Sprintf("%d", port)) {
+			active++
 			fmt.Fprintln(w, fmt.Sprintf("[%s] - scaning: %s:%d Active", time.Now().Format("2006-01-02 15:04:05"), ip, port))
 			stop <- fmt.Sprintf("%s:%d", ip, port)
 		} else {
@@ -244,8 +246,10 @@ func ScanPort2H(ip string, ports string, stop chan string, w io.Writer) error {
 		}
 	}
 	elapsed := time.Since(t1)
-	fmt.Fprintln(w, Colorize(fmt.Sprintf("[%s] - Count:  %d", time.Now().Format("2006-01-02 15:04:05"), len(pports)), "red", "", false, true))
-	fmt.Fprintln(w, Colorize(fmt.Sprintf("[%s] - Elapsed:  %s", time.Now().Format("2006-01-02 15:04:05"), elapsed.String()), "red", "", false, true))
-	fmt.Fprintln(w, Colorize(fmt.Sprintf("[%s] - Finished:  DONE", time.Now().Format("2006-01-02 15:04:05")), "red", "", false, true))
+	// fmt.Fprintln(w, Colorize(fmt.Sprintf("[%s] - Count:  %d", time.Now().Format("2006-01-02 15:04:05"), len(pports)), "red", "", false, true))
+	// fmt.Fprintln(w, Colorize(fmt.Sprintf("[%s] - Elapsed:  %s", time.Now().Format("2006-01-02 15:04:05"), elapsed.String()), "red", "", false, true))
+	// fmt.Fprintln(w, Colorize(fmt.Sprintf("[%s] - Finished:  DONE", time.Now().Format("2006-01-02 15:04:05")), "red", "", false, true))
+	fmt.Fprintln(w, Colorize(fmt.Sprintf("[%s] - Finished:  Count - %d | Online - %d | Elapsed - %s", time.Now().Format("2006-01-02 15:04:05"), len(pports), active, elapsed.String()), "red", "", false, true))
+
 	return nil
 }

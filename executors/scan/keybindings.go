@@ -69,5 +69,17 @@ func keybindings(g *gocui.Gui) error {
 	if err := g.SetKeybinding("help", gocui.KeyTab, gocui.ModNone, nextView); err != nil {
 		return err
 	}
+	if err := g.SetKeybinding("top", gocui.KeySpace, gocui.ModNone, searchIp); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("searchIp", gocui.KeyEnter, gocui.ModNone, delsearchIp); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("scanport", gocui.KeySpace, gocui.ModNone, searchPorts); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("searchPorts", gocui.KeyEnter, gocui.ModNone, delsearchPorts); err != nil {
+		return err
+	}
 	return nil
 }

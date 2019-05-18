@@ -2,6 +2,7 @@ package scan
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/jroimartin/gocui"
@@ -190,6 +191,174 @@ func inputIp(g *gocui.Gui, v *gocui.View) error {
 		// selectId = strings.Trim(l, " ")
 		fmt.Fprintf(v, ips)
 		if _, err := g.SetCurrentView("inputip"); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func searchIp(g *gocui.Gui, v *gocui.View) error {
+	maxX, maxY := g.Size()
+	if v, err := g.SetView("searchIp", maxX/2-30, maxY/2, maxX/2+30, maxY/2+2); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+
+		v.Title = "Search"
+		v.Highlight = true
+		v.Editable = true
+		v.SelFgColor = gocui.ColorRed
+		// fmt.Fprintln(v, strings.Trim(l, " "))
+		// fmt.Fprintln(v, l)
+		// selectId = strings.Trim(l, " ")
+		if _, err := g.SetCurrentView("searchIp"); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func searchPorts(g *gocui.Gui, v *gocui.View) error {
+	maxX, maxY := g.Size()
+	if v, err := g.SetView("searchPorts", maxX/2-30, maxY/2, maxX/2+30, maxY/2+2); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+
+		v.Title = "Search"
+		v.Highlight = true
+		v.Editable = true
+		v.SelFgColor = gocui.ColorRed
+		// fmt.Fprintln(v, strings.Trim(l, " "))
+		// fmt.Fprintln(v, l)
+		// selectId = strings.Trim(l, " ")
+		if _, err := g.SetCurrentView("searchPorts"); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func delsearchIp(g *gocui.Gui, v *gocui.View) error {
+	// getline
+	var l string
+	var err error
+
+	_, cy := v.Cursor()
+	if l, err = v.Line(cy); err != nil {
+		l = ""
+	}
+	// getResult
+	if v, err := g.View("top"); err != nil {
+		return err
+	} else {
+		// v.Autoscroll = true
+		// v.Highlight = true
+		// v.Wrap = true
+		// deleteOrigin
+		if err := g.DeleteView("searchIp"); err != nil {
+			return err
+		}
+		// color for search word and replace before result
+		tmprs := v.BufferLines()
+		v.Clear()
+		front := []string{}
+		backend := []string{}
+		title := ""
+		countTitle := 0
+		for _, x := range tmprs {
+			x = strings.Replace(x, ">", " ", -1)
+			match, _ := regexp.MatchString(l, x)
+			if match {
+				// fmt.Fprintln(v, utils.Colorize(strings.Replace(x, " ", ">", 3), "yellow", "", false, true))
+				front = append(front, utils.Colorize(strings.Replace(x, " ", ">", 3), "yellow", "", false, true))
+			} else {
+				match1, _ := regexp.MatchString("ID", x)
+				if match1 && countTitle == 0 {
+					// fmt.Fprintln(v, utils.Colorize(x, "dgreen", "black", false, false))
+					title = utils.Colorize(x, "dgreen", "black", false, false)
+					countTitle++
+				} else {
+					// fmt.Fprintln(v, strings.Replace(x, ">", " ", -1))
+					backend = append(backend, x)
+				}
+			}
+		}
+		// print
+		fmt.Fprintln(v, title)
+		for _, o := range front {
+			fmt.Fprintln(v, o)
+		}
+		for _, t := range backend {
+			fmt.Fprintln(v, t)
+		}
+		// setTop
+		if _, err := g.SetCurrentView("top"); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func delsearchPorts(g *gocui.Gui, v *gocui.View) error {
+	// getline
+	var l string
+	var err error
+
+	_, cy := v.Cursor()
+	if l, err = v.Line(cy); err != nil {
+		l = ""
+	}
+	// getResult
+	if v, err := g.View("scanport"); err != nil {
+		return err
+	} else {
+		// v.Autoscroll = true
+		// v.Highlight = true
+		// v.Wrap = true
+		// deleteOrigin
+		if err := g.DeleteView("searchPorts"); err != nil {
+			return err
+		}
+		// color for search word and replace before result
+		tmprs := v.BufferLines()
+		v.Clear()
+		front := []string{}
+		backend := []string{}
+		title := ""
+		countTitle := 0
+		for _, x := range tmprs {
+			x = strings.Replace(x, ">", " ", -1)
+			match, _ := regexp.MatchString(l, x)
+			if match {
+				// fmt.Fprintln(v, utils.Colorize(strings.Replace(x, " ", ">", 3), "yellow", "", false, true))
+				front = append(front, utils.Colorize(strings.Replace(x, " ", ">", 3), "yellow", "", false, true))
+			} else {
+				match1, _ := regexp.MatchString("ID", x)
+				if match1 && countTitle == 0 {
+					// fmt.Fprintln(v, utils.Colorize(x, "dgreen", "black", false, false))
+					title = utils.Colorize(x, "dgreen", "black", false, false)
+					countTitle++
+				} else {
+					// fmt.Fprintln(v, strings.Replace(x, ">", " ", -1))
+					backend = append(backend, x)
+				}
+			}
+		}
+		// print
+		fmt.Fprintln(v, title)
+		for _, o := range front {
+			fmt.Fprintln(v, o)
+		}
+		for _, t := range backend {
+			fmt.Fprintln(v, t)
+		}
+		// setTop
+		if _, err := g.SetCurrentView("scanport"); err != nil {
 			return err
 		}
 	}
