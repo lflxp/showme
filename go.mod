@@ -6,6 +6,7 @@ require (
 	github.com/StackExchange/wmi v0.0.0-20181212234831-e0a55b97c705 // indirect
 	github.com/c-bata/go-prompt v0.2.3
 	github.com/go-ole/go-ole v1.2.4 // indirect
+	github.com/go-sql-driver/mysql v1.4.1
 	github.com/google/gopacket v1.1.16
 	github.com/jroimartin/gocui v0.4.0
 	github.com/juju/errors v0.0.0-20190207033735-e65537c515d7
@@ -24,6 +25,7 @@ require (
 	github.com/tatsushid/go-fastping v0.0.0-20160109021039-d7bb493dee3e
 	github.com/ugorji/go v1.1.4
 	golang.org/x/sys v0.0.0-20190405154228-4b34438f7a67 // indirect
+	google.golang.org/appengine v1.6.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce // indirect
 	gopkg.in/yaml.v2 v2.2.2 // indirect

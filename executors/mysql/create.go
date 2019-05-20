@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/lflxp/showme/utils"
@@ -72,6 +73,7 @@ func (this *basic) GetShowGlobalVariables() error {
 		if err != nil {
 			return err
 		}
+		fmt.Println(variable_name, value)
 		showGlobalVariables[variable_name] = value
 	}
 	return nil
@@ -94,6 +96,7 @@ func (this *basic) GetShowVariables() error {
 		if err != nil {
 			return err
 		}
+		fmt.Println(variable_name, value)
 		showVariables[variable_name] = value
 	}
 	return nil
@@ -116,6 +119,7 @@ func (this *basic) GetShowGlobalStatus() error {
 		if err != nil {
 			return err
 		}
+		fmt.Println(variable_name, value)
 		showGlobalStatus[variable_name] = value
 	}
 	return nil
@@ -138,6 +142,7 @@ func (this *basic) GetShowStatus() error {
 		if err != nil {
 			return err
 		}
+		fmt.Println(variable_name, value)
 		showStatus[variable_name] = value
 	}
 	return nil
