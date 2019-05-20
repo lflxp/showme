@@ -15,6 +15,7 @@ var Commands = []prompt.Suggest{
 	{Text: "monitor", Description: "monitoring Linux/Unix or MacOs status runtime"},
 	{Text: "scan", Description: "ip && port scaning online"},
 	{Text: "httpstatic", Description: "static http server"},
+	{Text: "mysql", Description: "monitor mysql info"},
 	{Text: "help", Description: "List All Menu"},
 }
 

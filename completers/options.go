@@ -94,6 +94,8 @@ func OptionsCompleters(args []string, long bool) []prompt.Suggest {
 		sug = suggests.MonitorOptions
 	case "httpstatic":
 		sug = suggests.HttpStaticOptions
+	case "mysql":
+		sug = suggests.MysqlOptions
 	default:
 		sug = optionHelp
 	}

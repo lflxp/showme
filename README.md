@@ -45,11 +45,13 @@ go build -tags=gopacket main.go
 
 ![scan.png](https://github.com/lflxp/showme/blob/master/scan.png)
 
-- Tab: Next View/Refresh IP or Port
+- Tab: Next View
 - Enter: Select IP/Commit Input
-- F5: Input New IP range/Refresh IP or Port
+- F5: Input New Scan IP or Port range
 - ↑ ↓: Move View
 - ^c: Exit
+- F1: Help
+- Space: search result with ip view and port view
 
 4. static http server
 
@@ -98,4 +100,5 @@ https://blog.csdn.net/lengyuezuixue/article/details/79664409
 
 # todo
 
-scan 结果v.result 搜索 ctrl+s
+- mysql 解析
+- 微服务管理和功能测试
