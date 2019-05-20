@@ -28,7 +28,7 @@ func delinputIp(g *gocui.Gui, v *gocui.View) error {
 	} else {
 		vivia.Highlight = true
 		vivia.Clear()
-		go ScanIp(g, vivia, maxX/2-2)
+		go ScanIp(g, vivia, maxX/2-3)
 	}
 
 	return nil

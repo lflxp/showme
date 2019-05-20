@@ -31,6 +31,7 @@ func Scan(in string) {
 	g.SelFgColor = gocui.ColorGreen
 	g.SetManagerFunc(dlayout)
 
+	// auto refresh every second
 	d := time.Duration(time.Second)
 	t := time.NewTicker(d)
 	defer t.Stop()

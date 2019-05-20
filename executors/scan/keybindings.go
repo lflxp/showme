@@ -10,7 +10,10 @@ func keybindings(g *gocui.Gui) error {
 	if err := g.SetKeybinding("top", gocui.KeyTab, gocui.ModNone, nextView); err != nil {
 		return err
 	}
-	if err := g.SetKeybinding("scanport", gocui.KeyF5, gocui.ModNone, nextView); err != nil {
+	if err := g.SetKeybinding("scanport", gocui.KeyF5, gocui.ModNone, inputIpPorts); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("inputIpPorts", gocui.KeyEnter, gocui.ModNone, delinputIpPorts); err != nil {
 		return err
 	}
 	if err := g.SetKeybinding("scanport", gocui.KeyTab, gocui.ModNone, nextView); err != nil {

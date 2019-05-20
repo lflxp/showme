@@ -38,7 +38,7 @@ func dlayout(g *gocui.Gui) error {
 		v.SelFgColor = gocui.ColorBlack
 		// v.Editable = true
 		// fmt.Fprintf(v, time.Now().Format("2006-01-02 15:04:05"))
-		go ScanIp(g, v, maxX/2-2)
+		go ScanIp(g, v, maxX/2-3)
 
 		if _, err = setCurrentViewOnTop(g, "top"); err != nil {
 			return err
@@ -160,9 +160,9 @@ func gethelp(g *gocui.Gui, v *gocui.View) error {
 		}
 
 		v.Title = "Keybindings(F1: quit)"
-		fmt.Fprintln(v, utils.Colorize("Tab: Next View/Refresh IP or Port", "yellow", "", false, true))
+		fmt.Fprintln(v, utils.Colorize("Tab: Next View", "yellow", "", false, true))
 		fmt.Fprintln(v, utils.Colorize("Enter: Select IP/Commit Input", "yellow", "", false, true))
-		fmt.Fprintln(v, utils.Colorize("F5: Input New IP range/Refresh IP or Port", "yellow", "", false, true))
+		fmt.Fprintln(v, utils.Colorize("F5: Input New Scan IP or Port range", "yellow", "", false, true))
 		fmt.Fprintln(v, utils.Colorize("↑ ↓: Move View", "yellow", "", false, true))
 		fmt.Fprintln(v, utils.Colorize("^c: Exit", "yellow", "", false, true))
 		fmt.Fprintln(v, utils.Colorize("F1: Help", "yellow", "", false, true))
@@ -171,6 +171,55 @@ func gethelp(g *gocui.Gui, v *gocui.View) error {
 		if _, err := setCurrentViewOnTop(g, "gethelp"); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func inputIpPorts(g *gocui.Gui, v *gocui.View) error {
+	maxX, maxY := g.Size()
+	if v, err := g.SetView("inputIpPorts", maxX/2-30, maxY/2, maxX/2+30, maxY/2+2); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+
+		v.Title = fmt.Sprintf("Current IP %s Input Port Range:", selectId)
+		v.Highlight = true
+		v.Editable = true
+		v.SelFgColor = gocui.ColorRed
+		// fmt.Fprintln(v, strings.Trim(l, " "))
+		// fmt.Fprintln(v, l)
+		// selectId = strings.Trim(l, " ")
+		fmt.Fprintf(v, port)
+		if _, err := g.SetCurrentView("inputIpPorts"); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func delinputIpPorts(g *gocui.Gui, v *gocui.View) error {
+	if err := g.DeleteView("inputIpPorts"); err != nil {
+		return err
+	}
+
+	var l string
+	var err error
+
+	_, cy := v.Cursor()
+	if l, err = v.Line(cy); err != nil {
+		l = ""
+	}
+	port = l
+	maxX, _ := g.Size()
+	if vivia, err := g.SetCurrentView("scanport"); err != nil {
+		return err
+	} else {
+		vivia.Title = fmt.Sprintf("Current IP:   %s     PORTS RANGE:  %s", selectId, port)
+		vivia.Highlight = true
+		vivia.Clear()
+		go ScanIpPorts(g, vivia, maxX/2)
 	}
 
 	return nil
