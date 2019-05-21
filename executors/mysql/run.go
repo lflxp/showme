@@ -24,7 +24,7 @@ func BeforeRun(in string) error {
 		if err != nil {
 			return err
 		}
-		defer mysql.CloseConn()
+		// defer mysql.CloseConn()
 	} else {
 		return errors.New("nothing input")
 	}
@@ -82,7 +82,7 @@ func BeforeRun(in string) error {
 
 		ok := true
 
-		interval := 20
+		interval := 1
 		num := 0
 
 		// 主机信息
@@ -92,7 +92,8 @@ func BeforeRun(in string) error {
 		mysql.GetShowGlobalVariables()
 		mysql.GetShowStatus()
 		mysql.GetShowVariables()
-
+		Before = mysql
+		mysql.CloseConn()
 		// print net info
 		// xo := utils.MonitorNet{}
 		// xo.Get()
@@ -103,7 +104,7 @@ func BeforeRun(in string) error {
 		// 	return
 		// }
 
-		FilterTitle(in, num, interval)
+		// FilterTitle(in, num, interval)
 
 		for {
 			select {
@@ -112,8 +113,29 @@ func BeforeRun(in string) error {
 				ok = false
 				break
 			case <-t.C:
+				tmp := NewBasic()
+				Username = "root"
+				Password = "Nw8jfr3zDZ"
+				Ip = "10.128.142.132"
+				Port = "3306"
+				Dbname = "user"
+				err := tmp.InitMysqlConn()
+				if err != nil {
+					return err
+				}
+				// defer tmp.CloseConn()
+
+				tmp.GetHostAndIps()
+				tmp.GetShowDatabases()
+				tmp.GetShowGlobalStatus()
+				tmp.GetShowGlobalVariables()
+				tmp.GetShowStatus()
+				tmp.GetShowVariables()
+
 				FilterTitle(in, num, interval)
-				FilterValue(in, num, interval, mysql)
+				FilterValue(in, num, interval, tmp)
+				Before = tmp
+				tmp.CloseConn()
 			}
 			num++
 			// 终止循环
@@ -135,54 +157,53 @@ func FilterTitle(in string, count, interval int) {
 		columns += utils.GetComColumns()
 		title += utils.GetHitTitle()
 		columns += utils.GetHitColumns()
-	} else {
-		if strings.Contains(in, "-com") {
-			title += utils.GetComTitle()
-			columns += utils.GetComColumns()
-		}
-		if strings.Contains(in, "-hit") {
-			title += utils.GetHitTitle()
-			columns += utils.GetHitColumns()
-		}
-		if strings.Contains(in, "-innodb_rows") {
-			title += utils.GetInnodbRowsTitle()
-			columns += utils.GetInnodbRowsColumns()
-		}
-		if strings.Contains(in, "-innodb_pages") {
-			title += utils.GetInnodbPagesTitle()
-			columns += utils.GetInnodbPagesColumns()
-		}
-		if strings.Contains(in, "-innodb_data") {
-			title += utils.GetInnodbDataTitle()
-			columns += utils.GetInnodbDataColumns()
-		}
-		if strings.Contains(in, "-innodb_log") {
-			title += utils.GetInnodbLogTitle()
-			columns += utils.GetInnodbLogColumns()
-		}
-		if strings.Contains(in, "-innodb_status") {
-			title += utils.GetInnodbStatusTitle()
-			columns += utils.GetInnodbStatusColumns()
-		}
-		if strings.Contains(in, "-threads") {
-			title += utils.GetThreadsTitle()
-			columns += utils.GetThreadsColumns()
-		}
-		if strings.Contains(in, "-bytes") {
-			title += utils.GetBytesTitle()
-			columns += utils.GetBytesColumns()
-		}
-		if strings.Contains(in, "-semi") {
-			title += utils.GetSemiTitle()
-			columns += utils.GetSemiColumns()
-		}
-		if strings.Contains(in, "-slave") {
-			title += utils.GetSlaveTitle()
-			columns += utils.GetSlaveColumns()
-		}
+	}
+	if strings.Contains(in, "-com") {
+		title += utils.GetComTitle()
+		columns += utils.GetComColumns()
+	}
+	if strings.Contains(in, "-hit") {
+		title += utils.GetHitTitle()
+		columns += utils.GetHitColumns()
+	}
+	if strings.Contains(in, "-innodb_rows") {
+		title += utils.GetInnodbRowsTitle()
+		columns += utils.GetInnodbRowsColumns()
+	}
+	if strings.Contains(in, "-innodb_pages") {
+		title += utils.GetInnodbPagesTitle()
+		columns += utils.GetInnodbPagesColumns()
+	}
+	if strings.Contains(in, "-innodb_data") {
+		title += utils.GetInnodbDataTitle()
+		columns += utils.GetInnodbDataColumns()
+	}
+	if strings.Contains(in, "-innodb_log") {
+		title += utils.GetInnodbLogTitle()
+		columns += utils.GetInnodbLogColumns()
+	}
+	if strings.Contains(in, "-innodb_status") {
+		title += utils.GetInnodbStatusTitle()
+		columns += utils.GetInnodbStatusColumns()
+	}
+	if strings.Contains(in, "-T") {
+		title += utils.GetThreadsTitle()
+		columns += utils.GetThreadsColumns()
+	}
+	if strings.Contains(in, "-B") {
+		title += utils.GetBytesTitle()
+		columns += utils.GetBytesColumns()
+	}
+	if strings.Contains(in, "-semi") {
+		title += utils.GetSemiTitle()
+		columns += utils.GetSemiColumns()
+	}
+	if strings.Contains(in, "-slave") {
+		title += utils.GetSlaveTitle()
+		columns += utils.GetSlaveColumns()
 	}
 
-	if count%interval == 0 {
+	if count%20 == 0 {
 		fmt.Println(title)
 		fmt.Println(columns)
 	}
@@ -199,31 +220,101 @@ func FilterValue(in string, num, interval int, mysql *basic) error {
 	// -t,-l,-c,-s,-com,-hit
 	if strings.Contains(in, "-lazy") {
 		if num == 0 {
-			value += utils.Colorize("0 0 0  0 0", "", "", false, false) + utils.Colorize("|", "dgreen", "", false, false)
-			value += utils.Colorize("100.00 100.00 100.00 100.00 100.00   0 100.00|", "", "", false, false) + utils.Colorize("|", "green", "", false, false)
+			value += utils.Colorize("    0     0     0      0     0", "green", "", false, false) + utils.Colorize("|", "green", "", false, false)
+			value += utils.Colorize("100.00 100.00 100.00 100.00 100.00       0 100.00", "green", "", false, false) + utils.Colorize("|", "green", "", false, false)
 		} else {
-			value += mysql.CreateCom(interval, Before)
+			value += mysql.CreateCom(interval)
 			value += mysql.CreateHit(interval)
 		}
-	} else {
-		if strings.Contains(in, "-com") {
-			if num == 0 {
-				value += utils.Colorize("0 0 0  0 0", "", "", false, false) + utils.Colorize("|", "dgreen", "", false, false)
-			} else {
-				value += mysql.CreateCom(interval, Before)
-			}
+	}
+	if strings.Contains(in, "-com") {
+		if num == 0 {
+			value += utils.Colorize("    0     0     0      0     0", "green", "", false, false) + utils.Colorize("|", "green", "", false, false)
+		} else {
+			value += mysql.CreateCom(interval)
 		}
+	}
 
-		if strings.Contains(in, "-hit") {
-			if num == 0 {
-				value += utils.Colorize("100.00 100.00 100.00 100.00 100.00   0 100.00|", "", "", false, false) + utils.Colorize("|", "green", "", false, false)
-			} else {
-				value += mysql.CreateHit(interval)
-			}
+	if strings.Contains(in, "-hit") {
+		if num == 0 {
+			value += utils.Colorize("100.00 100.00 100.00 100.00 100.00       0 100.00", "green", "", false, false) + utils.Colorize("|", "green", "", false, false)
+		} else {
+			value += mysql.CreateHit(interval)
+		}
+	}
+
+	if strings.Contains(in, "-innodb_rows") {
+		if num == 0 {
+			value += utils.Colorize("    0     0     0      0", "", "", false, false) + utils.Colorize("|", "green", "", false, false)
+		} else {
+			value += mysql.CreateInnodbRows(interval)
+		}
+	}
+
+	if strings.Contains(in, "-innodb_pages") {
+		if num == 0 {
+			value += utils.Colorize("     0     0     0    0", "", "", false, false) + utils.Colorize("|", "green", "", false, false)
+		} else {
+			value += mysql.CreateInnodbPages(interval)
+		}
+	}
+
+	if strings.Contains(in, "-innodb_data") {
+		if num == 0 {
+			value += utils.Colorize("     0      0      0      0", "", "", false, false) + utils.Colorize("|", "green", "", false, false)
+		} else {
+			value += mysql.CreateInnodbData(interval)
+		}
+	}
+
+	if strings.Contains(in, "-innodb_log") {
+		if num == 0 {
+			value += utils.Colorize("    0      0", "", "", false, false) + utils.Colorize("|", "green", "", false, false)
+		} else {
+			value += mysql.CreateInnodbLog(interval)
+		}
+	}
+
+	if strings.Contains(in, "-innodb_status") {
+		if num == 0 {
+			value += utils.Colorize("    0     0     0    0    0    0", "", "", false, false) + utils.Colorize("|", "green", "", false, false)
+		} else {
+			value += mysql.CreateInnodbStatus(interval)
+		}
+	}
+
+	if strings.Contains(in, "-T") {
+		if num == 0 {
+			value += utils.Colorize("   0    0    0    0      0", "", "", false, false) + utils.Colorize("|", "green", "", false, false)
+		} else {
+			value += mysql.CreateThreads(interval)
+		}
+	}
+
+	if strings.Contains(in, "-B") {
+		if num == 0 {
+			value += utils.Colorize("      0      0", "", "", false, false) + utils.Colorize("|", "green", "", false, false)
+		} else {
+			value += mysql.CreateBytes(interval)
+		}
+	}
+
+	if strings.Contains(in, "-semi") {
+		if num == 0 {
+			value += utils.Colorize("100ms 100ms 1000 1000  1000", "", "", false, false) + utils.Colorize("|", "green", "", false, false)
+		} else {
+			value += mysql.CreateSemi(interval)
+		}
+	}
+
+	if strings.Contains(in, "-slave") {
+		if num == 0 {
+			value += utils.Colorize(" 1066312331  1066312331 6312331 6312331", "", "", false, false) + utils.Colorize("|", "green", "", false, false)
+		} else {
+			value += mysql.CreateSlave(interval)
 		}
 	}
 
 	fmt.Println(value)
-	Before = mysql
 	return nil
 }

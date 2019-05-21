@@ -61,11 +61,11 @@ func GetDiskColumns() string {
 }
 
 func GetComTitle() string {
-	return Colorize("-QPS- -TPS-", "dgreen", "blue", false, false)
+	return Colorize("-------QPS----------TPS------- ", "dgreen", "blue", false, false)
 }
 
 func GetComColumns() string {
-	return Colorize("  ins   upd   delsel   iud|", "dgreen", "", true, false)
+	return Colorize("  ins   upd   del    sel   iud|", "dgreen", "", true, false)
 }
 
 func GetHitTitle() string {
@@ -73,7 +73,7 @@ func GetHitTitle() string {
 }
 
 func GetHitColumns() string {
-	return Colorize("  read  writecur  totalhit lorhit|", "dgreen", "", true, false)
+	return Colorize("  read  write    cur  total lorhit readreq  inhit|", "dgreen", "", true, false)
 }
 
 func GetInnodbRowsTitle() string {
@@ -97,7 +97,7 @@ func GetInnodbDataTitle() string {
 }
 
 func GetInnodbDataColumns() string {
-	return Colorize(" reads writes   read written|", "dgreen", "", true, false)
+	return Colorize(" reads  writes   read written|", "dgreen", "", true, false)
 }
 
 func GetInnodbLogTitle() string {

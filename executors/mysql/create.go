@@ -709,7 +709,6 @@ func (this *basic) GetShowEngineInnodbStatus() error {
 
 	for _, x := range strings.Split(status, "\n") {
 		if strings.Contains(x, "Log sequence number") {
-			fmt.Println("1111111 get Log sequence number")
 			tmp := strings.Split(strings.TrimSpace(x), " ")
 			this.Log_sequence, err = strconv.Atoi(tmp[len(tmp)-1])
 			if err != nil {
@@ -717,7 +716,6 @@ func (this *basic) GetShowEngineInnodbStatus() error {
 			}
 		}
 		if strings.Contains(x, "Log flushed up to") {
-			fmt.Println("1111111 get Log lushed up to")
 			tmp := strings.Split(strings.TrimSpace(x), " ")
 			this.Log_flushed, err = strconv.Atoi(tmp[len(tmp)-1])
 			if err != nil {
@@ -761,15 +759,14 @@ func (this *basic) GetShowEngineInnodbStatus() error {
 	return nil
 }
 
-func (this *basic) CreateCom(interval int, before *basic) string {
+func (this *basic) CreateCom(interval int) string {
 	data_detail := ""
-	// fmt.Println("11111", Before.Hostname)
-	insert_diff := (this.Com_insert - before.Com_insert) / interval
-	update_diff := (this.Com_update - before.Com_update) / interval
-	delete_diff := (this.Com_delete - before.Com_delete) / interval
-	select_diff := (this.Com_select - before.Com_select) / interval
-	commit_diff := (this.Com_commit - before.Com_commit) / interval
-	rollback_diff := (this.Com_rollback - before.Com_rollback) / interval
+	insert_diff := (this.Com_insert - Before.Com_insert) / interval
+	update_diff := (this.Com_update - Before.Com_update) / interval
+	delete_diff := (this.Com_delete - Before.Com_delete) / interval
+	select_diff := (this.Com_select - Before.Com_select) / interval
+	commit_diff := (this.Com_commit - Before.Com_commit) / interval
+	rollback_diff := (this.Com_rollback - Before.Com_rollback) / interval
 	tps := rollback_diff + commit_diff
 
 	data_detail += utils.Colorize(strings.Repeat(" ", 5-len(strconv.Itoa(insert_diff)))+strconv.Itoa(insert_diff), "", "", false, false)
@@ -820,6 +817,230 @@ func (this *basic) CreateHit(interval int) string {
 	data_detail += utils.Colorize(strings.Repeat(" ", 8-len(strconv.Itoa(read_request)))+strconv.Itoa(read_request), "", "", false, false)
 
 	data_detail += hit(7, innodb_hit)
+
+	data_detail += utils.Colorize("|", "green", "", false, false)
+	return data_detail
+}
+
+func (this *basic) CreateInnodbRows(interval int) string {
+	data_detail := ""
+	innodb_rows_inserted_diff := (this.Innodb_rows_inserted - Before.Innodb_rows_inserted) / interval
+	innodb_rows_updated_diff := (this.Innodb_rows_updated - Before.Innodb_rows_updated) / interval
+	innodb_rows_deleted_diff := (this.Innodb_rows_deleted - Before.Innodb_rows_deleted) / interval
+	innodb_rows_read_diff := (this.Innodb_rows_read - Before.Innodb_rows_read) / interval
+
+	data_detail += utils.Colorize(strings.Repeat(" ", 5-len(strconv.Itoa(innodb_rows_inserted_diff)))+strconv.Itoa(innodb_rows_inserted_diff), "", "", false, false)
+	data_detail += utils.Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(innodb_rows_updated_diff)))+strconv.Itoa(innodb_rows_updated_diff), "", "", false, false)
+	data_detail += utils.Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(innodb_rows_deleted_diff)))+strconv.Itoa(innodb_rows_deleted_diff), "", "", false, false)
+	data_detail += utils.Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(innodb_rows_read_diff)))+strconv.Itoa(innodb_rows_read_diff), "", "", false, false)
+
+	data_detail += utils.Colorize("|", "green", "", false, false)
+	return data_detail
+}
+
+func (this *basic) CreateInnodbPages(interval int) string {
+	data_detail := ""
+	flush := (this.Innodb_buffer_pool_pages_flushed - Before.Innodb_buffer_pool_pages_flushed) / interval
+
+	data_detail += utils.Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(this.Innodb_buffer_pool_pages_data)))+strconv.Itoa(Before.Innodb_buffer_pool_pages_data), "", "", false, false)
+	data_detail += utils.Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(this.Innodb_buffer_pool_pages_free)))+strconv.Itoa(Before.Innodb_buffer_pool_pages_free), "", "", false, false)
+	data_detail += utils.Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(this.Innodb_buffer_pool_pages_dirty)))+strconv.Itoa(Before.Innodb_buffer_pool_pages_dirty), "yellow", "", false, false)
+	data_detail += utils.Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(flush)))+strconv.Itoa(flush), "yellow", "", false, false)
+
+	data_detail += utils.Colorize("|", "green", "", false, false)
+	return data_detail
+}
+
+func (this *basic) CreateInnodbData(interval int) string {
+	data_detail := ""
+	innodb_data_reads_diff := (this.Innodb_data_reads - Before.Innodb_data_reads) / interval
+	innodb_data_writes_diff := (this.Innodb_data_writes - Before.Innodb_data_writes) / interval
+	innodb_data_read_diff := (this.Innodb_data_read - Before.Innodb_data_read) / interval
+	innodb_data_written_diff := (this.Innodb_data_written - Before.Innodb_data_written) / interval
+
+	data_detail += utils.Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(innodb_data_reads_diff)))+strconv.Itoa(innodb_data_reads_diff), "", "", false, false)
+	data_detail += utils.Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(innodb_data_writes_diff)))+strconv.Itoa(innodb_data_writes_diff), "", "", false, false)
+
+	if innodb_data_read_diff/1024/1024 > 9 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 6-len(floatToString(float64(innodb_data_read_diff)/1024/1024, 1)))+floatToString(float64(innodb_data_read_diff)/1024/1024, 1)+"m", "red", "", false, true)
+	} else if innodb_data_read_diff/1024/1024 <= 9 && innodb_data_read_diff/1024/1024 >= 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 6-len(floatToString(float64(innodb_data_read_diff)/1024/1024, 1)))+floatToString(float64(innodb_data_read_diff)/1024/1024, 1)+"m", "", "", false, false)
+	} else if innodb_data_read_diff/1024 >= 1 && innodb_data_read_diff/1024/1024 < 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(innodb_data_read_diff/1024)))+strconv.Itoa(innodb_data_read_diff/1024)+"k", "", "", false, false)
+	} else if innodb_data_read_diff/1024 < 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(innodb_data_read_diff)))+strconv.Itoa(innodb_data_read_diff), "", "", false, false)
+	}
+
+	if innodb_data_written_diff/1024/1024 > 9 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 7-len(floatToString(float64(innodb_data_written_diff)/1024/1024, 1)))+floatToString(float64(innodb_data_written_diff)/1024/1024, 1)+"m", "red", "", false, true)
+	} else if innodb_data_written_diff/1024/1024 <= 9 && innodb_data_written_diff/1024/1024 >= 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 7-len(floatToString(float64(innodb_data_written_diff)/1024/1024, 1)))+floatToString(float64(innodb_data_written_diff)/1024/1024, 1)+"m", "", "", false, false)
+	} else if innodb_data_written_diff/1024 >= 1 && innodb_data_written_diff/1024/1024 < 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(innodb_data_written_diff/1024)))+strconv.Itoa(innodb_data_written_diff/1024)+"k", "", "", false, false)
+	} else if innodb_data_written_diff/1024 < 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 8-len(strconv.Itoa(innodb_data_written_diff)))+strconv.Itoa(innodb_data_written_diff), "", "", false, false)
+	}
+
+	data_detail += utils.Colorize("|", "green", "", false, false)
+	return data_detail
+}
+
+func (this *basic) CreateInnodbLog(interval int) string {
+	data_detail := ""
+	innodb_os_log_fsyncs_diff := (this.Innodb_os_log_fsyncs - Before.Innodb_os_log_fsyncs) / interval
+	innodb_os_log_written_diff := (this.Innodb_os_log_written - Before.Innodb_os_log_written) / interval
+
+	data_detail += utils.Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(innodb_os_log_fsyncs_diff)))+strconv.Itoa(innodb_os_log_fsyncs_diff), "", "", false, false)
+
+	if innodb_os_log_written_diff/1024/1024 >= 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 7-len(floatToString(float64(innodb_os_log_written_diff)/1024/1024, 1)))+floatToString(float64(innodb_os_log_written_diff)/1024/1024, 1)+"m", "red", "", false, true)
+	} else if innodb_os_log_written_diff/1024/1024 < 1 && innodb_os_log_written_diff/1024 >= 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(int(float64(innodb_os_log_written_diff)/1024/1024+0.5))))+strconv.Itoa(int(float64(innodb_os_log_written_diff)/1024/1024+0.5))+"k", "yellow", "", false, false)
+	} else if innodb_os_log_written_diff/1024 < 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 8-len(strconv.Itoa(innodb_os_log_written_diff)))+strconv.Itoa(innodb_os_log_written_diff), "", "", false, false)
+	}
+
+	data_detail += utils.Colorize("|", "green", "", false, false)
+	return data_detail
+}
+
+func (this *basic) CreateInnodbStatus(interval int) string {
+	data_detail := ""
+	unflushed_log := this.Log_sequence - this.Log_flushed
+	uncheckpointed_bytes := this.Log_sequence - this.Last_checkpoint
+	//History_list
+	data_detail += utils.Colorize(strings.Repeat(" ", 5-len(strconv.Itoa(this.History_list)))+strconv.Itoa(this.History_list), "", "", false, false)
+	//unflushed_log
+	if unflushed_log/1024/1024 >= 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 6-len(floatToString(float64(unflushed_log)/1024/1024+0.5, 1)))+floatToString(float64(unflushed_log)/1024/1024+0.5, 1)+"m", "yellow", "", false, false)
+	} else if unflushed_log/1024/1024 < 1 && unflushed_log/1024 >= 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(float64(unflushed_log)/1024+0.5))))+strconv.Itoa(int(float64(unflushed_log)/1024+0.5))+"k", "yellow", "", false, false)
+	} else if unflushed_log/1024 < 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(unflushed_log)))+strconv.Itoa(unflushed_log), "yellow", "", false, false)
+	}
+
+	//uncheckpointed_bytes
+	if uncheckpointed_bytes/1024/1024 >= 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 6-len(floatToString(float64(uncheckpointed_bytes)/1024/1024+0.5, 1)))+floatToString(float64(uncheckpointed_bytes)/1024/1024+0.5, 1)+"m", "yellow", "", false, false)
+	} else if uncheckpointed_bytes/1024/1024 < 1 && uncheckpointed_bytes/1024 >= 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(float64(uncheckpointed_bytes)/1024+0.5))))+strconv.Itoa(int(float64(uncheckpointed_bytes)/1024+0.5))+"k", "yellow", "", false, false)
+	} else if uncheckpointed_bytes/1024 < 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(uncheckpointed_bytes)))+strconv.Itoa(uncheckpointed_bytes), "yellow", "", false, false)
+	}
+
+	//Read_views
+	data_detail += utils.Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(this.Read_view)))+strconv.Itoa(this.Read_view), "", "", false, false)
+	//inside
+	data_detail += utils.Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(this.Query_inside)))+strconv.Itoa(this.Query_inside), "", "", false, false)
+	//queue
+	data_detail += utils.Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(this.Query_queue)))+strconv.Itoa(this.Query_queue), "", "", false, false)
+
+	data_detail += utils.Colorize("|", "green", "", false, false)
+	return data_detail
+}
+
+func (this *basic) CreateThreads(interval int) string {
+	data_detail := ""
+	connections_dirr := (this.Connections - Before.Connections) / interval
+
+	threads_created_diff := (this.Threads_created - Before.Threads_created) / interval
+
+	thread_cache_hit := (1 - float64(threads_created_diff)/float64(connections_dirr)) * 100
+
+	data_detail += utils.Colorize(strings.Repeat(" ", 4-len(strconv.Itoa(this.Threads_running)))+strconv.Itoa(this.Threads_running), "", "", false, false)
+
+	data_detail += utils.Colorize(strings.Repeat(" ", 5-len(strconv.Itoa(this.Threads_connected)))+strconv.Itoa(this.Threads_connected), "", "", false, false)
+
+	data_detail += utils.Colorize(strings.Repeat(" ", 5-len(strconv.Itoa(threads_created_diff)))+strconv.Itoa(threads_created_diff), "", "", false, false)
+
+	data_detail += utils.Colorize(strings.Repeat(" ", 5-len(strconv.Itoa(this.Threads_cached)))+strconv.Itoa(this.Threads_cached), "", "", false, false)
+	if thread_cache_hit > 99.0 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 7-len(floatToString(thread_cache_hit, 2)))+floatToString(thread_cache_hit, 2), "green", "", false, false)
+	} else if thread_cache_hit <= 99.0 && thread_cache_hit > 90.0 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 7-len(floatToString(thread_cache_hit, 2)))+floatToString(thread_cache_hit, 2), "yellow", "", false, false)
+	} else {
+		data_detail += utils.Colorize(strings.Repeat(" ", 7-len(floatToString(thread_cache_hit, 2)))+floatToString(thread_cache_hit, 2), "red", "", false, false)
+	}
+
+	data_detail += utils.Colorize("|", "green", "", false, false)
+	return data_detail
+}
+
+func (this *basic) CreateBytes(interval int) string {
+	data_detail := ""
+	bytes_received_diff := (this.Bytes_received - Before.Bytes_received) / interval
+	bytes_sent_diff := (this.Bytes_sent - Before.Bytes_sent) / interval
+
+	if bytes_received_diff/1024/1024 >= 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 6-len(floatToString(float64(bytes_received_diff)/1024/1024+0.5, 1)))+floatToString(float64(bytes_received_diff)/1024/1024+0.5, 1)+"m", "red", "", false, true)
+	} else if bytes_received_diff/1024/1024 < 1 && bytes_received_diff/1024 >= 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(float64(bytes_received_diff)/1024+0.5))))+strconv.Itoa(int(float64(bytes_received_diff)/1024+0.5))+"k", "", "", false, false)
+	} else if bytes_received_diff/1024 < 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(bytes_received_diff)))+strconv.Itoa(bytes_received_diff), "", "", false, false)
+	}
+
+	if bytes_sent_diff/1024/1024 >= 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 6-len(floatToString(float64(bytes_sent_diff)/1024/1024+0.5, 1)))+floatToString(float64(bytes_sent_diff)/1024/1024+0.5, 1)+"m", "red", "", false, true)
+	} else if bytes_sent_diff/1024/1024 < 1 && bytes_sent_diff/1024 >= 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(int(float64(bytes_sent_diff)/1024+0.5))))+strconv.Itoa(int(float64(bytes_sent_diff)/1024+0.5))+"k", "", "", false, false)
+	} else if bytes_sent_diff/1024 < 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 7-len(strconv.Itoa(bytes_sent_diff)))+strconv.Itoa(bytes_sent_diff), "", "", false, false)
+	}
+
+	data_detail += utils.Colorize("|", "green", "", false, false)
+	return data_detail
+}
+
+func (this *basic) CreateSemi(interval int) string {
+	data_detail := ""
+	if this.Rpl_semi_sync_master_net_avg_wait_time < 1000 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 3-len(strconv.Itoa(this.Rpl_semi_sync_master_net_avg_wait_time)))+strconv.Itoa(this.Rpl_semi_sync_master_net_avg_wait_time)+"us", "", "", false, false)
+	} else if this.Rpl_semi_sync_master_net_avg_wait_time >= 1000 && this.Rpl_semi_sync_master_net_avg_wait_time/1000/1000 <= 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 3-len(strconv.Itoa(this.Rpl_semi_sync_master_net_avg_wait_time/1000)))+strconv.Itoa(this.Rpl_semi_sync_master_net_avg_wait_time/1000)+"ms", "", "", false, false)
+	} else if this.Rpl_semi_sync_master_net_avg_wait_time/1000/1000 > 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 4-len(strconv.Itoa(this.Rpl_semi_sync_master_net_avg_wait_time/1000/1000)))+strconv.Itoa(this.Rpl_semi_sync_master_net_avg_wait_time/1000/1000)+"s", "red", "", false, true)
+	}
+
+	if this.Rpl_semi_sync_master_tx_avg_wait_time < 1000 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 4-len(strconv.Itoa(this.Rpl_semi_sync_master_tx_avg_wait_time)))+strconv.Itoa(this.Rpl_semi_sync_master_tx_avg_wait_time)+"us", "", "", false, false)
+	} else if this.Rpl_semi_sync_master_tx_avg_wait_time > 1000 && this.Rpl_semi_sync_master_tx_avg_wait_time/1000/1000 <= 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 4-len(strconv.Itoa(this.Rpl_semi_sync_master_tx_avg_wait_time/1000)))+strconv.Itoa(this.Rpl_semi_sync_master_tx_avg_wait_time/1000)+"ms", "", "", false, false)
+	} else if this.Rpl_semi_sync_master_tx_avg_wait_time/1000/1000 > 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 5-len(strconv.Itoa(this.Rpl_semi_sync_master_tx_avg_wait_time/1000/1000)))+strconv.Itoa(this.Rpl_semi_sync_master_tx_avg_wait_time/1000/1000)+"s", "red", "", false, true)
+	}
+
+	if this.Rpl_semi_sync_master_no_tx > 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 5-len(strconv.Itoa(this.Rpl_semi_sync_master_no_tx)))+strconv.Itoa(this.Rpl_semi_sync_master_no_tx), "red", "", false, true)
+	} else {
+		data_detail += utils.Colorize(strings.Repeat(" ", 5-len(strconv.Itoa(this.Rpl_semi_sync_master_no_tx)))+strconv.Itoa(this.Rpl_semi_sync_master_no_tx), "", "", false, true)
+	}
+
+	data_detail += utils.Colorize(strings.Repeat(" ", 5-len(changeUntils(this.Rpl_semi_sync_master_yes_tx)))+changeUntils(this.Rpl_semi_sync_master_yes_tx), "", "", false, true)
+
+	if this.Rpl_semi_sync_master_no_times > 1 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(this.Rpl_semi_sync_master_no_times)))+strconv.Itoa(this.Rpl_semi_sync_master_no_times), "red", "", false, true)
+	} else {
+		data_detail += utils.Colorize(strings.Repeat(" ", 6-len(strconv.Itoa(this.Rpl_semi_sync_master_no_times)))+strconv.Itoa(this.Rpl_semi_sync_master_no_times), "", "", false, true)
+	}
+	data_detail += utils.Colorize("|", "green", "", false, false)
+	return data_detail
+}
+
+func (this *basic) CreateSlave(interval int) string {
+	data_detail := ""
+	checkNum := this.Read_Master_Log_Pos - this.Exec_Master_Log_Pos
+
+	data_detail += utils.Colorize(strings.Repeat(" ", 11-len(strconv.Itoa(this.Read_Master_Log_Pos)))+strconv.Itoa(this.Read_Master_Log_Pos), "", "", false, false)
+
+	data_detail += utils.Colorize(strings.Repeat(" ", 12-len(strconv.Itoa(this.Exec_Master_Log_Pos)))+strconv.Itoa(this.Exec_Master_Log_Pos), "", "", false, false)
+
+	data_detail += utils.Colorize(strings.Repeat(" ", 8-len(strconv.Itoa(checkNum)))+strconv.Itoa(checkNum), "", "", false, false)
+
+	if this.Seconds_Behind_Master > 300 {
+		data_detail += utils.Colorize(strings.Repeat(" ", 8-len(strconv.Itoa(this.Seconds_Behind_Master)))+strconv.Itoa(this.Seconds_Behind_Master), "red", "", false, false)
+	} else {
+		data_detail += utils.Colorize(strings.Repeat(" ", 8-len(strconv.Itoa(this.Seconds_Behind_Master)))+strconv.Itoa(this.Seconds_Behind_Master), "green", "", false, false)
+	}
 
 	data_detail += utils.Colorize("|", "green", "", false, false)
 	return data_detail
@@ -893,11 +1114,11 @@ func changeUntils(in int) string {
 func hit(num int, in float64) string {
 	var result string
 	if in > 99.0 {
-		result = utils.Colorize(strings.Repeat(" ", num-len(floatToString(in, 2)))+floatToString(in, 2), "dgreen", "", false, false)
+		result = utils.Colorize(strings.Repeat(" ", num-len(floatToString(in, 2)))+floatToString(in, 2), "green", "", false, false)
 	} else if in > 90.0 && in <= 99.0 {
 		result = utils.Colorize(strings.Repeat(" ", num-len(floatToString(in, 2)))+floatToString(in, 2), "yellow", "", false, false)
 	} else if in < 0.01 {
-		result = utils.Colorize(strings.Repeat(" ", num-len("100.00"))+"100.00", "dgreen", "", false, false)
+		result = utils.Colorize(strings.Repeat(" ", num-len("100.00"))+"100.00", "green", "", false, false)
 	} else {
 		result = utils.Colorize(strings.Repeat(" ", num-len(floatToString(in, 2)))+floatToString(in, 2), "red", "", false, true)
 	}
