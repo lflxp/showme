@@ -16,8 +16,8 @@ func BeforeRun(in string) error {
 	if in != "mysql" {
 		mysql = NewBasic()
 		Username = "root"
-		Password = "Nw8jfr3zDZ"
-		Ip = "10.128.142.132"
+		Password = "123"
+		Ip = "10.1.1.1"
 		Port = "3306"
 		Dbname = "user"
 		err := mysql.InitMysqlConn()
@@ -115,8 +115,8 @@ func BeforeRun(in string) error {
 			case <-t.C:
 				tmp := NewBasic()
 				Username = "root"
-				Password = "Nw8jfr3zDZ"
-				Ip = "10.128.142.132"
+				Password = "123"
+				Ip = "10.1.1.1"
 				Port = "3306"
 				Dbname = "user"
 				err := tmp.InitMysqlConn()
