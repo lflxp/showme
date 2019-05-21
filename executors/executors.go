@@ -12,6 +12,7 @@ import (
 	"github.com/lflxp/showme/executors/httpstatic"
 	"github.com/lflxp/showme/executors/layout"
 	"github.com/lflxp/showme/executors/monitor"
+	"github.com/lflxp/showme/executors/mysql"
 	"github.com/lflxp/showme/executors/scan"
 	"github.com/lflxp/showme/utils"
 )
@@ -70,6 +71,14 @@ func ParseExecutors(in string) (func(), bool) {
 			fmt.Println(utils.Colorize("输入错误，请输入完整的【-port】或【-path】", "red", "black", true, true))
 			status = false
 		}
+	} else if strings.Contains(in, "mysql") {
+		result = func() {
+			err := mysql.BeforeRun(in)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+		status = true
 	} else {
 		fmt.Println(utils.Colorize(in, "red", "black", true, true), " not found executors")
 	}

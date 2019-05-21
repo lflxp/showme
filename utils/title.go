@@ -59,3 +59,91 @@ func GetDiskTitle() string {
 func GetDiskColumns() string {
 	return Colorize(" readc writec    srkB    swkB queue  await svctm %util|", "dgreen", "", true, false)
 }
+
+func GetComTitle() string {
+	return Colorize("-QPS- -TPS-", "dgreen", "blue", false, false)
+}
+
+func GetComColumns() string {
+	return Colorize("  ins   upd   delsel   iud|", "dgreen", "", true, false)
+}
+
+func GetHitTitle() string {
+	return Colorize("----KeyBuffer------Index----Qcache---Innodb---(%) ", "dgreen", "blue", false, false)
+}
+
+func GetHitColumns() string {
+	return Colorize("  read  writecur  totalhit lorhit|", "dgreen", "", true, false)
+}
+
+func GetInnodbRowsTitle() string {
+	return Colorize("---innodb rows status--- ", "dgreen", "blue", false, false)
+}
+
+func GetInnodbRowsColumns() string {
+	return Colorize("  ins   upd   del   read|", "dgreen", "", true, false)
+}
+
+func GetInnodbPagesTitle() string {
+	return Colorize("---innodb bp pages status-- ", "dgreen", "blue", false, false)
+}
+
+func GetInnodbPagesColumns() string {
+	return Colorize("   data   free  dirty flush|", "dgreen", "", true, false)
+}
+
+func GetInnodbDataTitle() string {
+	return Colorize("-----innodb data status----- ", "dgreen", "blue", false, false)
+}
+
+func GetInnodbDataColumns() string {
+	return Colorize(" reads writes   read written|", "dgreen", "", true, false)
+}
+
+func GetInnodbLogTitle() string {
+	return Colorize("--innodb log-- ", "dgreen", "blue", false, false)
+}
+
+func GetInnodbLogColumns() string {
+	return Colorize("fsyncs written|", "dgreen", "", true, false)
+}
+
+func GetInnodbStatusTitle() string {
+	return Colorize("  his --log(byte)--  read ---query--- ", "dgreen", "blue", false, false)
+}
+
+func GetInnodbStatusColumns() string {
+	return Colorize(" list uflush  uckpt  view inside  que|", "dgreen", "", true, false)
+}
+
+func GetThreadsTitle() string {
+	return Colorize("----------threads--------- ", "dgreen", "blue", false, false)
+}
+
+func GetThreadsColumns() string {
+	return Colorize(" run  con  cre  cac   "+"%"+"hit|", "dgreen", "", true, false)
+}
+
+func GetBytesTitle() string {
+	return Colorize("-----bytes---- ", "dgreen", "blue", false, false)
+}
+
+func GetBytesColumns() string {
+	return Colorize("   recv   send|", "dgreen", "", true, false)
+}
+
+func GetSemiTitle() string {
+	return Colorize("---avg_wait--tx_times--semi ", "dgreen", "blue", false, false)
+}
+
+func GetSemiColumns() string {
+	return Colorize("  nettx   no  yes   off|", "dgreen", "", true, false)
+}
+
+func GetSlaveTitle() string {
+	return Colorize("---------------SlaveStatus------------- ", "dgreen", "blue", false, false)
+}
+
+func GetSlaveColumns() string {
+	return Colorize("ReadMLP ExecMLP   chkRE   SecBM|", "dgreen", "", true, false)
+}

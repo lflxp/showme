@@ -5,12 +5,17 @@ import (
 )
 
 var (
-	username string
-	password string
-	ip       string
-	port     string
-	dbname   string
+	Username string
+	Password string
+	Ip       string
+	Port     string
+	Dbname   string
+	Before   *basic
 )
+
+func NewBasic() *basic {
+	return &basic{}
+}
 
 type basic struct {
 	// mysql conn
@@ -20,7 +25,7 @@ type basic struct {
 	Ips                                string
 	Dbs                                string
 	Var_binlog_format                  string
-	Var_max_binlog_cache_size          int
+	Var_max_binlog_cache_size          string
 	Var_max_binlog_size                int
 	Var_max_connect_errors             string
 	Var_max_connections                string
@@ -119,12 +124,12 @@ type basic struct {
 	Handler_rollback        int
 	Created_tmp_tables      int
 	Created_tmp_disk_tables int
-	Slow_queries            string
+	Slow_queries            int
 	Key_read_requests       int
 	Key_reads               int
 	Key_write_requests      int
 	Key_writes              int
-	Select_scan             string
+	Select_scan             int
 	//半同步
 	Rpl_semi_sync_master_net_avg_wait_time int
 	Rpl_semi_sync_master_no_times          int

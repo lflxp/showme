@@ -107,6 +107,34 @@ func FirstCommandFunc(d prompt.Document, args []string) []prompt.Suggest {
 			}
 			return prompt.FilterHasPrefix(subcommands, second, true)
 		}
+	case "mysql":
+		second := args[1]
+		if len(args) == 2 {
+			subcommands := []prompt.Suggest{
+				{Text: "test", Description: "测试获取数据"},
+				{Text: "status", Description: "查看状态"},
+				{Text: "status", Description: "查看状态"},
+				{Text: "processlist", Description: "查看进程"},
+			}
+			return prompt.FilterHasPrefix(subcommands, second, true)
+		}
+
+		third := args[2]
+		if len(args) == 3 {
+			switch second {
+			case "test":
+				subcommands := []prompt.Suggest{
+					{Text: "GetHostAndIps", Description: "GetHostAndIps"},
+					{Text: "GetShowDatabases", Description: "GetShowDatabases"},
+					{Text: "GetShowGlobalVariables", Description: "GetShowGlobalVariables"},
+					{Text: "GetShowVariables", Description: "GetShowVariables"},
+					{Text: "GetShowStatus", Description: "GetShowStatus"},
+					{Text: "GetShowGlobalStatus", Description: "GetShowGlobalStatus"},
+					{Text: "GetShowEngineInnodbStatus", Description: "GetShowEngineInnodbStatus"},
+				}
+				return prompt.FilterHasPrefix(subcommands, third, true)
+			}
+		}
 	default:
 		return []prompt.Suggest{}
 	}
