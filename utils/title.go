@@ -137,7 +137,7 @@ func GetSemiTitle() string {
 }
 
 func GetSemiColumns() string {
-	return Colorize("  nettx   no  yes   off|", "dgreen", "", true, false)
+	return Colorize("  naw  txaw notx  yes   off|", "dgreen", "", true, false)
 }
 
 func GetSlaveTitle() string {
