@@ -9,7 +9,6 @@ import (
 )
 
 var before *MonitorCpu
-var err error
 
 func init() {
 	before, err = NewMonitorCpu()

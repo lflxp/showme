@@ -15,23 +15,24 @@
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/lflxp/showme/api"
 	"github.com/spf13/cobra"
+)
+
+var (
+	swagger                     bool
+	ip, port, dbName, defaultDb string
 )
 
 // apiCmd represents the api command
 var apiCmd = &cobra.Command{
 	Use:   "api",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "OPS REST API INTERFACE",
+	Long: `* 基于Bbolt的Rest CRUD Api
+* 本地主机rest api性能监控
+* 本地主机prometheus性能监控`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("api called")
+		api.Api(swagger, ip, port, dbName, defaultDb)
 	},
 }
 
@@ -47,4 +48,9 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// apiCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	apiCmd.Flags().BoolVarP(&swagger, "swagger", "s", false, "是否开启Swagger Http服务")
+	apiCmd.Flags().StringVarP(&ip, "ip", "i", "127.0.0.1", "绑定服务IP")
+	apiCmd.Flags().StringVarP(&port, "port", "p", "8080", "绑定服务端口")
+	apiCmd.Flags().StringVarP(&dbName, "dbname", "n", "bbolt.db", "数据库物理文件名")
+	apiCmd.Flags().StringVarP(&defaultDb, "defaultdb", "d", "test", "数据库名")
 }

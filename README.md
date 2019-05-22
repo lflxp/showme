@@ -102,3 +102,4 @@ https://blog.csdn.net/lengyuezuixue/article/details/79664409
 
 - mysql 解析
 - 微服务管理和功能测试
+- 日志系统 @[logrus](https://github.com/sirupsen/logrus)

@@ -4,7 +4,9 @@ go 1.12
 
 require (
 	github.com/StackExchange/wmi v0.0.0-20181212234831-e0a55b97c705 // indirect
+	github.com/astaxie/beego v1.11.1
 	github.com/c-bata/go-prompt v0.2.3
+	github.com/coreos/bbolt v1.3.2
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/google/gopacket v1.1.16
@@ -22,12 +24,13 @@ require (
 	github.com/pkg/term v0.0.0-20190109203006-aa71e9d9e942 // indirect
 	github.com/shirou/gopsutil v2.18.12+incompatible
 	github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4 // indirect
+	github.com/sirupsen/logrus v1.4.2
+	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a
 	github.com/spf13/cobra v0.0.4
 	github.com/spf13/viper v1.3.2
 	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/tatsushid/go-fastping v0.0.0-20160109021039-d7bb493dee3e
 	github.com/ugorji/go v1.1.4 // indirect
-	golang.org/x/sys v0.0.0-20190405154228-4b34438f7a67 // indirect
 	google.golang.org/appengine v1.6.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce // indirect
