@@ -41,31 +41,31 @@ func CollectEasy() []string {
 	n, _ := host.Info()
 	boottime, _ := host.BootTime()
 	btime := time.Unix(int64(boottime), 0).Format("2006-01-02 15:04:05")
-	rs = append(rs, fmt.Sprintf("%s: %v MB  Free: %v MB Used:%v Usage:%f%%", Colorize("        Mem       ", "white", "red", true, true), v.Total/1024/1024, v.Available/1024/1024, v.Used/1024/1024, v.UsedPercent))
+	rs = append(rs, fmt.Sprintf("%s: %s", Colorize("        Mem       ", "white", "red", true, true), Colorize(fmt.Sprintf("%v MB  Free: %v MB Used:%v Usage:%f%%", v.Total/1024/1024, v.Available/1024/1024, v.Used/1024/1024, v.UsedPercent), "yellow", "", false, false)))
 	// fmt.Printf("        Mem       : %v MB  Free: %v MB Used:%v Usage:%f%%", v.Total/1024/1024, v.Available/1024/1024, v.Used/1024/1024, v.UsedPercent)
 	if len(c) > 1 {
 		for _, sub_cpu := range c {
 			modelname := sub_cpu.ModelName
 			cores := sub_cpu.Cores
 			// fmt.Printf("        CPU       : %v   %v cores ", modelname, cores)
-			rs = append(rs, fmt.Sprintf("%s: %v   %v cores ", Colorize("        CPU       ", "white", "red", true, true), modelname, cores))
+			rs = append(rs, fmt.Sprintf("%s: %s ", Colorize("        CPU       ", "white", "red", true, true), Colorize(fmt.Sprintf("%v   %v cores", modelname, cores), "yellow", "", false, false)))
 		}
 	} else {
 		sub_cpu := c[0]
 		modelname := sub_cpu.ModelName
 		cores := sub_cpu.Cores
-		rs = append(rs, fmt.Sprintf("%s: %v   %v cores ", Colorize("        CPU       ", "white", "red", true, true), modelname, cores))
+		rs = append(rs, fmt.Sprintf("%s: %s ", Colorize("        CPU       ", "white", "red", true, true), Colorize(fmt.Sprintf("%v   %v cores", modelname, cores), "yellow", "", false, false)))
 	}
-	rs = append(rs, fmt.Sprintf("%s: %.2f %.2f %.2f ", Colorize("        LOAD      ", "white", "red", true, true), load.Load1, load.Load5, load.Load15))
-	rs = append(rs, fmt.Sprintf("%s: %v", Colorize("        SystemBoot", "white", "red", true, true), btime))
+	rs = append(rs, fmt.Sprintf("%s: %s ", Colorize("        LOAD      ", "white", "red", true, true), Colorize(fmt.Sprintf("%.2f %.2f %.2f", load.Load1, load.Load5, load.Load15), "yellow", "", false, false)))
+	rs = append(rs, fmt.Sprintf("%s: %s", Colorize("        SystemBoot", "white", "red", true, true), Colorize(btime, "yellow", "", false, false)))
 	// rs = append(rs, fmt.Sprintf("        CPU Used    : used %f%% ", cc[0]))
-	rs = append(rs, fmt.Sprintf("%s: %v GB  Free: %v GB Usage:%f%%", Colorize("        HD        ", "white", "red", true, true), d.Total/1024/1024/1024, d.Free/1024/1024/1024, d.UsedPercent))
-	rs = append(rs, fmt.Sprintf("%s: %v %v(%v)   %v", Colorize("        OS        ", "white", "red", true, true), n.OS, n.Platform, n.PlatformFamily, n.PlatformVersion))
-	rs = append(rs, fmt.Sprintf("%s: %v ", Colorize("        Kernel    ", "white", "red", true, true), n.KernelVersion))
-	rs = append(rs, fmt.Sprintf("%s: %v ", Colorize("        HostID    ", "white", "red", true, true), n.HostID))
-	rs = append(rs, fmt.Sprintf("%s: %v ", Colorize("        Procs     ", "white", "red", true, true), n.Procs))
-	rs = append(rs, fmt.Sprintf("%s: %v  ", Colorize("        Hostname  ", "white", "red", true, true), n.Hostname))
-	rs = append(rs, fmt.Sprintf("%s: %s\n", Colorize("        IpLists   ", "white", "red", true, true), strings.Join(GetIps(), ",")))
+	rs = append(rs, fmt.Sprintf("%s: %s", Colorize("        HD        ", "white", "red", true, true), Colorize(fmt.Sprintf("%v GB  Free: %v GB Usage:%f%%", d.Total/1024/1024/1024, d.Free/1024/1024/1024, d.UsedPercent), "yellow", "", false, false)))
+	rs = append(rs, fmt.Sprintf("%s: %s", Colorize("        OS        ", "white", "red", true, true), Colorize(fmt.Sprintf("%v %v(%v)   %v", n.OS, n.Platform, n.PlatformFamily, n.PlatformVersion), "yellow", "", false, false)))
+	rs = append(rs, fmt.Sprintf("%s: %s ", Colorize("        Kernel    ", "white", "red", true, true), Colorize(n.KernelVersion, "yellow", "", false, false)))
+	rs = append(rs, fmt.Sprintf("%s: %s ", Colorize("        HostID    ", "white", "red", true, true), Colorize(n.HostID, "yellow", "", false, false)))
+	rs = append(rs, fmt.Sprintf("%s: %s ", Colorize("        Procs     ", "white", "red", true, true), Colorize(fmt.Sprintf("%v", n.Procs), "yellow", "", false, false)))
+	rs = append(rs, fmt.Sprintf("%s: %s  ", Colorize("        Hostname  ", "white", "red", true, true), Colorize(n.Hostname, "yellow", "", false, false)))
+	rs = append(rs, fmt.Sprintf("%s: %s", Colorize("        IpLists   ", "white", "red", true, true), Colorize(strings.Join(GetIps(), ","), "yellow", "", false, false)))
 	return rs
 }
 

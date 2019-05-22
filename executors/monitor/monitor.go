@@ -27,6 +27,7 @@ func Run(cmd string) {
 	for _, x := range utils.CollectEasy() {
 		fmt.Println(x)
 	}
+	fmt.Println()
 
 	// print net info
 	// xo := utils.MonitorNet{}

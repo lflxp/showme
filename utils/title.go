@@ -97,7 +97,7 @@ func GetInnodbDataTitle() string {
 }
 
 func GetInnodbDataColumns() string {
-	return Colorize(" reads  writes   read written|", "dgreen", "", true, false)
+	return Colorize(" reads writes   read written|", "dgreen", "", true, false)
 }
 
 func GetInnodbLogTitle() string {

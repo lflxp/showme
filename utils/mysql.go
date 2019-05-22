@@ -9,7 +9,6 @@ import (
 )
 
 func MysqlConn(username, password, ip, port, dbname string) (*sql.DB, error) {
-	// db, err := sql.Open("mysql", "root:Nw8jfr3zDZ@tcp(10.128.142.132:3306)/user")
 	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", username, password, ip, port, dbname))
 	if err != nil {
 		// log.Fatalf("Open database error: %s\n", err)

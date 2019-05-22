@@ -572,7 +572,7 @@ func (this *basic) GetShowProcesslist() error {
 		if err != nil {
 			return err
 		}
-		fmt.Println("%s %s %s %s %s %s %s %s", id, user, host, db, command, time, state, info)
+		fmt.Printf("%s %s %s %s %s %s %s %s\n", id, user, host, db, command, time, state, info)
 		// showSlaveStatus[variable_name] = value
 	}
 
