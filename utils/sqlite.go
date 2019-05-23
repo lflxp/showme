@@ -8,7 +8,7 @@ import (
 
 var Engine *xorm.Engine
 
-func init() {
+func InitSqlite() {
 	var err error
 	Engine, err = xorm.NewEngine("sqlite3", "./showme.db")
 	if err != nil {

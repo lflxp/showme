@@ -15,6 +15,68 @@
     },
     "basePath": "/v1",
     "paths": {
+        "/db/exec": {
+            "post": {
+                "tags": [
+                    "db"
+                ],
+                "description": "create users",
+                "operationId": "DbController.Insert， Update， Delete",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Db"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Db"
+                        }
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/db/select": {
+            "post": {
+                "tags": [
+                    "db"
+                ],
+                "description": "create users",
+                "operationId": "DbController.Select",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for user content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Db"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Db"
+                        }
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
         "/object/": {
             "get": {
                 "tags": [
@@ -331,102 +393,17 @@
         }
     },
     "definitions": {
-        "models.Common": {
-            "title": "Common",
+        "models.Db": {
+            "title": "Db",
             "type": "object",
             "properties": {
-                "DeletedAt": {
-                    "type": "string",
-                    "format": "datetime"
+                "args": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
-                "Updated": {
-                    "type": "string",
-                    "format": "datetime"
-                },
-                "cname": {
-                    "type": "string"
-                },
-                "created": {
-                    "type": "string",
-                    "format": "datetime"
-                },
-                "id": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "nname": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.Group": {
-            "title": "Group",
-            "type": "object",
-            "properties": {
-                "Created": {
-                    "type": "string",
-                    "format": "datetime"
-                },
-                "DeletedAt": {
-                    "type": "string",
-                    "format": "datetime"
-                },
-                "Updated": {
-                    "type": "string",
-                    "format": "datetime"
-                },
-                "gname": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "parent": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.Note": {
-            "title": "Note",
-            "type": "object",
-            "properties": {
-                "DeletedAt": {
-                    "type": "string",
-                    "format": "datetime"
-                },
-                "Updated": {
-                    "type": "string",
-                    "format": "datetime"
-                },
-                "created": {
-                    "type": "string",
-                    "format": "datetime"
-                },
-                "data": {
-                    "type": "string"
-                },
-                "gname": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "nname": {
-                    "type": "string"
-                },
-                "score": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "username": {
+                "sql": {
                     "type": "string"
                 }
             }
@@ -446,10 +423,6 @@
                     "format": "int64"
                 }
             }
-        },
-        "models.Pay": {
-            "title": "Pay",
-            "type": "object"
         },
         "models.Profile": {
             "title": "Profile",
@@ -496,6 +469,10 @@
         },
         {
             "name": "user",
+            "description": "Operations about Users\n"
+        },
+        {
+            "name": "db",
             "description": "Operations about Users\n"
         }
     ]
