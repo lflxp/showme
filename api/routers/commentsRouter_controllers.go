@@ -25,6 +25,15 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:DbController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:DbController"],
+        beego.ControllerComments{
+            Method: "Shell",
+            Router: `/shell`,
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:ObjectController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:ObjectController"],
         beego.ControllerComments{
             Method: "Post",

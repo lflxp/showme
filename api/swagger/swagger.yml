@@ -16,7 +16,7 @@ paths:
       tags:
       - db
       description: create users
-      operationId: DbController.Insert， Update， Delete
+      operationId: DbController.Insert
       parameters:
       - in: body
         name: body
@@ -26,9 +26,7 @@ paths:
           $ref: '#/definitions/models.Db'
       responses:
         "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Db'
+          description: '{string} success'
         "403":
           description: body is empty
   /db/select:
@@ -46,9 +44,25 @@ paths:
           $ref: '#/definitions/models.Db'
       responses:
         "200":
-          description: ""
-          schema:
-            $ref: '#/definitions/models.Db'
+          description: '{string} success'
+        "403":
+          description: body is empty
+  /db/shell:
+    post:
+      tags:
+      - db
+      description: create users
+      operationId: DbController.Shell
+      parameters:
+      - in: body
+        name: body
+        description: body for user content
+        required: true
+        schema:
+          $ref: '#/definitions/models.Db'
+      responses:
+        "200":
+          description: '{string} success'
         "403":
           description: body is empty
   /object/:

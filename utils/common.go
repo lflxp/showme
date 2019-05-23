@@ -2,12 +2,14 @@ package utils
 
 import (
 	"bufio"
+	"bytes"
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
 	"io"
 	"math/rand"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
 )
@@ -75,4 +77,18 @@ func GetRandomString(len int) string {
 		result = append(result, bytes[r.Intn(62)])
 	}
 	return string(result)
+}
+
+func ExecCommand(cmd string) ([]byte, error) {
+	pipeline := exec.Command("/bin/sh", "-c", cmd)
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	pipeline.Stdout = &out
+	pipeline.Stderr = &stderr
+	err := pipeline.Run()
+	if err != nil {
+		return stderr.Bytes(), err
+	}
+	// fmt.Println(stderr.String())
+	return out.Bytes(), nil
 }
