@@ -27,9 +27,9 @@ func init() {
 			),
 			beego.NSRouter("/*", &controllers.BaseController{}, "options:Options"),
 		),
-		beego.NSNamespace("/db",
+		beego.NSNamespace("/note",
 			beego.NSInclude(
-				&controllers.BboltController{},
+				&controllers.UserController{},
 			),
 			beego.NSRouter("/*", &controllers.BaseController{}, "options:Options"),
 		),

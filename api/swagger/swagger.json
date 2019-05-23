@@ -15,286 +15,6 @@
     },
     "basePath": "/v1",
     "paths": {
-        "/db/": {
-            "get": {
-                "tags": [
-                    "db"
-                ],
-                "description": "get all Users",
-                "operationId": "BboltController.GetAll",
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.User"
-                        }
-                    }
-                }
-            }
-        },
-        "/db/kv": {
-            "post": {
-                "tags": [
-                    "db"
-                ],
-                "description": "添加一个完整的数据 表、key、value",
-                "operationId": "BboltController.CreateBucket",
-                "parameters": [
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for Bucket content",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Bucket"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{int} models.Bucket.Key"
-                    },
-                    "403": {
-                        "description": "body is empty"
-                    }
-                }
-            }
-        },
-        "/db/kv/info": {
-            "post": {
-                "tags": [
-                    "db"
-                ],
-                "description": "添加一个针对Tree记录的完整的数据 表、key、value",
-                "operationId": "BboltController.CreateBucketInfo",
-                "parameters": [
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for Bucket content",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Bucket"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{int} models.Bucket.Key"
-                    },
-                    "403": {
-                        "description": "body is empty"
-                    }
-                }
-            }
-        },
-        "/db/tables": {
-            "post": {
-                "tags": [
-                    "db"
-                ],
-                "description": "只添加表",
-                "operationId": "BboltController.CreateUser",
-                "parameters": [
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "Tablename字段中只有tablename字段会被用到",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Bucket"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{int} models.Tablename"
-                    },
-                    "403": {
-                        "description": "body is empty"
-                    }
-                }
-            }
-        },
-        "/db/tables/{dbname}": {
-            "get": {
-                "tags": [
-                    "db"
-                ],
-                "description": "获取所有表的数据",
-                "operationId": "BboltController.GetAllTables",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "dbname",
-                        "description": "name of db",
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{string} success"
-                    }
-                }
-            }
-        },
-        "/db/tables2/{dbname}": {
-            "get": {
-                "tags": [
-                    "db"
-                ],
-                "description": "获取所有表的数据",
-                "operationId": "BboltController.GetAllTables",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "dbname",
-                        "description": "name of db",
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{string} success"
-                    }
-                }
-            }
-        },
-        "/db/{dbname}": {
-            "get": {
-                "tags": [
-                    "db"
-                ],
-                "description": "遍历指定表的所有数据",
-                "operationId": "BboltController.GetAll",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "dbname",
-                        "description": "name of table",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{string} success"
-                    }
-                }
-            }
-        },
-        "/db/{dbname}/{tablename}": {
-            "delete": {
-                "tags": [
-                    "db"
-                ],
-                "description": "delete the Table",
-                "operationId": "BboltController.Delete",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "dbname",
-                        "description": "name of db",
-                        "required": true,
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    {
-                        "in": "path",
-                        "name": "tablename",
-                        "description": "The uid you want to delete",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{string} delete success!"
-                    },
-                    "403": {
-                        "description": "tablename is empty"
-                    }
-                }
-            }
-        },
-        "/db/{tablename}/{key}": {
-            "get": {
-                "tags": [
-                    "db"
-                ],
-                "description": "get user by uid",
-                "operationId": "BboltController.Get",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "tablename",
-                        "description": "The key for staticblock",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "in": "path",
-                        "name": "key",
-                        "description": "The key for staticblock",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.Bucket"
-                        }
-                    },
-                    "403": {
-                        "description": ":tablename is empty"
-                    }
-                }
-            }
-        },
-        "/db/{uid}": {
-            "put": {
-                "tags": [
-                    "db"
-                ],
-                "description": "update the user",
-                "operationId": "BboltController.Update",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "uid",
-                        "description": "The uid you want to update",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "in": "body",
-                        "name": "body",
-                        "description": "body for user content",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.User"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/models.User"
-                        }
-                    },
-                    "403": {
-                        "description": ":uid is not int"
-                    }
-                }
-            }
-        },
         "/object/": {
             "get": {
                 "tags": [
@@ -611,20 +331,102 @@
         }
     },
     "definitions": {
-        "models.Bucket": {
-            "title": "Bucket",
+        "models.Common": {
+            "title": "Common",
             "type": "object",
             "properties": {
-                "Dbname": {
+                "DeletedAt": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "Updated": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "cname": {
                     "type": "string"
                 },
-                "key": {
+                "created": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "nname": {
                     "type": "string"
                 },
-                "tablename": {
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Group": {
+            "title": "Group",
+            "type": "object",
+            "properties": {
+                "Created": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "DeletedAt": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "Updated": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "gname": {
                     "type": "string"
                 },
-                "value": {
+                "id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "parent": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Note": {
+            "title": "Note",
+            "type": "object",
+            "properties": {
+                "DeletedAt": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "Updated": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "created": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "data": {
+                    "type": "string"
+                },
+                "gname": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "nname": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
@@ -644,6 +446,10 @@
                     "format": "int64"
                 }
             }
+        },
+        "models.Pay": {
+            "title": "Pay",
+            "type": "object"
         },
         "models.Profile": {
             "title": "Profile",

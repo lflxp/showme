@@ -1,15 +1,14 @@
 package controllers
 
 import (
-	"github.com/lflxp/showme/api/models"
 	"encoding/json"
 
-	"github.com/astaxie/beego"
+	"github.com/lflxp/showme/api/models"
 )
 
 // Operations about object
 type ObjectController struct {
-	beego.Controller
+	BaseController
 }
 
 // @Title Create
@@ -89,4 +88,3 @@ func (o *ObjectController) Delete() {
 	o.Data["json"] = "delete success!"
 	o.ServeJSON()
 }
-

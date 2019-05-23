@@ -7,92 +7,128 @@ import (
 
 func init() {
 
-    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"],
+    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"],
         beego.ControllerComments{
-            Method: "GetAll",
-            Router: `/`,
+            Method: "PostCommon",
+            Router: `/common`,
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"],
+        beego.ControllerComments{
+            Method: "GetCommonAll",
+            Router: `/common/:nname`,
             AllowHTTPMethods: []string{"get"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})
 
-    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"],
+    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"],
         beego.ControllerComments{
-            Method: "GetDataByTablename",
-            Router: `/:dbname`,
-            AllowHTTPMethods: []string{"get"},
-            MethodParams: param.Make(),
-            Filters: nil,
-            Params: nil})
-
-    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"],
-        beego.ControllerComments{
-            Method: "Delete",
-            Router: `/:dbname/:tablename`,
-            AllowHTTPMethods: []string{"delete"},
-            MethodParams: param.Make(),
-            Filters: nil,
-            Params: nil})
-
-    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"],
-        beego.ControllerComments{
-            Method: "Get",
-            Router: `/:tablename/:key`,
-            AllowHTTPMethods: []string{"get"},
-            MethodParams: param.Make(),
-            Filters: nil,
-            Params: nil})
-
-    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"],
-        beego.ControllerComments{
-            Method: "Put",
-            Router: `/:uid`,
+            Method: "PutCommon",
+            Router: `/common/:uid`,
             AllowHTTPMethods: []string{"put"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})
 
-    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"],
+    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"],
         beego.ControllerComments{
-            Method: "Post",
-            Router: `/kv`,
-            AllowHTTPMethods: []string{"post"},
+            Method: "DeleteCommon",
+            Router: `/common/:uid`,
+            AllowHTTPMethods: []string{"delete"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})
 
-    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"],
+    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"],
         beego.ControllerComments{
-            Method: "PostInfo",
-            Router: `/kv/info`,
-            AllowHTTPMethods: []string{"post"},
-            MethodParams: param.Make(),
-            Filters: nil,
-            Params: nil})
-
-    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"],
-        beego.ControllerComments{
-            Method: "AddTables",
-            Router: `/tables`,
-            AllowHTTPMethods: []string{"post"},
-            MethodParams: param.Make(),
-            Filters: nil,
-            Params: nil})
-
-    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"],
-        beego.ControllerComments{
-            Method: "GetAllTables",
-            Router: `/tables/:dbname`,
+            Method: "DistinctNote",
+            Router: `/distinct/:gname`,
             AllowHTTPMethods: []string{"get"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})
 
-    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:BboltController"],
+    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"],
         beego.ControllerComments{
-            Method: "GetAllTables2",
-            Router: `/tables2/:dbname`,
+            Method: "GetGroupAll",
+            Router: `/group`,
             AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"],
+        beego.ControllerComments{
+            Method: "PostGroup",
+            Router: `/group`,
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"],
+        beego.ControllerComments{
+            Method: "GetGroupAllSecond",
+            Router: `/group/:gname`,
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"],
+        beego.ControllerComments{
+            Method: "PutGroup",
+            Router: `/group/:uid`,
+            AllowHTTPMethods: []string{"put"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"],
+        beego.ControllerComments{
+            Method: "DeleteGroup",
+            Router: `/group/:uid`,
+            AllowHTTPMethods: []string{"delete"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"],
+        beego.ControllerComments{
+            Method: "PostNote",
+            Router: `/note`,
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"],
+        beego.ControllerComments{
+            Method: "GetNoteAll",
+            Router: `/note/:gname`,
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"],
+        beego.ControllerComments{
+            Method: "PutNote",
+            Router: `/note/:uid`,
+            AllowHTTPMethods: []string{"put"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"] = append(beego.GlobalControllerRouter["github.com/lflxp/showme/api/controllers:NoteController"],
+        beego.ControllerComments{
+            Method: "DeleteNote",
+            Router: `/note/:uid`,
+            AllowHTTPMethods: []string{"delete"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})

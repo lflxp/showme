@@ -20,8 +20,8 @@ import (
 )
 
 var (
-	swagger                     bool
-	ip, port, dbName, defaultDb string
+	swagger  bool
+	ip, port string
 )
 
 // apiCmd represents the api command
@@ -32,7 +32,7 @@ var apiCmd = &cobra.Command{
 * 本地主机rest api性能监控
 * 本地主机prometheus性能监控`,
 	Run: func(cmd *cobra.Command, args []string) {
-		api.Api(swagger, ip, port, dbName, defaultDb)
+		api.Api(swagger, ip, port)
 	},
 }
 
@@ -51,6 +51,4 @@ func init() {
 	apiCmd.Flags().BoolVarP(&swagger, "swagger", "s", false, "是否开启Swagger Http服务")
 	apiCmd.Flags().StringVarP(&ip, "ip", "i", "127.0.0.1", "绑定服务IP")
 	apiCmd.Flags().StringVarP(&port, "port", "p", "8080", "绑定服务端口")
-	apiCmd.Flags().StringVarP(&dbName, "dbname", "n", "bbolt.db", "数据库物理文件名")
-	apiCmd.Flags().StringVarP(&defaultDb, "defaultdb", "d", "test", "数据库名")
 }

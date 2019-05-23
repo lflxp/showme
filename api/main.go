@@ -1,16 +1,16 @@
 package api
 
+// package main
+
 import (
 	"fmt"
 
 	_ "github.com/lflxp/showme/api/routers"
 
 	"github.com/astaxie/beego"
-	"github.com/lflxp/showme/utils"
 )
 
-func Api(isSwagger bool, ip, port, dbName, defaultDb string) {
-	utils.InitDB(dbName, defaultDb)
+func Api(isSwagger bool, ip, port string) {
 	if isSwagger {
 		beego.BConfig.WebConfig.DirectoryIndex = true
 		beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"
@@ -19,7 +19,6 @@ func Api(isSwagger bool, ip, port, dbName, defaultDb string) {
 }
 
 // func main() {
-// 	utils.InitDB("dbName", "defaultDb")
 // 	if beego.BConfig.RunMode == "dev" {
 // 		beego.BConfig.WebConfig.DirectoryIndex = true
 // 		beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"

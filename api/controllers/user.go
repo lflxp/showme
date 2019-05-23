@@ -1,15 +1,14 @@
 package controllers
 
 import (
-	"github.com/lflxp/showme/api/models"
 	"encoding/json"
 
-	"github.com/astaxie/beego"
+	"github.com/lflxp/showme/api/models"
 )
 
 // Operations about Users
 type UserController struct {
-	beego.Controller
+	BaseController
 }
 
 // @Title CreateUser
@@ -116,4 +115,3 @@ func (u *UserController) Logout() {
 	u.Data["json"] = "logout success"
 	u.ServeJSON()
 }
-
