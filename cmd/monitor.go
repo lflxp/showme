@@ -19,9 +19,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// allinoneCmd represents the allinone command
-var allinoneCmd = &cobra.Command{
-	Use:   "allinone",
+// monitorCmd represents the monitor command
+var monitorCmd = &cobra.Command{
+	Use:   "monitor",
 	Short: "运维本地快速问题排查工具",
 	Long: `排查工具介绍
 	致力于解决人肉运维中想快速定位系统性能、数据库性能、网络包、快速文件传输服务器等基础但重要的功能
@@ -33,15 +33,15 @@ var allinoneCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(allinoneCmd)
+	rootCmd.AddCommand(monitorCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// allinoneCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// monitorCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// allinoneCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// monitorCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

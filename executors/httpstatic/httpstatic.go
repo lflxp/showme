@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -25,17 +24,9 @@ var (
 
 func init() {
 	initnum = 0
-	path = GetCurrentDirectory()
-	port = "9090"
+	// path = utils.GetCurrentDirectory()
+	// port = "9090"
 	closeChan = make(chan os.Signal)
-}
-
-func GetCurrentDirectory() string {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0])) //返回绝对路径  filepath.Dir(os.Args[0])去除最后一个元素的路径
-	if err != nil {
-		log.Fatal(err)
-	}
-	return strings.Replace(dir, "\\", "/", -1) //将\替换成/
 }
 
 type HandlerFunc func(http.ResponseWriter, *http.Request)
@@ -74,6 +65,49 @@ func server(g *gocui.Gui) {
 		fmt.Println(utils.Colorize("quit", "red", "", false, false))
 	}()
 	go server.ListenAndServe()
+}
+
+func HttpStaticServeForCorba(ports, paths string) {
+	// httpstatic -port 9090 -path ./
+	port = ports
+	path = paths
+
+	g, err := gocui.NewGui(gocui.OutputNormal)
+	if err != nil {
+		log.Panicln(err)
+	}
+	defer g.Close()
+
+	g.Highlight = true
+	g.Cursor = true
+	g.SelFgColor = gocui.ColorGreen
+	g.SetManagerFunc(dlayout)
+
+	d := time.Duration(time.Second)
+	t := time.NewTicker(d)
+	defer t.Stop()
+	go func() {
+		for {
+			select {
+			case <-t.C:
+				g.Update(func(g *gocui.Gui) error { return nil })
+				// fmt.Println(time.Now().Format("2006-01-02 15:04:05"))
+				// fmt.Fprintln(v, )
+			}
+		}
+	}()
+
+	// if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, dquit); err != nil {
+	// 	log.Panicln(err)
+	// }
+
+	if err := keybindings(g); err != nil {
+		log.Panicln(err)
+	}
+
+	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
+		log.Panicln(err)
+	}
 }
 
 func HttpStaticServe(in string) {

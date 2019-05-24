@@ -9,7 +9,6 @@ import (
 	"github.com/lflxp/showme/completers"
 	"github.com/lflxp/showme/executors/dashboard"
 	"github.com/lflxp/showme/executors/helloworld"
-	"github.com/lflxp/showme/executors/httpstatic"
 	"github.com/lflxp/showme/executors/layout"
 	"github.com/lflxp/showme/executors/monitor"
 	"github.com/lflxp/showme/executors/mysql"
@@ -60,17 +59,6 @@ func ParseExecutors(in string) (func(), bool) {
 			scan.Scan(in)
 		}
 		status = true
-	} else if strings.Contains(in, "httpstatic") {
-		tmp := strings.Split(in, " ")
-		if len(tmp)%2 == 1 {
-			result = func() {
-				httpstatic.HttpStaticServe(in)
-			}
-			status = true
-		} else {
-			fmt.Println(utils.Colorize("输入错误，请输入完整的【-port】或【-path】", "red", "black", true, true))
-			status = false
-		}
 	} else if strings.Contains(in, "mysql") {
 		result = func() {
 			err := mysql.BeforeRun(in)

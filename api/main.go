@@ -15,15 +15,12 @@ import (
 
 var db = make(map[string]string)
 
-func init() {
-	utils.InitSqlite()
-}
-
 func main() {
 	Api("0.0.0.0", "8080")
 }
 
 func Api(ip, port string) {
+	utils.InitSqlite()
 	router := setupRouter()
 
 	// add func

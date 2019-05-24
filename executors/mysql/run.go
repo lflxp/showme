@@ -137,7 +137,7 @@ func BeforeRun(in string) error {
 		if err != nil {
 			return err
 		}
-	} else if in == "mysql processlist" {
+	} else if strings.Contains(in, "mysql processlist") {
 		err := mysql.InitMysqlConn()
 		if err != nil {
 			return err
