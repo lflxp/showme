@@ -20,19 +20,20 @@ import (
 )
 
 var (
-	swagger  bool
+	// swagger  bool
 	ip, port string
 )
 
 // apiCmd represents the api command
 var apiCmd = &cobra.Command{
 	Use:   "api",
-	Short: "OPS REST API INTERFACE",
+	Short: "OPS REST API INTERFACE By Gin",
 	Long: `* 基于Bbolt的Rest CRUD Api
 * 本地主机rest api性能监控
-* 本地主机prometheus性能监控`,
+* 本地主机prometheus性能监控
+* 远程主机操控`,
 	Run: func(cmd *cobra.Command, args []string) {
-		api.Api(swagger, ip, port)
+		api.Api(ip, port)
 	},
 }
 
@@ -48,7 +49,7 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// apiCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	apiCmd.Flags().BoolVarP(&swagger, "swagger", "s", false, "是否开启Swagger Http服务")
+	// apiCmd.Flags().BoolVarP(&swagger, "swagger", "s", false, "是否开启Swagger Http服务")
 	apiCmd.Flags().StringVarP(&ip, "ip", "i", "127.0.0.1", "绑定服务IP")
 	apiCmd.Flags().StringVarP(&port, "port", "p", "8080", "绑定服务端口")
 }
