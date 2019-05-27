@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"crypto/md5"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -47,6 +48,17 @@ func Prompt(msg string) string {
 		panic(err)
 	}
 	return strings.TrimSpace(passwd)
+}
+
+// 加密base64
+func EncodeBase64(in string) string {
+	return base64.StdEncoding.EncodeToString([]byte(in))
+}
+
+// 解密base64
+func DecodeBase64(in string) (string, error) {
+	decoded, err := base64.StdEncoding.DecodeString(in)
+	return string(decoded), err
 }
 
 // 加密

@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/lflxp/showme/utils/k8s"
 	"github.com/spf13/cobra"
 )
 
@@ -27,6 +28,13 @@ var kubectlCmd = &cobra.Command{
 	Long:  `1. dashboard界面 2. 功能组件界面 3. 单个功能界面 4. layout 上中下 5. 下为table显示数据`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("kubectl called")
+		list, err := k8s.GetNodeList()
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		for _, x := range list.Items {
+			fmt.Println(x.GetName(), x.GetNamespace())
+		}
 	},
 }
 
