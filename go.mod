@@ -7,16 +7,18 @@ require (
 	github.com/astaxie/beego v1.11.1
 	github.com/c-bata/go-prompt v0.2.3
 	github.com/coreos/bbolt v1.3.2
+	github.com/gin-gonic/gin v1.4.0
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-sql-driver/mysql v1.4.1
+	github.com/go-xorm/xorm v0.7.1
 	github.com/google/gopacket v1.1.16
 	github.com/jroimartin/gocui v0.4.0
 	github.com/juju/errors v0.0.0-20190207033735-e65537c515d7
 	github.com/juju/loggo v0.0.0-20190212223446-d976af380377 // indirect
 	github.com/juju/testing v0.0.0-20190415054131-a282c42ba059 // indirect
-	github.com/kr/pretty v0.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.1 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
+	github.com/mattn/go-sqlite3 v1.10.0
 	github.com/mattn/go-tty v0.0.0-20190407112021-83fae09cc007 // indirect
 	github.com/mdlayher/raw v0.0.0-20190329140802-b0647ab7d8b3 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
@@ -25,13 +27,10 @@ require (
 	github.com/shirou/gopsutil v2.18.12+incompatible
 	github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4 // indirect
 	github.com/sirupsen/logrus v1.4.2
-	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a
+	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a // indirect
 	github.com/spf13/cobra v0.0.4
 	github.com/spf13/viper v1.3.2
-	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/tatsushid/go-fastping v0.0.0-20160109021039-d7bb493dee3e
-	github.com/ugorji/go v1.1.4 // indirect
 	google.golang.org/appengine v1.6.0 // indirect
-	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce // indirect
 )
