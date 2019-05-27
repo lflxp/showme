@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/lflxp/showme/executors"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -38,10 +39,18 @@ var rootCmd = &cobra.Command{
 	* 网络流量抓包工具
 2. 运维自动化工具
 	* 本地API接口（远程监控、远程数据bbolt存储）
-	* 运维自动化Agent（RPCX远程过程调用）`,
+	* 运维自动化Agent（RPCX远程过程调用）
+3. 无参数无命令
+	* 运维本地快速问题排查工具
+	3.1 排查工具介绍
+	* 致力于解决人肉运维中想快速定位系统性能、数据库性能、网络包、快速文件传输服务器等基础但重要的功能
+	3.2 目标
+	* 单文件、无依赖、快速、信息丰富多样化的console terminal`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+	Run: func(cmd *cobra.Command, args []string) {
+		executors.AllInOne()
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
