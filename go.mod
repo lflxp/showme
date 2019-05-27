@@ -3,6 +3,7 @@ module github.com/lflxp/showme
 go 1.12
 
 require (
+	cloud.google.com/go v0.39.0 // indirect
 	github.com/StackExchange/wmi v0.0.0-20181212234831-e0a55b97c705 // indirect
 	github.com/astaxie/beego v1.11.1
 	github.com/c-bata/go-prompt v0.2.3
@@ -27,10 +28,12 @@ require (
 	github.com/shirou/gopsutil v2.18.12+incompatible
 	github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4 // indirect
 	github.com/sirupsen/logrus v1.4.2
-	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a // indirect
 	github.com/spf13/cobra v0.0.4
 	github.com/spf13/viper v1.3.2
 	github.com/tatsushid/go-fastping v0.0.0-20160109021039-d7bb493dee3e
+	github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8
 	google.golang.org/appengine v1.6.0 // indirect
 	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce // indirect
 )
+
+replace github.com/ugorji/go v1.1.4 => github.com/ugorji/go/codec v0.0.0-20190204201341-e444a5086c43
