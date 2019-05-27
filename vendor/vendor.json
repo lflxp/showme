@@ -135,6 +135,12 @@
 			"revisionTime": "2019-05-02T09:16:32Z"
 		},
 		{
+			"checksumSHA1": "4Nt8Z2KPlVaHTffd7oL08UTryGw=",
+			"path": "github.com/mattbaird/jsonpatch",
+			"revision": "81af80346b1a01caae0cbc27fd3c1ba5b11e189f",
+			"revisionTime": "2017-10-05T23:53:57Z"
+		},
+		{
 			"checksumSHA1": "a6v40BMWMSG6t9tC7Esrh1bsduE=",
 			"path": "github.com/peterbourgon/diskv",
 			"revision": "0be1b92a6df0e4f5cb0a5d15fb7f643d0ad93ce6",
