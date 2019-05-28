@@ -70,6 +70,14 @@ command:
 > TIPS: 条件编译，需要该功能需要在build的指定tags
 > eg: go build -tags=gopacket main.go
 
+6. kubectl
+
+todo:
+- side menu
+- top five view table
+- bottom one detail view
+- like kubernetes dashboard
+
 # feature
 
 1. 非网络连接

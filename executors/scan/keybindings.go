@@ -42,13 +42,7 @@ func keybindings(g *gocui.Gui) error {
 		return err
 	}
 
-	if err := g.SetKeybinding("top", gocui.KeyF1, gocui.ModNone, gethelp); err != nil {
-		return err
-	}
-	if err := g.SetKeybinding("scanport", gocui.KeyF1, gocui.ModNone, gethelp); err != nil {
-		return err
-	}
-	if err := g.SetKeybinding("help", gocui.KeyF1, gocui.ModNone, gethelp); err != nil {
+	if err := g.SetKeybinding("", gocui.KeyF1, gocui.ModNone, gethelp); err != nil {
 		return err
 	}
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, dquit); err != nil {

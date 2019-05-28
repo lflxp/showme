@@ -36,11 +36,11 @@ func ManualInit() {
 	origin.Gui.SetManagerFunc(dashboard)
 
 	if err := KeyDashboard(origin.Gui); err != nil {
-		log.Panicln(err)
+		log.Panicln(err.Error())
 	}
 
 	if err := origin.Gui.MainLoop(); err != nil && err != gocui.ErrQuit {
-		log.Panicln(err)
+		log.Panicln(err.Error())
 	}
 }
 
@@ -68,4 +68,20 @@ func setCurrentViewOnTop(g *gocui.Gui, name string) (*gocui.View, error) {
 		return nil, err
 	}
 	return g.SetViewOnTop(name)
+}
+
+func dquit(g *gocui.Gui, v *gocui.View) error {
+	return gocui.ErrQuit
+}
+
+func nextView(g *gocui.Gui, v *gocui.View) error {
+	if v == nil || v.Name() == "top" {
+		_, err := setCurrentViewOnTop(g, "bottom")
+
+		return err
+	} else if v == nil || v.Name() == "bottom" {
+		_, err := setCurrentViewOnTop(g, "top")
+		return err
+	}
+	return nil
 }
