@@ -1,6 +1,8 @@
-# 介绍
+# Introduction 
 
-linux fast command for ops & dev
+ Rapid diagnostic system status tool (performance monitoring, network scanning, mysql performance monitoring, kubectl status)
+
+> 快速诊断系统状态工具（性能监控、网络扫描、mysql性能监控）
 
 # Usage
 
