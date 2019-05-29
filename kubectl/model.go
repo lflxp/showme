@@ -28,6 +28,12 @@ func ManualInit() {
 	}
 	origin.DefaultNS = "default"
 
+	// get basic info
+	err = GetClusterStatuses()
+	if err != nil {
+		log.Error(err.Error())
+	}
+
 	// init gocui
 
 	origin.Gui.Highlight = true
@@ -48,6 +54,13 @@ func NewBasicKubectl() *BasicKubectl {
 	return &BasicKubectl{}
 }
 
+// cluster
+type ClusterStatus struct {
+	Title string
+	Data  map[string]string
+	Count int
+}
+
 // Global Values
 type BasicKubectl struct {
 	// gocui
@@ -56,6 +69,7 @@ type BasicKubectl struct {
 	ClientSet *kubernetes.Clientset
 	DefaultNS string   // current namespace
 	Helps     []string // F1 View show help message
+	Cluster   []ClusterStatus
 }
 
 func (this *BasicKubectl) NewGui() error {
@@ -75,12 +89,18 @@ func dquit(g *gocui.Gui, v *gocui.View) error {
 }
 
 func nextView(g *gocui.Gui, v *gocui.View) error {
-	if v == nil || v.Name() == "top" {
-		_, err := setCurrentViewOnTop(g, "bottom")
+	if v == nil || v.Name() == "bottom" {
+		_, err := setCurrentViewOnTop(g, "Namespace")
 
 		return err
-	} else if v == nil || v.Name() == "bottom" {
-		_, err := setCurrentViewOnTop(g, "top")
+	} else if v == nil || v.Name() == "Namespace" {
+		_, err := setCurrentViewOnTop(g, "Node")
+		return err
+	} else if v == nil || v.Name() == "Node" {
+		_, err := setCurrentViewOnTop(g, "Role")
+		return err
+	} else if v == nil || v.Name() == "Role" {
+		_, err := setCurrentViewOnTop(g, "bottom")
 		return err
 	}
 	return nil
