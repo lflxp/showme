@@ -50,7 +50,7 @@ func GetClusterStatuses() error {
 
 	if len(pvcs.Items) > 0 {
 		pvc_rs := ClusterStatus{
-			Title: "Node",
+			Title: "Pvc",
 			Count: len(pvcs.Items),
 			Data:  map[string]string{},
 		}
@@ -86,7 +86,7 @@ func GetClusterStatuses() error {
 
 	if len(stc.Items) > 0 {
 		stc_rs := ClusterStatus{
-			Title: "Role",
+			Title: "StorageClasses",
 			Count: len(stc.Items),
 			Data:  map[string]string{},
 		}
