@@ -34,6 +34,10 @@ func ManualInit() {
 		log.Error(err.Error())
 	}
 
+	err = GetServiceConfigStatus()
+	if err != nil {
+		log.Error(err.Error())
+	}
 	// init gocui
 
 	origin.Gui.Highlight = true
@@ -61,15 +65,22 @@ type ClusterStatus struct {
 	Count int
 }
 
+// load status
+type LoadStatus struct {
+	Title string
+}
+
 // Global Values
 type BasicKubectl struct {
 	// gocui
 	Gui *gocui.Gui
 	// kubectl
-	ClientSet *kubernetes.Clientset
-	DefaultNS string   // current namespace
-	Helps     []string // F1 View show help message
-	Cluster   []ClusterStatus
+	ClientSet     *kubernetes.Clientset
+	DefaultNS     string   // current namespace
+	Helps         []string // F1 View show help message
+	Cluster       []ClusterStatus
+	ServiceConfig []ClusterStatus
+	BeforeSearch  string // before search view name
 }
 
 func (this *BasicKubectl) NewGui() error {
@@ -97,9 +108,65 @@ func nextView(g *gocui.Gui, v *gocui.View) error {
 		_, err := setCurrentViewOnTop(g, "Node")
 		return err
 	} else if v == nil || v.Name() == "Node" {
-		_, err := setCurrentViewOnTop(g, "Role")
+		if _, err := g.View("Pv"); err != nil {
+			if err != nil {
+				_, err := setCurrentViewOnTop(g, "Role(** clusterrole * role)")
+				return err
+			}
+		} else {
+			_, err := setCurrentViewOnTop(g, "Pv")
+			return err
+		}
+	} else if v == nil || v.Name() == "Pv" {
+		_, err := setCurrentViewOnTop(g, "Role(** clusterrole * role)")
 		return err
-	} else if v == nil || v.Name() == "Role" {
+	} else if v == nil || v.Name() == "Role(** clusterrole * role)" {
+		if _, err := g.View("StorageClasses"); err != nil {
+			if err != nil {
+				_, err := setCurrentViewOnTop(g, "Service")
+				return err
+			}
+		} else {
+			_, err := setCurrentViewOnTop(g, "StorageClasses")
+			return err
+		}
+	} else if v == nil || v.Name() == "StorageClasses" {
+		_, err := setCurrentViewOnTop(g, "Service")
+		return err
+	} else if v == nil || v.Name() == "Service" {
+		if _, err := g.View("Ingress"); err != nil {
+			if err != nil {
+				if _, err := g.View("Pvc"); err != nil {
+					if err != nil {
+						_, err := setCurrentViewOnTop(g, "Configmap")
+						return err
+					}
+				} else {
+					_, err := setCurrentViewOnTop(g, "Pvc")
+					return err
+				}
+			}
+		} else {
+			_, err := setCurrentViewOnTop(g, "Ingress")
+			return err
+		}
+	} else if v == nil || v.Name() == "Ingress" {
+		if _, err := g.View("Pvc"); err != nil {
+			if err != nil {
+				_, err := setCurrentViewOnTop(g, "Configmap")
+				return err
+			}
+		} else {
+			_, err := setCurrentViewOnTop(g, "Pvc")
+			return err
+		}
+	} else if v == nil || v.Name() == "Pvc" {
+		_, err := setCurrentViewOnTop(g, "Configmap")
+		return err
+	} else if v == nil || v.Name() == "Configmap" {
+		_, err := setCurrentViewOnTop(g, "Secrets")
+		return err
+	} else if v == nil || v.Name() == "Secrets" {
 		_, err := setCurrentViewOnTop(g, "bottom")
 		return err
 	}
