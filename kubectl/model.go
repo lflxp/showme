@@ -1,9 +1,12 @@
 package kubectl
 
 import (
+	"time"
+
 	"github.com/jroimartin/gocui"
 	"github.com/lflxp/showme/utils/k8s"
 	log "github.com/sirupsen/logrus"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -38,12 +41,44 @@ func ManualInit() {
 	if err != nil {
 		log.Error(err.Error())
 	}
+
+	err = GetLoadStatuses()
+	if err != nil {
+		log.Error(err.Error())
+	}
+
 	// init gocui
 
 	origin.Gui.Highlight = true
 	origin.Gui.Cursor = true
 	origin.Gui.SelFgColor = gocui.ColorGreen
 	origin.Gui.SetManagerFunc(dashboard)
+
+	d := time.Duration(5 * time.Second)
+	t := time.NewTicker(d)
+	defer t.Stop()
+	go func() {
+		for {
+			select {
+			case <-t.C:
+				err = GetLoadStatuses()
+				if err != nil {
+					log.Error(err.Error())
+				}
+				maxX, maxY := origin.Gui.Size()
+
+				if err := RefreshWorkLoad(origin.Gui, 0, maxY/2, maxX-1, maxY*3/4-1); err != nil {
+					log.Error(err.Error())
+				}
+				if err := RefreshPods(origin.Gui, 0, maxY*3/4, maxX-1, maxY-1); err != nil {
+					log.Error(err.Error())
+				}
+				origin.Gui.Update(func(g *gocui.Gui) error { return nil })
+				// fmt.Println(time.Now().Format("2006-01-02 15:04:05"))
+				// fmt.Fprintln(v, )
+			}
+		}
+	}()
 
 	if err := KeyDashboard(origin.Gui); err != nil {
 		log.Panicln(err.Error())
@@ -66,8 +101,23 @@ type ClusterStatus struct {
 }
 
 // load status
-type LoadStatus struct {
-	Title string
+type PodController struct {
+	Type           string
+	Name           string
+	Namespace      string
+	Tags           map[string]string
+	ContainerGroup string
+	Time           string
+	Images         string
+}
+
+type PodStatus struct {
+	Name      string
+	Namespace string
+	Node      string
+	Ready     v1.PodPhase
+	Restarts  string
+	Time      string
 }
 
 // Global Values
@@ -75,12 +125,14 @@ type BasicKubectl struct {
 	// gocui
 	Gui *gocui.Gui
 	// kubectl
-	ClientSet     *kubernetes.Clientset
-	DefaultNS     string   // current namespace
-	Helps         []string // F1 View show help message
-	Cluster       []ClusterStatus
-	ServiceConfig []ClusterStatus
-	BeforeSearch  string // before search view name
+	ClientSet      *kubernetes.Clientset
+	DefaultNS      string   // current namespace
+	Helps          []string // F1 View show help message
+	Cluster        []ClusterStatus
+	ServiceConfig  []ClusterStatus
+	PodControllers []PodController
+	Pods           []PodStatus
+	BeforeSearch   string // before search view name
 }
 
 func (this *BasicKubectl) NewGui() error {
@@ -101,7 +153,7 @@ func dquit(g *gocui.Gui, v *gocui.View) error {
 
 func nextView(g *gocui.Gui, v *gocui.View) error {
 	if v == nil || v.Name() == "bottom" {
-		_, err := setCurrentViewOnTop(g, "Namespace")
+		_, err := setCurrentViewOnTop(g, "pod")
 
 		return err
 	} else if v == nil || v.Name() == "Namespace" {
@@ -168,6 +220,9 @@ func nextView(g *gocui.Gui, v *gocui.View) error {
 		return err
 	} else if v == nil || v.Name() == "Secrets" {
 		_, err := setCurrentViewOnTop(g, "bottom")
+		return err
+	} else if v == nil || v.Name() == "pod" {
+		_, err := setCurrentViewOnTop(g, "Namespace")
 		return err
 	}
 	return nil

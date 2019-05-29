@@ -2,6 +2,8 @@ package kubectl
 
 import (
 	"fmt"
+	"strings"
+	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -104,6 +106,137 @@ func GetServiceConfigStatus() error {
 // 获取集群所有负载状态信息
 // cronjob daemonset deploymenet job pod replicaset statefulset
 func GetLoadStatuses() error {
+	// clear
+	origin.Pods = []PodStatus{}
+	origin.PodControllers = []PodController{}
+	// pods
+	pods, err := origin.ClientSet.CoreV1().Pods("").List(metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	if len(pods.Items) > 0 {
+		for _, x := range pods.Items {
+			tmp := PodStatus{
+				Name:      x.GetName(),
+				Namespace: x.GetNamespace(),
+				Node:      x.Spec.NodeName,
+				Ready:     x.Status.Phase,
+				Restarts:  fmt.Sprintf("%d", x.Status.ContainerStatuses[0].RestartCount),
+				Time:      strings.Replace(fmt.Sprintf("%v", x.Status.StartTime.Sub(time.Now())), "-", "", -1),
+			}
+			origin.Pods = append(origin.Pods, tmp)
+		}
+	}
+
+	// daemonset
+	dm, err := origin.ClientSet.Extensions().DaemonSets("").List(metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	if len(dm.Items) > 0 {
+		for _, x := range dm.Items {
+			tmp := PodController{
+				Type:           "DaemonSet",
+				Name:           x.GetName(),
+				Namespace:      x.GetNamespace(),
+				Tags:           x.Labels,
+				ContainerGroup: fmt.Sprintf("%d / %d", x.Status.NumberAvailable, x.Status.DesiredNumberScheduled),
+				Time:           strings.Replace(fmt.Sprintf("%v", x.CreationTimestamp.Sub(time.Now())), "-", "", -1),
+				Images:         x.Spec.Template.Spec.Containers[0].Image,
+			}
+
+			origin.PodControllers = append(origin.PodControllers, tmp)
+		}
+	}
+
+	// Deployments
+	// w, _ := origin.ClientSet.Extensions().Deployments("").Watch(metav1.ListOptions{})
+	// www := w.ResultChan()
+	// xxx := <-www
+	// xxx.Type
+
+	deploy, err := origin.ClientSet.Extensions().Deployments("").List(metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	if len(deploy.Items) > 0 {
+		for _, x := range deploy.Items {
+			tmp := PodController{
+				Type:           "Deployments",
+				Name:           x.GetName(),
+				Namespace:      x.GetNamespace(),
+				Tags:           x.Labels,
+				ContainerGroup: fmt.Sprintf("%d / %d", x.Status.AvailableReplicas, x.Status.Replicas),
+				Time:           strings.Replace(fmt.Sprintf("%v", x.CreationTimestamp.Sub(time.Now())), "-", "", -1),
+				Images:         x.Spec.Template.Spec.Containers[0].Image,
+			}
+
+			origin.PodControllers = append(origin.PodControllers, tmp)
+		}
+	}
+
+	// job
+	job, err := origin.ClientSet.BatchV2alpha1().CronJobs("").List(metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	if len(job.Items) > 0 {
+		for _, x := range job.Items {
+			tmp := PodController{
+				Type:           "CronJobs",
+				Name:           x.GetName(),
+				Namespace:      x.GetNamespace(),
+				Tags:           x.Labels,
+				ContainerGroup: x.Spec.Schedule,
+				Time:           strings.Replace(fmt.Sprintf("%v", x.CreationTimestamp.Sub(time.Now())), "-", "", -1),
+				Images:         x.Spec.JobTemplate.Spec.Template.Spec.Containers[0].Image,
+			}
+
+			origin.PodControllers = append(origin.PodControllers, tmp)
+		}
+	}
+
+	// repl
+	rep, err := origin.ClientSet.Extensions().ReplicaSets("").List(metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	if len(rep.Items) > 0 {
+		for _, x := range rep.Items {
+			tmp := PodController{
+				Type:           "ReplicaSets",
+				Name:           x.GetName(),
+				Namespace:      x.GetNamespace(),
+				Tags:           x.Labels,
+				ContainerGroup: fmt.Sprintf("%d / %d", x.Status.AvailableReplicas, x.Status.Replicas),
+				Time:           strings.Replace(fmt.Sprintf("%v", x.CreationTimestamp.Sub(time.Now())), "-", "", -1),
+				Images:         x.Spec.Template.Spec.Containers[0].Image,
+			}
+
+			origin.PodControllers = append(origin.PodControllers, tmp)
+		}
+	}
+
+	// statefulset
+	sf, err := origin.ClientSet.AppsV1().StatefulSets("").List(metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	if len(sf.Items) > 0 {
+		for _, x := range sf.Items {
+			tmp := PodController{
+				Type:           "StatefulSets",
+				Name:           x.GetName(),
+				Namespace:      x.GetNamespace(),
+				Tags:           x.Labels,
+				ContainerGroup: fmt.Sprintf("%d / %d", x.Status.ReadyReplicas, x.Status.Replicas),
+				Time:           strings.Replace(fmt.Sprintf("%v", x.CreationTimestamp.Sub(time.Now())), "-", "", -1),
+				Images:         x.Spec.Template.Spec.Containers[0].Image,
+			}
+
+			origin.PodControllers = append(origin.PodControllers, tmp)
+		}
+	}
 	return nil
 }
 
