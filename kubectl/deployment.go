@@ -11,30 +11,30 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func KeyPod(g *gocui.Gui) error {
-	if err := g.SetKeybinding("", gocui.KeyF3, gocui.ModNone, Pods); err != nil {
+func KeyDeployment(g *gocui.Gui) error {
+	if err := g.SetKeybinding("", gocui.KeyF4, gocui.ModNone, Deployment); err != nil {
 		return err
 	}
-	if err := g.SetKeybinding("Pod", gocui.KeyEnter, gocui.ModNone, getPods); err != nil {
+	if err := g.SetKeybinding("Deployment", gocui.KeyEnter, gocui.ModNone, getDeployments); err != nil {
 		return err
 	}
-	if err := g.SetKeybinding("msg", gocui.KeyEnter, gocui.ModNone, delpodmessage); err != nil {
-		return err
-	}
-	return nil
-}
-
-func delpodmessage(g *gocui.Gui, v *gocui.View) error {
-	if err := g.DeleteView("msg"); err != nil {
-		return err
-	}
-	if _, err := setCurrentViewOnTop(g, "Pod"); err != nil {
+	if err := g.SetKeybinding("msgdeploy", gocui.KeyEnter, gocui.ModNone, deldeploymentmessage); err != nil {
 		return err
 	}
 	return nil
 }
 
-func getPods(g *gocui.Gui, v *gocui.View) error {
+func deldeploymentmessage(g *gocui.Gui, v *gocui.View) error {
+	if err := g.DeleteView("msgdeploy"); err != nil {
+		return err
+	}
+	if _, err := setCurrentViewOnTop(g, "Deployment"); err != nil {
+		return err
+	}
+	return nil
+}
+
+func getDeployments(g *gocui.Gui, v *gocui.View) error {
 	var l string
 	var err error
 
@@ -46,7 +46,7 @@ func getPods(g *gocui.Gui, v *gocui.View) error {
 	ttt := strings.Split(strings.Replace(l, ">", "*", 1), "*")
 	if len(ttt) > 1 {
 		maxX, maxY := g.Size()
-		if v, err := g.SetView("msg", maxX*8/100, maxY*8/100, maxX*92/100, maxY*92/100); err != nil {
+		if v, err := g.SetView("msgdeploy", maxX*8/100, maxY*8/100, maxX*92/100, maxY*92/100); err != nil {
 			if err != gocui.ErrUnknownView {
 				return err
 			}
@@ -63,7 +63,7 @@ func getPods(g *gocui.Gui, v *gocui.View) error {
 			// fmt.Fprintln(v, l)
 			// selectId = strings.Trim(l, " ")
 
-			pod, err := origin.ClientSet.CoreV1().Pods(namespace).Get(name, metav1.GetOptions{})
+			pod, err := origin.ClientSet.Extensions().Deployments(namespace).Get(name, metav1.GetOptions{})
 			if err != nil {
 				fmt.Fprintln(v, err.Error())
 			} else {
@@ -76,7 +76,7 @@ func getPods(g *gocui.Gui, v *gocui.View) error {
 				}
 			}
 
-			if _, err := g.SetCurrentView("msg"); err != nil {
+			if _, err := g.SetCurrentView("msgdeploy"); err != nil {
 				return err
 			}
 
@@ -86,15 +86,24 @@ func getPods(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
-func Pods(g *gocui.Gui, v *gocui.View) error {
+func Deployment(g *gocui.Gui, v *gocui.View) error {
 	if err = delOtherViewNoBack(g); err != nil {
 		return err
 	}
-	if v, err := g.View("Pod"); err == nil {
+	if v, err := g.View("Deployment"); err == nil {
 		v.Clear()
-		v.Title = fmt.Sprintf("Pod/%d", len(origin.Pods))
+		tmp_deply := []PodController{}
+		for _, x := range origin.PodControllers {
+			if x.Type == "Deployments" {
+				tmp_deply = append(tmp_deply, x)
+			}
+		}
+
+		v.Title = fmt.Sprintf("Deployment/%d", len(tmp_deply))
 		v.Highlight = true
 		v.Editable = true
+		// v.Wrap = true
+		// v.MoveCursor(startx, endy, false)
 
 		num := 0
 		tableNow := table.NewTable(origin.maxX - 1)
@@ -102,13 +111,13 @@ func Pods(g *gocui.Gui, v *gocui.View) error {
 		// tableNow.AddCol("ID").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
 		tableNow.AddCol("NAME").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
 		tableNow.AddCol("Namespace").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Node").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+		tableNow.AddCol("Tags").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
 		tableNow.AddCol("Ready").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Restarts").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Time").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
+		tableNow.AddCol("Images").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
+		tableNow.AddCol("Time").SetColor("dgreen").SetTextAlign(table.TextRight).SetBgColor("black")
 		tableNow.CalColumnWidths()
 
-		for _, value := range origin.Pods {
+		for _, value := range tmp_deply {
 			num++
 			if num == 1 {
 				tableNow.FprintHeader(v)
@@ -126,43 +135,54 @@ func Pods(g *gocui.Gui, v *gocui.View) error {
 			ns.Color = "yellow"
 			tableNow.AddRow(1, ns)
 
-			node := table.NewCol()
-			node.Data = fmt.Sprintf("*%s", value.Node)
-			node.TextAlign = table.TextCenter
-			node.Color = "yellow"
-			tableNow.AddRow(2, node)
+			ttags := ""
+			for k, v := range value.Tags {
+				ttags += fmt.Sprintf("%s:%s ", k, v)
+			}
+			Tags := table.NewCol()
+			Tags.Data = fmt.Sprintf("*%s", ttags)
+			Tags.TextAlign = table.TextLeft
+			Tags.Color = "yellow"
+			tableNow.AddRow(2, Tags)
 
 			rd := table.NewCol()
-			rd.Data = fmt.Sprintf("%s", value.Ready)
+			rd.Data = fmt.Sprintf("%s", value.ContainerGroup)
 			rd.TextAlign = table.TextCenter
 			rd.Color = "yellow"
 			tableNow.AddRow(3, rd)
 
-			rs := table.NewCol()
-			rs.Data = fmt.Sprintf("%s", value.Restarts)
-			rs.TextAlign = table.TextCenter
-			rs.Color = "yellow"
-			tableNow.AddRow(4, rs)
+			image := table.NewCol()
+			image.Data = fmt.Sprintf("%s", value.Images)
+			image.TextAlign = table.TextLeft
+			image.Color = "yellow"
+			tableNow.AddRow(4, image)
 
 			time := table.NewCol()
-			time.Data = fmt.Sprintf("%s", value.Time)
-			time.TextAlign = table.TextLeft
+			time.Data = fmt.Sprintf("%s", strings.Replace(value.Time, "\n", "", -1))
+			time.TextAlign = table.TextRight
 			time.Color = "yellow"
 			tableNow.AddRow(5, time)
 
 			// fmt.Fprintln(w, s)
 		}
 		tableNow.Fprint(v)
-	} else if v, err := g.SetView("Pod", 0, 0, origin.maxX-1, origin.maxY-1); err != nil {
+	} else if v, err := g.SetView("Deployment", 0, 0, origin.maxX-1, origin.maxY-1); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		v.Title = fmt.Sprintf("Pod/%d", len(origin.Pods))
+		tmp_deply := []PodController{}
+		for _, x := range origin.PodControllers {
+			if x.Type == "Deployments" {
+				tmp_deply = append(tmp_deply, x)
+			}
+		}
+
+		v.Title = fmt.Sprintf("Deployment/%d", len(tmp_deply))
 		v.Highlight = true
 		v.Editable = true
 		// v.Wrap = true
 		// v.MoveCursor(startx, endy, false)
-		if _, err := setCurrentViewOnTop(g, "Pod"); err != nil {
+		if _, err := setCurrentViewOnTop(g, "Deployment"); err != nil {
 			return err
 		}
 
@@ -172,13 +192,13 @@ func Pods(g *gocui.Gui, v *gocui.View) error {
 		// tableNow.AddCol("ID").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
 		tableNow.AddCol("NAME").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
 		tableNow.AddCol("Namespace").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Node").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+		tableNow.AddCol("Tags").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
 		tableNow.AddCol("Ready").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Restarts").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Time").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
+		tableNow.AddCol("Images").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
+		tableNow.AddCol("Time").SetColor("dgreen").SetTextAlign(table.TextRight).SetBgColor("black")
 		tableNow.CalColumnWidths()
 
-		for _, value := range origin.Pods {
+		for _, value := range tmp_deply {
 			num++
 			if num == 1 {
 				tableNow.FprintHeader(v)
@@ -196,27 +216,31 @@ func Pods(g *gocui.Gui, v *gocui.View) error {
 			ns.Color = "yellow"
 			tableNow.AddRow(1, ns)
 
-			node := table.NewCol()
-			node.Data = fmt.Sprintf("*%s", value.Node)
-			node.TextAlign = table.TextCenter
-			node.Color = "yellow"
-			tableNow.AddRow(2, node)
+			ttags := ""
+			for k, v := range value.Tags {
+				ttags += fmt.Sprintf("%s:%s ", k, v)
+			}
+			Tags := table.NewCol()
+			Tags.Data = fmt.Sprintf("*%s", ttags)
+			Tags.TextAlign = table.TextLeft
+			Tags.Color = "yellow"
+			tableNow.AddRow(2, Tags)
 
 			rd := table.NewCol()
-			rd.Data = fmt.Sprintf("%s", value.Ready)
+			rd.Data = fmt.Sprintf("%s", value.ContainerGroup)
 			rd.TextAlign = table.TextCenter
 			rd.Color = "yellow"
 			tableNow.AddRow(3, rd)
 
-			rs := table.NewCol()
-			rs.Data = fmt.Sprintf("%s", value.Restarts)
-			rs.TextAlign = table.TextCenter
-			rs.Color = "yellow"
-			tableNow.AddRow(4, rs)
+			image := table.NewCol()
+			image.Data = fmt.Sprintf("%s", value.Images)
+			image.TextAlign = table.TextLeft
+			image.Color = "yellow"
+			tableNow.AddRow(4, image)
 
 			time := table.NewCol()
-			time.Data = fmt.Sprintf("%s", value.Time)
-			time.TextAlign = table.TextLeft
+			time.Data = fmt.Sprintf("%s", strings.Replace(value.Time, "\n", "", -1))
+			time.TextAlign = table.TextRight
 			time.Color = "yellow"
 			tableNow.AddRow(5, time)
 

@@ -130,6 +130,7 @@ func RefreshWorkLoad(g *gocui.Gui, startx, starty, endx, endy int) error {
 		// v.Autoscroll = true
 		v.Wrap = true
 		v.Highlight = true
+		v.SetCursor(startx+2, starty+1)
 		// v.Editable = true
 		num := 0
 		tableNow := table.NewTable(endx - startx - 1)
@@ -217,20 +218,21 @@ func WorkLoadTable(g *gocui.Gui, startx, starty, endx, endy int) error {
 		v.Highlight = true
 		v.Editable = true
 		// v.Wrap = true
-		v.MoveCursor(startx, endy, false)
+		// v.MoveCursor(startx+2, starty+3, true)
+		v.SetCursor(startx+2, starty+1)
 
 		v.Clear()
 		num := 0
 		tableNow := table.NewTable(endx - startx - 1)
 
 		// tableNow.AddCol("ID").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Type").SetColor("red").SetTextAlign(table.TextLeft).SetBgColor("black")
-		tableNow.AddCol("NAME").SetColor("red").SetTextAlign(table.TextLeft).SetBgColor("black")
-		tableNow.AddCol("Namespace").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Tags").SetColor("red").SetTextAlign(table.TextLeft).SetBgColor("black")
-		tableNow.AddCol("Ready").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Images").SetColor("red").SetTextAlign(table.TextLeft).SetBgColor("black")
-		tableNow.AddCol("Time").SetColor("red").SetTextAlign(table.TextRight).SetBgColor("black")
+		tableNow.AddCol("Type").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
+		tableNow.AddCol("NAME").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
+		tableNow.AddCol("Namespace").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+		tableNow.AddCol("Tags").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
+		tableNow.AddCol("Ready").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+		tableNow.AddCol("Images").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
+		tableNow.AddCol("Time").SetColor("dgreen").SetTextAlign(table.TextRight).SetBgColor("black")
 		tableNow.CalColumnWidths()
 		for _, value := range origin.PodControllers {
 			num++
@@ -309,16 +311,18 @@ func RefreshPods(g *gocui.Gui, startx, starty, endx, endy int) error {
 		v1.Wrap = true
 		v1.Highlight = true
 		v1.Editable = true
+		v1.SetCursor(startx+2, starty+1)
+
 		num := 0
 		tableNow := table.NewTable(origin.maxX - 1)
 
 		// tableNow.AddCol("ID").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("NAME").SetColor("red").SetTextAlign(table.TextLeft).SetBgColor("black")
-		tableNow.AddCol("Namespace").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Node").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Ready").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Restarts").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Time").SetColor("red").SetTextAlign(table.TextLeft).SetBgColor("black")
+		tableNow.AddCol("NAME").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
+		tableNow.AddCol("Namespace").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+		tableNow.AddCol("Node").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+		tableNow.AddCol("Ready").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+		tableNow.AddCol("Restarts").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+		tableNow.AddCol("Time").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
 		tableNow.CalColumnWidths()
 
 		for _, value := range origin.Pods {
@@ -383,18 +387,19 @@ func RefreshPods(g *gocui.Gui, startx, starty, endx, endy int) error {
 		v.Highlight = true
 		v.Editable = true
 		// v.Wrap = true
-		v.MoveCursor(startx, endy, false)
+		// v.MoveCursor(startx, endy, false)
+		v.SetCursor(startx+2, starty+1)
 
 		num := 0
 		tableNow := table.NewTable(endx - startx - 1)
 
 		// tableNow.AddCol("ID").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("NAME").SetColor("red").SetTextAlign(table.TextLeft).SetBgColor("black")
-		tableNow.AddCol("Namespace").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Node").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Ready").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Restarts").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Time").SetColor("red").SetTextAlign(table.TextLeft).SetBgColor("black")
+		tableNow.AddCol("NAME").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
+		tableNow.AddCol("Namespace").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+		tableNow.AddCol("Node").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+		tableNow.AddCol("Ready").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+		tableNow.AddCol("Restarts").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+		tableNow.AddCol("Time").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
 		tableNow.CalColumnWidths()
 
 		for _, value := range origin.Pods {
@@ -461,18 +466,19 @@ func PodsTable(g *gocui.Gui, startx, starty, endx, endy int) error {
 		v.Highlight = true
 		v.Editable = true
 		// v.Wrap = true
-		v.MoveCursor(startx, endy, false)
+		// v.MoveCursor(startx, endy, false)
+		v.SetCursor(startx+2, starty+1)
 
 		num := 0
 		tableNow := table.NewTable(endx - startx - 1)
 
 		// tableNow.AddCol("ID").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("NAME").SetColor("red").SetTextAlign(table.TextLeft).SetBgColor("black")
-		tableNow.AddCol("Namespace").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Node").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Ready").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Restarts").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Time").SetColor("red").SetTextAlign(table.TextLeft).SetBgColor("black")
+		tableNow.AddCol("NAME").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
+		tableNow.AddCol("Namespace").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+		tableNow.AddCol("Node").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+		tableNow.AddCol("Ready").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+		tableNow.AddCol("Restarts").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
+		tableNow.AddCol("Time").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
 		tableNow.CalColumnWidths()
 
 		for _, value := range origin.Pods {
@@ -539,12 +545,13 @@ func StatusTable(g *gocui.Gui, startx, starty, endx, endy int, data ClusterStatu
 		v.Highlight = true
 		v.Editable = true
 		// v.Wrap = true
-		v.MoveCursor(startx, endy, false)
+		// v.MoveCursor(startx+2, starty+1, false)
+		v.SetCursor(startx+2, starty+1)
 
 		num := 0
 		tableNow := table.NewTable(endx - startx)
 
-		tableNow.AddCol("NAME").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
+		tableNow.AddCol("NAME").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
 		tableNow.CalColumnWidths()
 
 		for _, value := range data.Data {

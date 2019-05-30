@@ -73,6 +73,12 @@ func ManualInit() {
 					if err := RefreshPods(origin.Gui, 0, origin.maxY*3/4, origin.maxX-1, origin.maxY-1); err != nil {
 						log.Error(err.Error())
 					}
+					if err := Pods(origin.Gui, nil); err != nil {
+						log.Error(err.Error())
+					}
+					if err := Deployment(origin.Gui, nil); err != nil {
+						log.Error(err.Error())
+					}
 					origin.Gui.Update(func(g *gocui.Gui) error { return nil })
 				}
 
@@ -91,6 +97,14 @@ func ManualInit() {
 	}
 
 	if err := KeyPod(origin.Gui); err != nil {
+		log.Panicln(err.Error())
+	}
+
+	if err := KeyDelete(origin.Gui); err != nil {
+		log.Panicln(err.Error())
+	}
+
+	if err := KeyDeployment(origin.Gui); err != nil {
 		log.Panicln(err.Error())
 	}
 
