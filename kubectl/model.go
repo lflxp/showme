@@ -86,8 +86,16 @@ func ManualInit() {
 		log.Panicln(err.Error())
 	}
 
-	if err := origin.Gui.MainLoop(); err != nil && err != gocui.ErrQuit {
+	if err := KeyHelp(origin.Gui); err != nil {
 		log.Panicln(err.Error())
+	}
+
+	if err := KeyPod(origin.Gui); err != nil {
+		log.Panicln(err.Error())
+	}
+
+	if err := origin.Gui.MainLoop(); err != nil && err != gocui.ErrQuit {
+		panic(err)
 	}
 }
 
