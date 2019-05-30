@@ -114,3 +114,5 @@ https://blog.csdn.net/lengyuezuixue/article/details/79664409
 - 微服务管理和功能测试
 - 日志系统 @[logrus](https://github.com/sirupsen/logrus)
 - kubectl 增加yaml原始文件查看 并用gjson解析
+- service pods add
+- delete pod/deployment/service function
