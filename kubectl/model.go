@@ -42,7 +42,7 @@ func ManualInit() {
 		log.Error(err.Error())
 	}
 
-	err = GetLoadStatuses()
+	_, err = GetLoadStatuses()
 	if err != nil {
 		log.Error(err.Error())
 	}
@@ -61,19 +61,21 @@ func ManualInit() {
 		for {
 			select {
 			case <-t.C:
-				err = GetLoadStatuses()
+				ischange, err := GetLoadStatuses()
 				if err != nil {
 					log.Error(err.Error())
 				}
-				maxX, maxY := origin.Gui.Size()
 
-				if err := RefreshWorkLoad(origin.Gui, 0, maxY/2, maxX-1, maxY*3/4-1); err != nil {
-					log.Error(err.Error())
+				if ischange {
+					if err := RefreshWorkLoad(origin.Gui, 0, origin.maxY/2, origin.maxX-2, origin.maxY*3/4-1); err != nil {
+						log.Error(err.Error())
+					}
+					if err := RefreshPods(origin.Gui, 0, origin.maxY*3/4, origin.maxX-2, origin.maxY-1); err != nil {
+						log.Error(err.Error())
+					}
+					origin.Gui.Update(func(g *gocui.Gui) error { return nil })
 				}
-				if err := RefreshPods(origin.Gui, 0, maxY*3/4, maxX-1, maxY-1); err != nil {
-					log.Error(err.Error())
-				}
-				origin.Gui.Update(func(g *gocui.Gui) error { return nil })
+
 				// fmt.Println(time.Now().Format("2006-01-02 15:04:05"))
 				// fmt.Fprintln(v, )
 			}
@@ -133,6 +135,8 @@ type BasicKubectl struct {
 	PodControllers []PodController
 	Pods           []PodStatus
 	BeforeSearch   string // before search view name
+	maxX           int
+	maxY           int
 }
 
 func (this *BasicKubectl) NewGui() error {

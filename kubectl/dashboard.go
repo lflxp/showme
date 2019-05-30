@@ -2,6 +2,7 @@ package kubectl
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/jroimartin/gocui"
 	"github.com/lflxp/showme/utils/table"
@@ -26,21 +27,21 @@ func KeyDashboard(g *gocui.Gui) error {
 }
 
 func dashboard(g *gocui.Gui) error {
-	maxX, maxY := g.Size()
+	origin.maxX, origin.maxY = g.Size()
 	if len(origin.Cluster) > 0 {
 		num := len(origin.Cluster)
-		len := maxX / num
+		len := origin.maxX / num
 		for n, x := range origin.Cluster {
 			var endX int
 			startX := n * len
 			startY := 0
 			if n == num-1 {
-				endX = maxX - 1
+				endX = origin.maxX - 1
 			} else {
 				endX = (n+1)*len - 1
 			}
 			// endX = (n + 1) * len
-			endY := maxY/4 - 1
+			endY := origin.maxY/4 - 1
 
 			err := StatusTable(g, startX, startY, endX, endY, x)
 			if err != nil {
@@ -51,18 +52,18 @@ func dashboard(g *gocui.Gui) error {
 
 	if len(origin.ServiceConfig) > 0 {
 		num := len(origin.Cluster)
-		len := maxX / num
+		len := origin.maxX / num
 		for n, x := range origin.ServiceConfig {
 			var endX int
 			startX := n * len
-			startY := maxY / 4
+			startY := origin.maxY / 4
 			if n == num-1 {
-				endX = maxX - 1
+				endX = origin.maxX - 1
 			} else {
 				endX = (n+1)*len - 1
 			}
 			// endX = (n + 1) * len
-			endY := maxY/2 - 1
+			endY := origin.maxY/2 - 1
 
 			err := StatusTable(g, startX, startY, endX, endY, x)
 			if err != nil {
@@ -92,7 +93,7 @@ func dashboard(g *gocui.Gui) error {
 	// }
 
 	// if err := WorkLoadTable(g, 0, maxY/2, maxX/2-1, maxY-1); err != nil {
-	if err := WorkLoadTable(g, 0, maxY/2, maxX-1, maxY*3/4-1); err != nil {
+	if err := WorkLoadTable(g, 0, origin.maxY/2, origin.maxX-1, origin.maxY*3/4-1); err != nil {
 		return err
 	}
 
@@ -114,7 +115,7 @@ func dashboard(g *gocui.Gui) error {
 	// }
 
 	// if err := PodsTable(g, maxX/2, maxY/2, maxX-1, maxY-1); err != nil {
-	if err := PodsTable(g, 0, maxY*3/4, maxX-1, maxY-1); err != nil {
+	if err := PodsTable(g, 0, origin.maxY*3/4, origin.maxX-1, origin.maxY-1); err != nil {
 		return err
 	}
 
@@ -126,7 +127,7 @@ func RefreshWorkLoad(g *gocui.Gui, startx, starty, endx, endy int) error {
 		return err
 	} else {
 		v.Clear()
-		v.Autoscroll = true
+		// v.Autoscroll = true
 		v.Wrap = true
 		v.Highlight = true
 		// v.Editable = true
@@ -195,7 +196,7 @@ func RefreshWorkLoad(g *gocui.Gui, startx, starty, endx, endy int) error {
 			tableNow.AddRow(5, image)
 
 			time := table.NewCol()
-			time.Data = fmt.Sprintf("%s", value.Time)
+			time.Data = fmt.Sprintf("%s", strings.Replace(value.Time, "\n", "", -1))
 			time.TextAlign = table.TextRight
 			time.Color = "yellow"
 			tableNow.AddRow(6, time)
@@ -305,7 +306,7 @@ func RefreshPods(g *gocui.Gui, startx, starty, endx, endy int) error {
 		return err
 	} else {
 		v.Clear()
-		v.Autoscroll = true
+		// v.Autoscroll = true
 		v.Wrap = true
 		v.Highlight = true
 		v.Editable = true

@@ -103,16 +103,43 @@ func GetServiceConfigStatus() error {
 	return nil
 }
 
+// 判断origin.Pods是否更改
+func isPodsChanges(info PodStatus) bool {
+	isChange := true
+	for _, x := range origin.Pods {
+		if x.Name == info.Name && x.Namespace == info.Namespace {
+			isChange = false
+			break
+		}
+	}
+	return isChange
+}
+
+// 判断origin.PodController是否更改
+func isPodControllersChanges(info PodController) bool {
+	isChange := true
+	for _, x := range origin.PodControllers {
+		if x.Name == info.Name && x.Namespace == info.Namespace && x.Type == info.Type {
+			isChange = false
+			break
+		}
+	}
+	return isChange
+}
+
 // 获取集群所有负载状态信息
+// +状态自动刷新
 // cronjob daemonset deploymenet job pod replicaset statefulset
-func GetLoadStatuses() error {
-	// clear
-	origin.Pods = []PodStatus{}
-	origin.PodControllers = []PodController{}
+func GetLoadStatuses() (bool, error) {
+	num := 0
+	var isChange bool
+	tmpPods := []PodStatus{}
+	tmpPodControllers := []PodController{}
+
 	// pods
 	pods, err := origin.ClientSet.CoreV1().Pods("").List(metav1.ListOptions{})
 	if err != nil {
-		return err
+		return isChange, err
 	}
 	if len(pods.Items) > 0 {
 		for _, x := range pods.Items {
@@ -124,14 +151,17 @@ func GetLoadStatuses() error {
 				Restarts:  fmt.Sprintf("%d", x.Status.ContainerStatuses[0].RestartCount),
 				Time:      strings.Replace(fmt.Sprintf("%v", x.Status.StartTime.Sub(time.Now())), "-", "", -1),
 			}
-			origin.Pods = append(origin.Pods, tmp)
+			if isPodsChanges(tmp) {
+				num++
+			}
+			tmpPods = append(tmpPods, tmp)
 		}
 	}
 
 	// daemonset
 	dm, err := origin.ClientSet.Extensions().DaemonSets("").List(metav1.ListOptions{})
 	if err != nil {
-		return err
+		return isChange, err
 	}
 	if len(dm.Items) > 0 {
 		for _, x := range dm.Items {
@@ -144,8 +174,10 @@ func GetLoadStatuses() error {
 				Time:           strings.Replace(fmt.Sprintf("%v", x.CreationTimestamp.Sub(time.Now())), "-", "", -1),
 				Images:         x.Spec.Template.Spec.Containers[0].Image,
 			}
-
-			origin.PodControllers = append(origin.PodControllers, tmp)
+			if isPodControllersChanges(tmp) {
+				num++
+			}
+			tmpPodControllers = append(tmpPodControllers, tmp)
 		}
 	}
 
@@ -157,7 +189,7 @@ func GetLoadStatuses() error {
 
 	deploy, err := origin.ClientSet.Extensions().Deployments("").List(metav1.ListOptions{})
 	if err != nil {
-		return err
+		return isChange, err
 	}
 	if len(deploy.Items) > 0 {
 		for _, x := range deploy.Items {
@@ -170,15 +202,17 @@ func GetLoadStatuses() error {
 				Time:           strings.Replace(fmt.Sprintf("%v", x.CreationTimestamp.Sub(time.Now())), "-", "", -1),
 				Images:         x.Spec.Template.Spec.Containers[0].Image,
 			}
-
-			origin.PodControllers = append(origin.PodControllers, tmp)
+			if isPodControllersChanges(tmp) {
+				num++
+			}
+			tmpPodControllers = append(tmpPodControllers, tmp)
 		}
 	}
 
 	// job
 	job, err := origin.ClientSet.BatchV2alpha1().CronJobs("").List(metav1.ListOptions{})
 	if err != nil {
-		return err
+		return isChange, err
 	}
 	if len(job.Items) > 0 {
 		for _, x := range job.Items {
@@ -191,15 +225,17 @@ func GetLoadStatuses() error {
 				Time:           strings.Replace(fmt.Sprintf("%v", x.CreationTimestamp.Sub(time.Now())), "-", "", -1),
 				Images:         x.Spec.JobTemplate.Spec.Template.Spec.Containers[0].Image,
 			}
-
-			origin.PodControllers = append(origin.PodControllers, tmp)
+			if isPodControllersChanges(tmp) {
+				num++
+			}
+			tmpPodControllers = append(tmpPodControllers, tmp)
 		}
 	}
 
 	// repl
 	rep, err := origin.ClientSet.Extensions().ReplicaSets("").List(metav1.ListOptions{})
 	if err != nil {
-		return err
+		return isChange, err
 	}
 	if len(rep.Items) > 0 {
 		for _, x := range rep.Items {
@@ -212,15 +248,17 @@ func GetLoadStatuses() error {
 				Time:           strings.Replace(fmt.Sprintf("%v", x.CreationTimestamp.Sub(time.Now())), "-", "", -1),
 				Images:         x.Spec.Template.Spec.Containers[0].Image,
 			}
-
-			origin.PodControllers = append(origin.PodControllers, tmp)
+			if isPodControllersChanges(tmp) {
+				num++
+			}
+			tmpPodControllers = append(tmpPodControllers, tmp)
 		}
 	}
 
 	// statefulset
 	sf, err := origin.ClientSet.AppsV1().StatefulSets("").List(metav1.ListOptions{})
 	if err != nil {
-		return err
+		return isChange, err
 	}
 	if len(sf.Items) > 0 {
 		for _, x := range sf.Items {
@@ -233,11 +271,22 @@ func GetLoadStatuses() error {
 				Time:           strings.Replace(fmt.Sprintf("%v", x.CreationTimestamp.Sub(time.Now())), "-", "", -1),
 				Images:         x.Spec.Template.Spec.Containers[0].Image,
 			}
-
-			origin.PodControllers = append(origin.PodControllers, tmp)
+			if isPodControllersChanges(tmp) {
+				num++
+			}
+			tmpPodControllers = append(tmpPodControllers, tmp)
 		}
 	}
-	return nil
+	if num > 0 {
+		isChange = true
+		// clear and refresh
+		origin.Pods = tmpPods
+		origin.PodControllers = tmpPodControllers
+	} else {
+		isChange = false
+	}
+
+	return isChange, nil
 }
 
 // 获取所有集群信息
