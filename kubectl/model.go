@@ -67,10 +67,10 @@ func ManualInit() {
 				}
 
 				if ischange {
-					if err := RefreshWorkLoad(origin.Gui, 0, origin.maxY/2, origin.maxX-2, origin.maxY*3/4-1); err != nil {
+					if err := RefreshWorkLoad(origin.Gui, 0, origin.maxY/2, origin.maxX-1, origin.maxY*3/4-1); err != nil {
 						log.Error(err.Error())
 					}
-					if err := RefreshPods(origin.Gui, 0, origin.maxY*3/4, origin.maxX-2, origin.maxY-1); err != nil {
+					if err := RefreshPods(origin.Gui, 0, origin.maxY*3/4, origin.maxX-1, origin.maxY-1); err != nil {
 						log.Error(err.Error())
 					}
 					origin.Gui.Update(func(g *gocui.Gui) error { return nil })

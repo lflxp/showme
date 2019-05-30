@@ -132,7 +132,7 @@ func RefreshWorkLoad(g *gocui.Gui, startx, starty, endx, endy int) error {
 		v.Highlight = true
 		// v.Editable = true
 		num := 0
-		tableNow := table.NewTable(endx - startx)
+		tableNow := table.NewTable(endx - startx - 1)
 
 		// tableNow.AddCol("ID").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
 		tableNow.AddCol("Type").SetColor("red").SetTextAlign(table.TextLeft).SetBgColor("black")
@@ -221,7 +221,7 @@ func WorkLoadTable(g *gocui.Gui, startx, starty, endx, endy int) error {
 
 		v.Clear()
 		num := 0
-		tableNow := table.NewTable(endx - startx)
+		tableNow := table.NewTable(endx - startx - 1)
 
 		// tableNow.AddCol("ID").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
 		tableNow.AddCol("Type").SetColor("red").SetTextAlign(table.TextLeft).SetBgColor("black")
@@ -314,7 +314,7 @@ func RefreshPods(g *gocui.Gui, startx, starty, endx, endy int) error {
 		v.MoveCursor(startx, endy, false)
 
 		num := 0
-		tableNow := table.NewTable(endx - startx)
+		tableNow := table.NewTable(endx - startx - 1)
 
 		// tableNow.AddCol("ID").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
 		tableNow.AddCol("NAME").SetColor("red").SetTextAlign(table.TextLeft).SetBgColor("black")
@@ -392,7 +392,7 @@ func PodsTable(g *gocui.Gui, startx, starty, endx, endy int) error {
 		v.MoveCursor(startx, endy, false)
 
 		num := 0
-		tableNow := table.NewTable(endx - startx)
+		tableNow := table.NewTable(endx - startx - 1)
 
 		// tableNow.AddCol("ID").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
 		tableNow.AddCol("NAME").SetColor("red").SetTextAlign(table.TextLeft).SetBgColor("black")
