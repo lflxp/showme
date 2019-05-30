@@ -97,7 +97,7 @@ func (this Table) FprintHeader(w io.Writer) {
 		case TextCenter:
 			s = AlignCenter(tmp.Data, width)
 		}
-		fmt.Fprintf(w, utils.Colorize(s, tmp.Color, tmp.BgColor, false, true))
+		fmt.Fprintf(w, utils.Colorize(s, tmp.Color, tmp.BgColor, true, true))
 	}
 	fmt.Fprintln(w, "")
 }
