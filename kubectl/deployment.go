@@ -21,6 +21,47 @@ func KeyDeployment(g *gocui.Gui) error {
 	if err := g.SetKeybinding("msgdeploy", gocui.KeyEnter, gocui.ModNone, deldeploymentmessage); err != nil {
 		return err
 	}
+	if err := g.SetKeybinding("Deployment", gocui.KeyDelete, gocui.ModNone, deleteDeploymentView); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("deldeployment", gocui.KeyEnter, gocui.ModNone, nextView); err != nil {
+		return err
+	}
+	return nil
+}
+
+func deleteDeploymentView(g *gocui.Gui, v *gocui.View) error {
+	var l string
+	var err error
+
+	_, cy := v.Cursor()
+	if l, err = v.Line(cy); err != nil {
+		l = ""
+	}
+
+	rs := strings.Split(strings.Replace(l, ">", "*", 1), "*")
+	maxX, maxY := g.Size()
+	if v, err := g.SetView("deldeployment", maxX/2-30, maxY/2, maxX/2+30, maxY/2+2); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+
+		origin.CurrentPod = strings.TrimSpace(rs[1])
+		origin.DefaultNS = strings.TrimSpace(rs[2])
+		v.Title = fmt.Sprintf("确认删除[Deploy] %s:%s?(y/N)", strings.TrimSpace(rs[2]), strings.TrimSpace(rs[1]))
+		v.Highlight = true
+		v.Editable = true
+		// v.Frame = false
+		// v.SelBgColor = gocui.ColorYellow
+		v.SelFgColor = gocui.ColorRed
+		// fmt.Fprintln(v, strings.Trim(l, " "))
+		// fmt.Fprintln(v, l)
+		// selectId = strings.Trim(l, " ")
+		// fmt.Fprintln(v, fmt.Sprintf("Your Selectd Range: %s", l))
+		if _, err := g.SetCurrentView("deldeployment"); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

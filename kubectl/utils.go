@@ -107,7 +107,7 @@ func GetServiceConfigStatus() error {
 func isPodsChanges(info PodStatus) bool {
 	isChange := true
 	for _, x := range origin.Pods {
-		if x.Name == info.Name && x.Namespace == info.Namespace {
+		if x.Name == info.Name && x.Namespace == info.Namespace && x.Ready == info.Ready && x.Restarts == info.Restarts {
 			isChange = false
 			break
 		}
@@ -119,7 +119,7 @@ func isPodsChanges(info PodStatus) bool {
 func isPodControllersChanges(info PodController) bool {
 	isChange := true
 	for _, x := range origin.PodControllers {
-		if x.Name == info.Name && x.Namespace == info.Namespace && x.Type == info.Type {
+		if x.Name == info.Name && x.Namespace == info.Namespace && x.Type == info.Type && x.ContainerGroup == info.ContainerGroup {
 			isChange = false
 			break
 		}

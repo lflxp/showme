@@ -55,7 +55,7 @@ func ManualInit() {
 	origin.Gui.SelFgColor = gocui.ColorGreen
 	origin.Gui.SetManagerFunc(dashboard)
 
-	d := time.Duration(5 * time.Second)
+	d := time.Duration(1 * time.Second)
 	t := time.NewTicker(d)
 	defer t.Stop()
 	go func() {
@@ -273,6 +273,27 @@ func nextView(g *gocui.Gui, v *gocui.View) error {
 			}
 		}
 		_, err = setCurrentViewOnTop(g, "Pod")
+		return err
+	} else if v == nil || v.Name() == "deldeployment" {
+		var l string
+		var err error
+
+		_, cy := v.Cursor()
+		if l, err = v.Line(cy); err != nil {
+			l = ""
+		}
+
+		if err = g.DeleteView("deldeployment"); err != nil {
+			return err
+		}
+
+		if strings.TrimSpace(l) == "y" {
+			err = k8s.DeleteDeployment(origin.DefaultNS, origin.CurrentPod)
+			if err != nil {
+				log.Error(err.Error())
+			}
+		}
+		_, err = setCurrentViewOnTop(g, "Deployment")
 		return err
 	}
 	return nil
