@@ -69,7 +69,7 @@ func delsearchBuffer(g *gocui.Gui, v *gocui.View) error {
 				match1, _ := regexp.MatchString("NAME", x)
 				if match1 && countTitle == 0 {
 					// fmt.Fprintln(v, utils.Colorize(x, "dgreen", "black", false, false))
-					title = utils.Colorize(x, "dgreen", "black", false, false)
+					title = utils.Colorize(x, "dgreen", "black", true, false)
 					countTitle++
 				} else {
 					// fmt.Fprintln(v, strings.Replace(x, ">", " ", -1))

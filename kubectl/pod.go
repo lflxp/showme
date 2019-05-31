@@ -21,6 +21,33 @@ func KeyPod(g *gocui.Gui) error {
 	if err := g.SetKeybinding("msg", gocui.KeyEnter, gocui.ModNone, delpodmessage); err != nil {
 		return err
 	}
+	if err := g.SetKeybinding("Pod", gocui.KeyDelete, gocui.ModNone, deletePodView); err != nil {
+		return err
+	}
+	return nil
+}
+
+func deletePodView(g *gocui.Gui, v *gocui.View) error {
+	maxX, maxY := g.Size()
+	if v, err := g.SetView("delpod", maxX/2-30, maxY/2, maxX/2+30, maxY/2+2); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+
+		v.Title = "Input Port Range(eg: 80,3306,25-100)"
+		v.Highlight = true
+		v.Editable = true
+		// v.Frame = false
+		// v.SelBgColor = gocui.ColorYellow
+		v.SelFgColor = gocui.ColorRed
+		// fmt.Fprintln(v, strings.Trim(l, " "))
+		// fmt.Fprintln(v, l)
+		// selectId = strings.Trim(l, " ")
+		// fmt.Fprintln(v, fmt.Sprintf("Your Selectd Range: %s", l))
+		if _, err := g.SetCurrentView("delpod"); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
