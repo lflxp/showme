@@ -1,6 +1,7 @@
 package kubectl
 
 import (
+	"strings"
 	"time"
 
 	"github.com/jroimartin/gocui"
@@ -27,24 +28,24 @@ func ManualInit() {
 	k8s.InitClientSet()
 	origin.ClientSet, err = k8s.GetClientSet()
 	if err != nil {
-		log.Panicln(err)
+		panic(err)
 	}
 	origin.DefaultNS = "default"
 
 	// get basic info
 	err = GetClusterStatuses()
 	if err != nil {
-		log.Error(err.Error())
+		panic(err)
 	}
 
 	err = GetServiceConfigStatus()
 	if err != nil {
-		log.Error(err.Error())
+		panic(err)
 	}
 
 	_, err = GetLoadStatuses()
 	if err != nil {
-		log.Error(err.Error())
+		panic(err)
 	}
 
 	// init gocui
@@ -149,16 +150,18 @@ type BasicKubectl struct {
 	// gocui
 	Gui *gocui.Gui
 	// kubectl
-	ClientSet      *kubernetes.Clientset
-	DefaultNS      string   // current namespace
-	Helps          []string // F1 View show help message
-	Cluster        []ClusterStatus
-	ServiceConfig  []ClusterStatus
-	PodControllers []PodController
-	Pods           []PodStatus
-	BeforeSearch   string // before search view name
-	maxX           int
-	maxY           int
+	ClientSet         *kubernetes.Clientset
+	DefaultNS         string // current namespace
+	CurrentPod        string
+	CurrentDeployment string
+	Helps             []string // F1 View show help message
+	Cluster           []ClusterStatus
+	ServiceConfig     []ClusterStatus
+	PodControllers    []PodController
+	Pods              []PodStatus
+	BeforeSearch      string // before search view name
+	maxX              int
+	maxY              int
 }
 
 func (this *BasicKubectl) NewGui() error {
@@ -249,6 +252,27 @@ func nextView(g *gocui.Gui, v *gocui.View) error {
 		return err
 	} else if v == nil || v.Name() == "pod" {
 		_, err := setCurrentViewOnTop(g, "Namespace")
+		return err
+	} else if v == nil || v.Name() == "delpod" {
+		var l string
+		var err error
+
+		_, cy := v.Cursor()
+		if l, err = v.Line(cy); err != nil {
+			l = ""
+		}
+
+		if err = g.DeleteView("delpod"); err != nil {
+			return err
+		}
+
+		if strings.TrimSpace(l) == "y" {
+			err = k8s.DeletePod(origin.DefaultNS, origin.CurrentPod)
+			if err != nil {
+				log.Error(err.Error())
+			}
+		}
+		_, err = setCurrentViewOnTop(g, "Pod")
 		return err
 	}
 	return nil

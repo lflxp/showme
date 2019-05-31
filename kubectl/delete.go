@@ -32,6 +32,11 @@ func delOtherView(g *gocui.Gui, v *gocui.View) error {
 			return err
 		}
 	}
+	if _, err := g.View("delpod"); err == nil {
+		if err = g.DeleteView("delpod"); err != nil {
+			return err
+		}
+	}
 	if _, err := setCurrentViewOnTop(g, "bottom"); err != nil {
 		return err
 	}
@@ -56,6 +61,11 @@ func delOtherViewNoBack(g *gocui.Gui) error {
 	}
 	if _, err := g.View("Deployment"); err == nil {
 		if err = g.DeleteView("Deployment"); err != nil {
+			return err
+		}
+	}
+	if _, err := g.View("delpod"); err == nil {
+		if err = g.DeleteView("delpod"); err != nil {
 			return err
 		}
 	}
