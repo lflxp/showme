@@ -109,6 +109,10 @@ func ManualInit() {
 		log.Panicln(err.Error())
 	}
 
+	if err := KeyService(origin.Gui); err != nil {
+		log.Panicln(err.Error())
+	}
+
 	if err := origin.Gui.MainLoop(); err != nil && err != gocui.ErrQuit {
 		panic(err)
 	}
@@ -294,6 +298,27 @@ func nextView(g *gocui.Gui, v *gocui.View) error {
 			}
 		}
 		_, err = setCurrentViewOnTop(g, "Deployment")
+		return err
+	} else if v == nil || v.Name() == "deleteServiceView" {
+		var l string
+		var err error
+
+		_, cy := v.Cursor()
+		if l, err = v.Line(cy); err != nil {
+			l = ""
+		}
+
+		if err = g.DeleteView("deleteServiceView"); err != nil {
+			return err
+		}
+
+		if strings.TrimSpace(l) == "y" {
+			err = k8s.DeleteService(origin.DefaultNS, origin.CurrentPod)
+			if err != nil {
+				log.Error(err.Error())
+			}
+		}
+		_, err = setCurrentViewOnTop(g, "Serviceed")
 		return err
 	}
 	return nil

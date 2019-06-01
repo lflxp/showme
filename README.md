@@ -113,6 +113,6 @@ https://blog.csdn.net/lengyuezuixue/article/details/79664409
 - mysql 解析
 - 微服务管理和功能测试
 - 日志系统 @[logrus](https://github.com/sirupsen/logrus)
-- kubectl 增加yaml原始文件查看 并用gjson解析
-- service pods add
-- delete pod/deployment/service function
+- 修复自动刷新全部跳转到deployment的错误
+- 添加pod和deployment手动刷新数据的错误
+- 考虑是否取消自动刷新的功能或者优化自动查询效率
