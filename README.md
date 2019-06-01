@@ -72,6 +72,9 @@ command:
 
 6. kubectl
 
+![s1.png](https://github.com/lflxp/showme/blob/master/s1.png)
+![s2.png](https://github.com/lflxp/showme/blob/master/s2.png)
+
 todo:
 - side menu
 - top five view table
