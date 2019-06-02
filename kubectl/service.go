@@ -9,6 +9,7 @@ import (
 	"github.com/jroimartin/gocui"
 	"github.com/lflxp/showme/utils"
 	"github.com/lflxp/showme/utils/table"
+	k8stype "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -208,7 +209,12 @@ func Services(g *gocui.Gui, v *gocui.View) error {
 
 			pp := []string{}
 			for _, x := range value.Spec.Ports {
-				pp = append(pp, fmt.Sprintf("%d/%s", x.Port, x.Protocol))
+				if value.Spec.Type == k8stype.ServiceTypeNodePort {
+					pp = append(pp, fmt.Sprintf("%d:%s/%s", x.Port, x.TargetPort.String(), x.Protocol))
+				} else {
+					pp = append(pp, fmt.Sprintf("%d/%s", x.Port, x.Protocol))
+				}
+
 			}
 			ports := table.NewCol()
 			ports.Data = fmt.Sprintf("%s", strings.Join(pp, ","))
