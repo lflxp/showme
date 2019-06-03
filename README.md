@@ -75,6 +75,18 @@ command:
 ![s1.png](https://github.com/lflxp/showme/blob/master/s1.png)
 ![s2.png](https://github.com/lflxp/showme/blob/master/s2.png)
 
+feature:
+- dashboard
+- pod
+- deployment
+- service
+- nodes
+
+function:
+- describe
+- delete
+- search
+
 todo:
 - side menu
 - top five view table
@@ -119,3 +131,22 @@ https://blog.csdn.net/lengyuezuixue/article/details/79664409
 - 修复自动刷新全部跳转到deployment的错误
 - 添加pod和deployment手动刷新数据的错误
 - 考虑是否取消自动刷新的功能或者优化自动查询效率
+
+# k8s resource list
+
+```
+alertmanagers.monitoring.coreos.com                           endpoints                                                     nodes.metrics.k8s.io                                          replicasets.extensions
+apiservices.apiregistration.k8s.io                            etcdclusters.etcd.database.coreos.com                         persistentvolumeclaims                                        replicationcontrollers
+certificatesigningrequests.certificates.k8s.io                events                                                        persistentvolumes                                             resourcequotas
+clusterrolebindings.rbac.authorization.k8s.io                 events.events.k8s.io                                          poddisruptionbudgets.policy                                   rolebindings.rbac.authorization.k8s.io
+clusterroles.rbac.authorization.k8s.io                        horizontalpodautoscalers.autoscaling                          pods                                                          roles.rbac.authorization.k8s.io
+componentstatuses                                             ingresses.extensions                                          pods.metrics.k8s.io                                           secrets
+configmaps                                                    jobs.batch                                                    podsecuritypolicies.extensions                                serviceaccounts
+controllerrevisions.apps                                      leases.coordination.k8s.io                                    podsecuritypolicies.policy                                    servicemonitors.monitoring.coreos.com
+cronjobs.batch                                                limitranges                                                   podtemplates                                                  services
+customresourcedefinitions.apiextensions.k8s.io                mutatingwebhookconfigurations.admissionregistration.k8s.io    priorityclasses.scheduling.k8s.io                             statefulsets.apps
+daemonsets.apps                                               namespaces                                                    prometheuses.monitoring.coreos.com                            storageclasses.storage.k8s.io
+daemonsets.extensions                                         networkpolicies.extensions                                    prometheusrules.monitoring.coreos.com                         validatingwebhookconfigurations.admissionregistration.k8s.io
+deployments.apps                                              networkpolicies.networking.k8s.io                             redisfailovers.storage.spotahome.com                          volumeattachments.storage.k8s.io
+deployments.extensions                                        nodes                                                         replicasets.apps                                              
+```

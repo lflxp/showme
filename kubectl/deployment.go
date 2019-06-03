@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/jroimartin/gocui"
 	"github.com/lflxp/showme/utils"
@@ -131,94 +132,17 @@ func Deployment(g *gocui.Gui, v *gocui.View) error {
 	if err = delOtherViewNoBack(g); err != nil {
 		return err
 	}
-	if v, err := g.View("Deployment"); err == nil {
-		v.Clear()
-		tmp_deply := []PodController{}
-		for _, x := range origin.PodControllers {
-			if x.Type == "Deployments" {
-				tmp_deply = append(tmp_deply, x)
-			}
-		}
-
-		v.Title = fmt.Sprintf("Deployment/%d", len(tmp_deply))
-		v.Highlight = true
-		v.Editable = true
-		// v.Wrap = true
-		// v.MoveCursor(startx, endy, false)
-
-		num := 0
-		tableNow := table.NewTable(origin.maxX - 1)
-
-		// tableNow.AddCol("ID").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("NAME").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
-		tableNow.AddCol("Namespace").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Tags").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
-		tableNow.AddCol("Ready").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Images").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
-		tableNow.AddCol("Time").SetColor("dgreen").SetTextAlign(table.TextRight).SetBgColor("black")
-		tableNow.CalColumnWidths()
-
-		for _, value := range tmp_deply {
-			num++
-			if num == 1 {
-				tableNow.FprintHeader(v)
-			}
-
-			name := table.NewCol()
-			name.Data = fmt.Sprintf("*%s", value.Name)
-			name.TextAlign = table.TextLeft
-			name.Color = "yellow"
-			tableNow.AddRow(0, name)
-
-			ns := table.NewCol()
-			ns.Data = fmt.Sprintf("*%s", value.Namespace)
-			ns.TextAlign = table.TextCenter
-			ns.Color = "yellow"
-			tableNow.AddRow(1, ns)
-
-			ttags := ""
-			for k, v := range value.Tags {
-				ttags += fmt.Sprintf("%s:%s ", k, v)
-			}
-			Tags := table.NewCol()
-			Tags.Data = fmt.Sprintf("*%s", ttags)
-			Tags.TextAlign = table.TextLeft
-			Tags.Color = "yellow"
-			tableNow.AddRow(2, Tags)
-
-			rd := table.NewCol()
-			rd.Data = fmt.Sprintf("%s", value.ContainerGroup)
-			rd.TextAlign = table.TextCenter
-			rd.Color = "yellow"
-			tableNow.AddRow(3, rd)
-
-			image := table.NewCol()
-			image.Data = fmt.Sprintf("%s", value.Images)
-			image.TextAlign = table.TextLeft
-			image.Color = "yellow"
-			tableNow.AddRow(4, image)
-
-			time := table.NewCol()
-			time.Data = fmt.Sprintf("%s", strings.Replace(value.Time, "\n", "", -1))
-			time.TextAlign = table.TextRight
-			time.Color = "yellow"
-			tableNow.AddRow(5, time)
-
-			// fmt.Fprintln(w, s)
-		}
-		tableNow.Fprint(v)
-	} else if v, err := g.SetView("Deployment", 0, 0, origin.maxX-1, origin.maxY-1); err != nil {
+	if v, err := g.SetView("Deployment", 0, 0, origin.maxX-1, origin.maxY-1); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		tmp_deply := []PodController{}
-		for _, x := range origin.PodControllers {
-			if x.Type == "Deployments" {
-				tmp_deply = append(tmp_deply, x)
-			}
+
+		deploy_list, err := origin.ClientSet.Extensions().Deployments("").List(metav1.ListOptions{})
+		if err != nil {
+			return err
 		}
 
-		v.Title = fmt.Sprintf("Deployment/%d", len(tmp_deply))
+		v.Title = fmt.Sprintf("Deployment/%d", len(deploy_list.Items))
 		v.Highlight = true
 		v.Editable = true
 		// v.Wrap = true
@@ -227,8 +151,7 @@ func Deployment(g *gocui.Gui, v *gocui.View) error {
 			return err
 		}
 
-		num := 0
-		tableNow := table.NewTable(origin.maxX - 1)
+		tableNow := table.NewTable(origin.maxX - 2)
 
 		// tableNow.AddCol("ID").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
 		tableNow.AddCol("NAME").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
@@ -239,26 +162,25 @@ func Deployment(g *gocui.Gui, v *gocui.View) error {
 		tableNow.AddCol("Time").SetColor("dgreen").SetTextAlign(table.TextRight).SetBgColor("black")
 		tableNow.CalColumnWidths()
 
-		for _, value := range tmp_deply {
-			num++
-			if num == 1 {
+		for n, value := range deploy_list.Items {
+			if n == 0 {
 				tableNow.FprintHeader(v)
 			}
 
 			name := table.NewCol()
-			name.Data = fmt.Sprintf("*%s", value.Name)
+			name.Data = fmt.Sprintf("*%s", value.GetName())
 			name.TextAlign = table.TextLeft
 			name.Color = "yellow"
 			tableNow.AddRow(0, name)
 
 			ns := table.NewCol()
-			ns.Data = fmt.Sprintf("*%s", value.Namespace)
+			ns.Data = fmt.Sprintf("*%s", value.GetNamespace())
 			ns.TextAlign = table.TextCenter
 			ns.Color = "yellow"
 			tableNow.AddRow(1, ns)
 
 			ttags := ""
-			for k, v := range value.Tags {
+			for k, v := range value.Labels {
 				ttags += fmt.Sprintf("%s:%s ", k, v)
 			}
 			Tags := table.NewCol()
@@ -268,22 +190,22 @@ func Deployment(g *gocui.Gui, v *gocui.View) error {
 			tableNow.AddRow(2, Tags)
 
 			rd := table.NewCol()
-			rd.Data = fmt.Sprintf("%s", value.ContainerGroup)
+			rd.Data = fmt.Sprintf("%d / %d", value.Status.AvailableReplicas, value.Status.Replicas)
 			rd.TextAlign = table.TextCenter
 			rd.Color = "yellow"
 			tableNow.AddRow(3, rd)
 
 			image := table.NewCol()
-			image.Data = fmt.Sprintf("%s", value.Images)
+			image.Data = fmt.Sprintf("%s", value.Spec.Template.Spec.Containers[0].Image)
 			image.TextAlign = table.TextLeft
 			image.Color = "yellow"
 			tableNow.AddRow(4, image)
 
-			time := table.NewCol()
-			time.Data = fmt.Sprintf("%s", strings.Replace(value.Time, "\n", "", -1))
-			time.TextAlign = table.TextRight
-			time.Color = "yellow"
-			tableNow.AddRow(5, time)
+			timed := table.NewCol()
+			timed.Data = strings.Replace(fmt.Sprintf("%v", value.CreationTimestamp.Sub(time.Now())), "-", "", -1)
+			timed.TextAlign = table.TextRight
+			timed.Color = "yellow"
+			tableNow.AddRow(5, timed)
 
 			// fmt.Fprintln(w, s)
 		}

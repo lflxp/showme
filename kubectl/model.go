@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/jroimartin/gocui"
+	"github.com/lflxp/showme/utils"
 	"github.com/lflxp/showme/utils/k8s"
 	log "github.com/sirupsen/logrus"
 	v1 "k8s.io/api/core/v1"
@@ -68,16 +69,19 @@ func ManualInit() {
 				}
 
 				if ischange {
-					if err := RefreshWorkLoad(origin.Gui, 0, origin.maxY/2, origin.maxX-1, origin.maxY*3/4-1); err != nil {
-						log.Error(err.Error())
-					}
-					if err := RefreshPods(origin.Gui, 0, origin.maxY*3/4, origin.maxX-1, origin.maxY-1); err != nil {
-						log.Error(err.Error())
-					}
-					if err := Pods(origin.Gui, nil); err != nil {
-						log.Error(err.Error())
-					}
-					if err := Deployment(origin.Gui, nil); err != nil {
+					// if err := RefreshWorkLoad(origin.Gui, 0, origin.maxY/2, origin.maxX-1, origin.maxY*3/4-1); err != nil {
+					// 	log.Error(err.Error())
+					// }
+					// if err := RefreshPods(origin.Gui, 0, origin.maxY*3/4, origin.maxX-1, origin.maxY-1); err != nil {
+					// 	log.Error(err.Error())
+					// }
+					// if err := Pods(origin.Gui, nil); err != nil {
+					// 	log.Error(err.Error())
+					// }
+					// if err := Deployment(origin.Gui, nil); err != nil {
+					// 	log.Error(err.Error())
+					// }
+					if err := dashboard(origin.Gui); err != nil {
 						log.Error(err.Error())
 					}
 					origin.Gui.Update(func(g *gocui.Gui) error { return nil })
@@ -110,6 +114,10 @@ func ManualInit() {
 	}
 
 	if err := KeyService(origin.Gui); err != nil {
+		log.Panicln(err.Error())
+	}
+
+	if err := KeyNode(origin.Gui); err != nil {
 		log.Panicln(err.Error())
 	}
 
@@ -158,6 +166,8 @@ type BasicKubectl struct {
 	DefaultNS         string // current namespace
 	CurrentPod        string
 	CurrentDeployment string
+	CurrentService    string
+	CurrentNode       string
 	Helps             []string // F1 View show help message
 	Cluster           []ClusterStatus
 	ServiceConfig     []ClusterStatus
@@ -319,6 +329,28 @@ func nextView(g *gocui.Gui, v *gocui.View) error {
 			}
 		}
 		_, err = setCurrentViewOnTop(g, "Serviceed")
+		return err
+	} else if v == nil || v.Name() == "delnodeView" {
+		var l string
+		var err error
+
+		_, cy := v.Cursor()
+		if l, err = v.Line(cy); err != nil {
+			l = ""
+		}
+
+		if err = g.DeleteView("delnodeView"); err != nil {
+			return err
+		}
+
+		if strings.TrimSpace(l) == "y" {
+			// err = k8s.DeleteNode(origin.CurrentNode)
+			// if err != nil {
+			// 	log.Error(err.Error())
+			// }
+			log.Error(utils.Colorize("Dangerous, no allowed!!", "red", "", true, true))
+		}
+		_, err = setCurrentViewOnTop(g, "Noded")
 		return err
 	}
 	return nil

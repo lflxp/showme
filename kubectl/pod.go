@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/jroimartin/gocui"
 	"github.com/lflxp/showme/utils"
@@ -131,74 +132,15 @@ func Pods(g *gocui.Gui, v *gocui.View) error {
 	if err = delOtherViewNoBack(g); err != nil {
 		return err
 	}
-	if v, err := g.View("Pod"); err == nil {
-		v.Clear()
-		v.Title = fmt.Sprintf("Pod/%d", len(origin.Pods))
-		v.Highlight = true
-		v.Editable = true
-
-		num := 0
-		tableNow := table.NewTable(origin.maxX - 1)
-
-		// tableNow.AddCol("ID").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("NAME").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
-		tableNow.AddCol("Namespace").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Node").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Ready").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Restarts").SetColor("dgreen").SetTextAlign(table.TextCenter).SetBgColor("black")
-		tableNow.AddCol("Time").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
-		tableNow.CalColumnWidths()
-
-		for _, value := range origin.Pods {
-			num++
-			if num == 1 {
-				tableNow.FprintHeader(v)
-			}
-
-			name := table.NewCol()
-			name.Data = fmt.Sprintf("*%s", value.Name)
-			name.TextAlign = table.TextLeft
-			name.Color = "yellow"
-			tableNow.AddRow(0, name)
-
-			ns := table.NewCol()
-			ns.Data = fmt.Sprintf("*%s", value.Namespace)
-			ns.TextAlign = table.TextCenter
-			ns.Color = "yellow"
-			tableNow.AddRow(1, ns)
-
-			node := table.NewCol()
-			node.Data = fmt.Sprintf("*%s", value.Node)
-			node.TextAlign = table.TextCenter
-			node.Color = "yellow"
-			tableNow.AddRow(2, node)
-
-			rd := table.NewCol()
-			rd.Data = fmt.Sprintf("%s", value.Ready)
-			rd.TextAlign = table.TextCenter
-			rd.Color = "yellow"
-			tableNow.AddRow(3, rd)
-
-			rs := table.NewCol()
-			rs.Data = fmt.Sprintf("%s", value.Restarts)
-			rs.TextAlign = table.TextCenter
-			rs.Color = "yellow"
-			tableNow.AddRow(4, rs)
-
-			time := table.NewCol()
-			time.Data = fmt.Sprintf("%s", value.Time)
-			time.TextAlign = table.TextLeft
-			time.Color = "yellow"
-			tableNow.AddRow(5, time)
-
-			// fmt.Fprintln(w, s)
-		}
-		tableNow.Fprint(v)
-	} else if v, err := g.SetView("Pod", 0, 0, origin.maxX-1, origin.maxY-1); err != nil {
+	if v, err := g.SetView("Pod", 0, 0, origin.maxX-1, origin.maxY-1); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		v.Title = fmt.Sprintf("Pod/%d", len(origin.Pods))
+		pod_list, err := origin.ClientSet.CoreV1().Pods("").List(metav1.ListOptions{})
+		if err != nil {
+			return err
+		}
+		v.Title = fmt.Sprintf("Pod/%d", len(pod_list.Items))
 		v.Highlight = true
 		v.Editable = true
 		// v.Wrap = true
@@ -207,7 +149,6 @@ func Pods(g *gocui.Gui, v *gocui.View) error {
 			return err
 		}
 
-		num := 0
 		tableNow := table.NewTable(origin.maxX - 1)
 
 		// tableNow.AddCol("ID").SetColor("red").SetTextAlign(table.TextCenter).SetBgColor("black")
@@ -219,47 +160,46 @@ func Pods(g *gocui.Gui, v *gocui.View) error {
 		tableNow.AddCol("Time").SetColor("dgreen").SetTextAlign(table.TextLeft).SetBgColor("black")
 		tableNow.CalColumnWidths()
 
-		for _, value := range origin.Pods {
-			num++
-			if num == 1 {
+		for n, value := range pod_list.Items {
+			if n == 0 {
 				tableNow.FprintHeader(v)
 			}
 
 			name := table.NewCol()
-			name.Data = fmt.Sprintf("*%s", value.Name)
+			name.Data = fmt.Sprintf("*%s", value.GetName())
 			name.TextAlign = table.TextLeft
 			name.Color = "yellow"
 			tableNow.AddRow(0, name)
 
 			ns := table.NewCol()
-			ns.Data = fmt.Sprintf("*%s", value.Namespace)
+			ns.Data = fmt.Sprintf("*%s", value.GetNamespace())
 			ns.TextAlign = table.TextCenter
 			ns.Color = "yellow"
 			tableNow.AddRow(1, ns)
 
 			node := table.NewCol()
-			node.Data = fmt.Sprintf("*%s", value.Node)
+			node.Data = fmt.Sprintf("*%s", value.Spec.NodeName)
 			node.TextAlign = table.TextCenter
 			node.Color = "yellow"
 			tableNow.AddRow(2, node)
 
 			rd := table.NewCol()
-			rd.Data = fmt.Sprintf("%s", value.Ready)
+			rd.Data = fmt.Sprintf("%s", value.Status.Phase)
 			rd.TextAlign = table.TextCenter
 			rd.Color = "yellow"
 			tableNow.AddRow(3, rd)
 
 			rs := table.NewCol()
-			rs.Data = fmt.Sprintf("%s", value.Restarts)
+			rs.Data = fmt.Sprintf("%s", fmt.Sprintf("%d", value.Status.ContainerStatuses[0].RestartCount))
 			rs.TextAlign = table.TextCenter
 			rs.Color = "yellow"
 			tableNow.AddRow(4, rs)
 
-			time := table.NewCol()
-			time.Data = fmt.Sprintf("%s", value.Time)
-			time.TextAlign = table.TextLeft
-			time.Color = "yellow"
-			tableNow.AddRow(5, time)
+			timed := table.NewCol()
+			timed.Data = fmt.Sprintf("%s", strings.Replace(fmt.Sprintf("%v", value.Status.StartTime.Sub(time.Now())), "-", "", -1))
+			timed.TextAlign = table.TextLeft
+			timed.Color = "yellow"
+			tableNow.AddRow(5, timed)
 
 			// fmt.Fprintln(w, s)
 		}

@@ -26,10 +26,11 @@ func gethelp(g *gocui.Gui, v *gocui.View) error {
 
 		v.Title = "Keybindings(F1: quit)"
 		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  F1", "yellow", "", true, true), "Show keybinding help"))
-		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  F2", "yellow", "", true, true), "Dashboard View & back to Dashboard View"))
-		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  F3", "yellow", "", true, true), "Pod View & back to Pod View"))
-		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  F4", "yellow", "", true, true), "Deployment View"))
-		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  Ctrl+S", "yellow", "", true, true), "Service View"))
+		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  F2", "yellow", "", true, true), "Dashboard View & back to Dashboard View && Refresh"))
+		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  F3", "yellow", "", true, true), "Pod View & back to Pod View && Refresh"))
+		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  F4", "yellow", "", true, true), "Deployment View && Refresh"))
+		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  F5", "yellow", "", true, true), "Service View && Refresh"))
+		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  F6", "yellow", "", true, true), "Node View && Refresh"))
 		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  Space", "yellow", "", true, true), "search current view information"))
 		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  Ctrl+C", "yellow", "", true, true), "Exit"))
 		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  ↑ ↓", "yellow", "", true, true), "Move View"))

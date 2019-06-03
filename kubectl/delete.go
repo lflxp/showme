@@ -11,7 +11,28 @@ func KeyDelete(g *gocui.Gui) error {
 	return nil
 }
 
+// refresh dashboard
 func delOtherView(g *gocui.Gui, v *gocui.View) error {
+	// refresh dashboard view
+	if len(origin.Cluster) > 0 {
+		for _, x := range origin.Cluster {
+			if _, err := g.View(x.Title); err == nil {
+				if err = g.DeleteView(x.Title); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	if _, err := g.View("bottom"); err == nil {
+		if err = g.DeleteView("bottom"); err != nil {
+			return err
+		}
+	}
+	if _, err := g.View("pod"); err == nil {
+		if err = g.DeleteView("pod"); err != nil {
+			return err
+		}
+	}
 	if _, err := g.View("Pod"); err == nil {
 		if err = g.DeleteView("Pod"); err != nil {
 			return err
@@ -41,6 +62,14 @@ func delOtherView(g *gocui.Gui, v *gocui.View) error {
 		if err = g.DeleteView("Serviceed"); err != nil {
 			return err
 		}
+	}
+	if _, err := g.View("Noded"); err == nil {
+		if err = g.DeleteView("Noded"); err != nil {
+			return err
+		}
+	}
+	if err := dashboard(g); err != nil {
+		return err
 	}
 	if _, err := setCurrentViewOnTop(g, "bottom"); err != nil {
 		return err
@@ -76,6 +105,11 @@ func delOtherViewNoBack(g *gocui.Gui) error {
 	}
 	if _, err := g.View("Serviceed"); err == nil {
 		if err = g.DeleteView("Serviceed"); err != nil {
+			return err
+		}
+	}
+	if _, err := g.View("Noded"); err == nil {
+		if err = g.DeleteView("Noded"); err != nil {
 			return err
 		}
 	}
