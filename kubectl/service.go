@@ -14,7 +14,7 @@ import (
 )
 
 func KeyService(g *gocui.Gui) error {
-	if err := g.SetKeybinding("", gocui.KeyCtrlS, gocui.ModNone, Services); err != nil {
+	if err := g.SetKeybinding("", gocui.KeyF5, gocui.ModNone, Services); err != nil {
 		return err
 	}
 	if err := g.SetKeybinding("Serviceed", gocui.KeyEnter, gocui.ModNone, getServices); err != nil {
@@ -130,7 +130,6 @@ func getServices(g *gocui.Gui, v *gocui.View) error {
 }
 
 func Services(g *gocui.Gui, v *gocui.View) error {
-	fmt.Println("Servicesssss")
 	if err = delOtherViewNoBack(g); err != nil {
 		return err
 	}
