@@ -1,7 +1,6 @@
 package k8s
 
 import (
-	// "gitlab.yc/ares/k8sApi/models"
 	"bytes"
 	"io"
 
@@ -77,6 +76,62 @@ func GetPodLogByPodId(namespace, podid string) (string, error) {
 	options := apiv1.PodLogOptions{
 		Follow:    false,
 		TailLines: f(1000),
+	}
+	req := cli.CoreV1().Pods(namespace).GetLogs(podid, &options)
+	readCloser, err := req.Stream()
+	if err != nil {
+		return result, err
+	}
+	defer readCloser.Close()
+	var out bytes.Buffer
+	_, err = io.Copy(&out, readCloser)
+	if err != nil {
+		return result, err
+	}
+	result = out.String()
+	return result, nil
+}
+
+func GetPodLogByPodIdByNum(namespace, podid string, num int64) (string, error) {
+	var result string
+	f := func(s int64) *int64 {
+		return &s
+	}
+
+	cli, err := GetClientSet()
+	if err != nil {
+		return result, err
+	}
+
+	options := apiv1.PodLogOptions{
+		Follow:       false,
+		SinceSeconds: f(num),
+	}
+	req := cli.CoreV1().Pods(namespace).GetLogs(podid, &options)
+	readCloser, err := req.Stream()
+	if err != nil {
+		return result, err
+	}
+	defer readCloser.Close()
+	var out bytes.Buffer
+	_, err = io.Copy(&out, readCloser)
+	if err != nil {
+		return result, err
+	}
+	result = out.String()
+	return result, nil
+}
+
+func GetPodLogByPodIdAll(namespace, podid string) (string, error) {
+	var result string
+
+	cli, err := GetClientSet()
+	if err != nil {
+		return result, err
+	}
+
+	options := apiv1.PodLogOptions{
+		Follow: false,
 	}
 	req := cli.CoreV1().Pods(namespace).GetLogs(podid, &options)
 	readCloser, err := req.Stream()

@@ -86,6 +86,7 @@ function:
 - describe
 - delete
 - search
+- logs
 
 todo:
 - side menu

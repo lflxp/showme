@@ -8,6 +8,7 @@ import (
 
 	"github.com/jroimartin/gocui"
 	"github.com/lflxp/showme/utils"
+	"github.com/lflxp/showme/utils/k8s"
 	"github.com/lflxp/showme/utils/table"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -19,7 +20,13 @@ func KeyPod(g *gocui.Gui) error {
 	if err := g.SetKeybinding("Pod", gocui.KeyEnter, gocui.ModNone, getPods); err != nil {
 		return err
 	}
+	if err := g.SetKeybinding("Pod", gocui.KeyCtrlL, gocui.ModNone, getPodLogs); err != nil {
+		return err
+	}
 	if err := g.SetKeybinding("msg", gocui.KeyEnter, gocui.ModNone, delpodmessage); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("msg", gocui.KeyCtrlL, gocui.ModNone, getPodLogs); err != nil {
 		return err
 	}
 	if err := g.SetKeybinding("Pod", gocui.KeyDelete, gocui.ModNone, deletePodView); err != nil {
@@ -28,6 +35,68 @@ func KeyPod(g *gocui.Gui) error {
 	if err := g.SetKeybinding("delpod", gocui.KeyEnter, gocui.ModNone, nextView); err != nil {
 		return err
 	}
+	return nil
+}
+
+func getPodLogs(g *gocui.Gui, v *gocui.View) error {
+	if v == nil || v.Name() == "msg" {
+		v.Clear()
+		v.Title = fmt.Sprintf("Current Logs R: %s %s", origin.DefaultNS, origin.CurrentPod)
+		v.Autoscroll = false
+		podstring, err := k8s.GetPodLogByPodIdByNum(origin.DefaultNS, origin.CurrentPod, 200)
+		if err != nil {
+			panic(err)
+		} else {
+			// json格式美化
+			fmt.Fprintln(v, podstring)
+		}
+	} else {
+		var l string
+		var err error
+
+		_, cy := v.Cursor()
+		if l, err = v.Line(cy); err != nil {
+			l = ""
+		}
+
+		ttt := strings.Split(strings.Replace(l, ">", "*", 1), "*")
+		if len(ttt) > 1 {
+			maxX, maxY := g.Size()
+			if v, err := g.SetView("msg", maxX*8/100, maxY*8/100, maxX*92/100, maxY*92/100); err != nil {
+				if err != gocui.ErrUnknownView {
+					return err
+				}
+
+				origin.DefaultNS = strings.TrimSpace(ttt[2])
+				origin.CurrentPod = strings.TrimSpace(ttt[1])
+				v.Title = fmt.Sprintf("Current Logs: %s %s", origin.DefaultNS, origin.CurrentPod)
+				v.Highlight = true
+				v.SelFgColor = gocui.ColorWhite
+				v.SelBgColor = gocui.ColorCyan
+				v.Editable = true
+				v.Wrap = true
+				v.Autoscroll = true
+				// fmt.Fprintln(v, strings.Trim(l, " "))
+				// fmt.Fprintln(v, l)
+				// selectId = strings.Trim(l, " ")
+
+				podstring, err := k8s.GetPodLogByPodIdByNum(origin.DefaultNS, origin.CurrentPod, 200)
+				if err != nil {
+					// panic(err)
+					fmt.Fprintln(v, utils.Colorize(err.Error(), "green", "", false, true))
+				} else {
+					// json格式美化
+					fmt.Fprintln(v, podstring)
+				}
+
+				if _, err := g.SetCurrentView("msg"); err != nil {
+					return err
+				}
+
+			}
+		}
+	}
+
 	return nil
 }
 

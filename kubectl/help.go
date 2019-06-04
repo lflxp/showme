@@ -33,6 +33,7 @@ func gethelp(g *gocui.Gui, v *gocui.View) error {
 		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  F6", "yellow", "", true, true), "Node View && Refresh"))
 		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  Space", "yellow", "", true, true), "search current view information"))
 		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  Ctrl+C", "yellow", "", true, true), "Exit"))
+		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  Ctrl+L", "yellow", "", true, true), "Show log -tail 200 on F3 Pod View || msg refresh Log view"))
 		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  ↑ ↓", "yellow", "", true, true), "Move View"))
 		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  Enter", "yellow", "", true, true), "Commit Input/Quit current view(msg)"))
 		fmt.Fprintln(v, fmt.Sprintf("%s: %s", utils.Colorize("*  Tab", "yellow", "", true, true), "Next View"))

@@ -3,6 +3,18 @@
 	"ignore": "",
 	"package": [
 		{
+			"checksumSHA1": "TzyFAwshHhHTYcZYDO/G8PSgOnY=",
+			"path": "github.com/docker/spdystream",
+			"revision": "6480d4af844c189cf5dd913db24ddd339d3a4f85",
+			"revisionTime": "2018-10-23T17:14:02Z"
+		},
+		{
+			"checksumSHA1": "PuAv6e4jzQUShm4GwgqC88gvGYs=",
+			"path": "github.com/docker/spdystream/spdy",
+			"revision": "6480d4af844c189cf5dd913db24ddd339d3a4f85",
+			"revisionTime": "2018-10-23T17:14:02Z"
+		},
+		{
 			"checksumSHA1": "zwnriu7wqxiBf4OTS11mTUaUJVA=",
 			"path": "github.com/gogo/protobuf/proto",
 			"revision": "871f82e6d4d520eade23ac0ead09073373e3e227",
@@ -633,6 +645,12 @@
 			"revisionTime": "2019-02-21T20:46:51Z"
 		},
 		{
+			"checksumSHA1": "vueJFiJw+tnADwngzkSGqI9mQPE=",
+			"path": "k8s.io/apimachinery/pkg/util/httpstream/spdy",
+			"revision": "86fb29eff6288413d76bd8506874fddd9fccdff0",
+			"revisionTime": "2019-02-21T20:46:51Z"
+		},
+		{
 			"checksumSHA1": "iRlR3jqHqShuSfyxLPhF5w4ol7c=",
 			"path": "k8s.io/apimachinery/pkg/util/intstr",
 			"revision": "86fb29eff6288413d76bd8506874fddd9fccdff0",
@@ -653,6 +671,12 @@
 		{
 			"checksumSHA1": "4ikw6Up81idCAdAZ9Em++bjsMw4=",
 			"path": "k8s.io/apimachinery/pkg/util/net",
+			"revision": "86fb29eff6288413d76bd8506874fddd9fccdff0",
+			"revisionTime": "2019-02-21T20:46:51Z"
+		},
+		{
+			"checksumSHA1": "PvefNiZTc/uwwPAOkBKZ3ST25Tc=",
+			"path": "k8s.io/apimachinery/pkg/util/remotecommand",
 			"revision": "86fb29eff6288413d76bd8506874fddd9fccdff0",
 			"revisionTime": "2019-02-21T20:46:51Z"
 		},
@@ -701,6 +725,12 @@
 		{
 			"checksumSHA1": "uUokwAI8mXbxtgRU+LUwENSzEKA=",
 			"path": "k8s.io/apimachinery/pkg/watch",
+			"revision": "86fb29eff6288413d76bd8506874fddd9fccdff0",
+			"revisionTime": "2019-02-21T20:46:51Z"
+		},
+		{
+			"checksumSHA1": "OGbsdDRP+y4F++eGe/dh3FIWThg=",
+			"path": "k8s.io/apimachinery/third_party/forked/golang/netutil",
 			"revision": "86fb29eff6288413d76bd8506874fddd9fccdff0",
 			"revisionTime": "2019-02-21T20:46:51Z"
 		},
@@ -1011,8 +1041,20 @@
 			"revisionTime": "2019-05-21T18:42:18Z"
 		},
 		{
+			"checksumSHA1": "qtEXyil3ILFK2XaiU8zCrRZbGzI=",
+			"path": "k8s.io/client-go/tools/remotecommand",
+			"revision": "177766529176f38606818ef97494cbc7e9445483",
+			"revisionTime": "2019-05-21T18:42:18Z"
+		},
+		{
 			"checksumSHA1": "sbKl/1o1O7w72NWxDOPGxSNTaJg=",
 			"path": "k8s.io/client-go/transport",
+			"revision": "177766529176f38606818ef97494cbc7e9445483",
+			"revisionTime": "2019-05-21T18:42:18Z"
+		},
+		{
+			"checksumSHA1": "XdRD1nHERagwdSH0y1j2r9elARg=",
+			"path": "k8s.io/client-go/transport/spdy",
 			"revision": "177766529176f38606818ef97494cbc7e9445483",
 			"revisionTime": "2019-05-21T18:42:18Z"
 		},
@@ -1025,6 +1067,12 @@
 		{
 			"checksumSHA1": "Fd39zbP/DqsWYQwHl+LFWXzBnLE=",
 			"path": "k8s.io/client-go/util/connrotation",
+			"revision": "177766529176f38606818ef97494cbc7e9445483",
+			"revisionTime": "2019-05-21T18:42:18Z"
+		},
+		{
+			"checksumSHA1": "vOdL2QO08zL5IS+UBOVJMGwgbFI=",
+			"path": "k8s.io/client-go/util/exec",
 			"revision": "177766529176f38606818ef97494cbc7e9445483",
 			"revisionTime": "2019-05-21T18:42:18Z"
 		},
