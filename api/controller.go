@@ -6,8 +6,15 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lflxp/showme/api/collector"
 	"github.com/lflxp/showme/utils"
 )
+
+func AddSetup(router *gin.Engine) {
+	router.GET("/setup", func(c *gin.Context) {
+		c.JSON(http.StatusOK, collector.HardwareStatic)
+	})
+}
 
 func AddCpu(router *gin.Engine) {
 	router.GET("/cpu", func(c *gin.Context) {

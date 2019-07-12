@@ -10,6 +10,7 @@ import (
 	"io"
 	"log"
 	"math/rand"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -107,10 +108,62 @@ func ExecCommand(cmd string) ([]byte, error) {
 	return out.Bytes(), nil
 }
 
+func ExecCommandString(cmd string) (string, error) {
+	pipeline := exec.Command("/bin/sh", "-c", cmd)
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	pipeline.Stdout = &out
+	pipeline.Stderr = &stderr
+	err := pipeline.Run()
+	if err != nil {
+		return stderr.String(), err
+	}
+	return out.String(), nil
+}
+
 func GetCurrentDirectory() string {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0])) //返回绝对路径  filepath.Dir(os.Args[0])去除最后一个元素的路径
 	if err != nil {
 		log.Fatal(err)
 	}
 	return strings.Replace(dir, "\\", "/", -1) //将\替换成/
+}
+
+// 0:cf:e0:44:dd:be,enp1s0
+func GetMacAddrs() (macAddrs []string) {
+	netInterfaces, err := net.Interfaces()
+	if err != nil {
+		fmt.Printf("fail to get net interfaces: %v", err)
+		return macAddrs
+	}
+
+	for _, netInterface := range netInterfaces {
+		macAddr := netInterface.HardwareAddr.String()
+		if len(macAddr) == 0 {
+			continue
+		}
+
+		macAddrs = append(macAddrs, fmt.Sprintf("%s,%s", macAddr, netInterface.Name))
+	}
+	return macAddrs
+}
+
+func GetIPs() (ips []string) {
+
+	interfaceAddr, err := net.InterfaceAddrs()
+	if err != nil {
+		fmt.Printf("fail to get net interface addrs: %v", err)
+		return ips
+	}
+
+	for _, address := range interfaceAddr {
+		ipNet, isValidIpNet := address.(*net.IPNet)
+		if isValidIpNet && !ipNet.IP.IsLoopback() {
+			// fmt.Println(ipNet.IP.String(), ipNet.Mask.String())
+			if ipNet.IP.To4() != nil {
+				ips = append(ips, ipNet.IP.String())
+			}
+		}
+	}
+	return ips
 }
