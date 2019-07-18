@@ -6,13 +6,17 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lflxp/showme/api/collector"
+	"github.com/lflxp/showme/api/pkg"
 	"github.com/lflxp/showme/utils"
 )
 
+func AddMetrics(router *gin.Engine) {
+	router.Use(gin.WrapH(pkg.NewHandler(true, 40)))
+}
+
 func AddSetup(router *gin.Engine) {
 	router.GET("/setup", func(c *gin.Context) {
-		c.JSON(http.StatusOK, collector.HardwareStatic)
+		c.JSON(http.StatusOK, pkg.HardwareStatic)
 	})
 }
 

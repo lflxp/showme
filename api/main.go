@@ -24,10 +24,11 @@ func Api(ip, port string) {
 	router := setupRouter()
 
 	// add func
+	AddSetup(router)
+	AddMetrics(router)
 	AddCpu(router)
 	AddShell(router)
 	AddSqlite(router)
-	AddSetup(router)
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf("%s:%s", ip, port),
