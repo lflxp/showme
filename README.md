@@ -25,6 +25,12 @@ go build -tags=gopacket main.go
 - gocui active
 - gopacket args...
 - httpstatic
+- proxy
+  * http proxy
+  * https reverse proxy
+  * socket5 proxy
+  * mysql proxy
+  * shadowsocks-local & shadowsocks-server
 
 ![command.png](https://github.com/lflxp/showme/blob/master/command.png)
 

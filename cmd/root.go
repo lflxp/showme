@@ -37,6 +37,7 @@ var rootCmd = &cobra.Command{
 	* 静态文件传输服务器
 	* mysql性能监控及排查工具
 	* 网络流量抓包工具
+	* shadowsocks local & server client
 2. 运维自动化工具
 	* 本地API接口（远程监控、远程数据bbolt存储）
 	* 运维自动化Agent（RPCX远程过程调用）
