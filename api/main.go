@@ -4,6 +4,7 @@ package api
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,6 +17,8 @@ import (
 var db = make(map[string]string)
 
 func main() {
+	// trace.Start(os.Stderr)
+	// defer trace.Stop()
 	Api("0.0.0.0", "8080")
 }
 
@@ -77,6 +80,12 @@ func setupRouter() *gin.Engine {
 		} else {
 			c.JSON(http.StatusOK, gin.H{"user": user, "status": "no value"})
 		}
+	})
+
+	r.POST("/", func(c *gin.Context) {
+		data, _ := ioutil.ReadAll(c.Request.Body)
+		log.Error(string(data))
+		c.String(http.StatusOK, "ok")
 	})
 
 	// Authorized group (uses gin.BasicAuth() middleware)
