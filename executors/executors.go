@@ -13,7 +13,6 @@ import (
 	"github.com/lflxp/showme/executors/monitor"
 	"github.com/lflxp/showme/executors/mysql"
 	"github.com/lflxp/showme/executors/scan"
-	"github.com/lflxp/showme/kubectl"
 	"github.com/lflxp/showme/utils"
 )
 
@@ -66,11 +65,6 @@ func ParseExecutors(in string) (func(), bool) {
 			if err != nil {
 				fmt.Println(err)
 			}
-		}
-		status = true
-	} else if strings.Contains(in, "kubectl") {
-		result = func() {
-			kubectl.ManualInit()
 		}
 		status = true
 	} else {
