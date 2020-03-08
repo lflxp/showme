@@ -15,6 +15,34 @@ go get github.com/elazarl/go-bindata-assetfs/...
 
 tags:
 
+- tty
+
+> showme tty 是基于web的Terminal工具
+
+`安装`
+
+```
+git clone https://github.com/lflxp/showme
+make install
+showme -h
+```
+
+`使用`
+
+```
+gin web + websocket + xterm.js
+
+Usage:
+  showme tty [flags]
+
+Flags:
+  -h, --help              help for tty
+  -H, --host string       http host (default "0.0.0.0")
+  -p, --password string   BasicAuth 密码 (default "system")
+  -P, --port string       http port (default "8080")
+  -u, --username string   BasicAuth 用户名 (default "admin")
+```
+
 - gopacket
 
 ```
@@ -27,6 +55,7 @@ go build -tags=gopacket main.go
 
 1. 命令提示
 
+- tty args...
 - monitor args...
 - dashboard args...
 - gocui active
@@ -116,6 +145,7 @@ todo:
 5. 快速定位
 6. command visio
 7. 网络监听（原始报文解析和展示）
+8. web terminial
 
 # functions
 
@@ -145,6 +175,7 @@ https://blog.csdn.net/lengyuezuixue/article/details/79664409
 - 修复自动刷新全部跳转到deployment的错误
 - 添加pod和deployment手动刷新数据的错误
 - 考虑是否取消自动刷新的功能或者优化自动查询效率
+- web terminial 前端界面优化
 
 # k8s resource list
 

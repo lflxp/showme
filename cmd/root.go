@@ -41,6 +41,7 @@ var rootCmd = &cobra.Command{
 2. 运维自动化工具
 	* 本地API接口（远程监控、远程数据bbolt存储）
 	* 运维自动化Agent（RPCX远程过程调用）
+	* web terminal 快速服务器登录
 3. 无参数无命令
 	* 运维本地快速问题排查工具
 	3.1 排查工具介绍

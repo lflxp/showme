@@ -62,6 +62,12 @@ func DecodeBase64(in string) (string, error) {
 	return string(decoded), err
 }
 
+// 解密base64
+func DecodeBase64Bytes(in string) ([]byte, error) {
+	decoded, err := base64.StdEncoding.DecodeString(in)
+	return decoded, err
+}
+
 // 加密
 func Jiami(code string) string {
 	w := md5.New()

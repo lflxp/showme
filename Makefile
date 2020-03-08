@@ -1,4 +1,13 @@
-.PHONY: push pull install run clean
+.PHONY: push pull install run clean asset tty build
+
+build: Makefile main.go asset
+	go build
+	chmod +x showme 
+	./showme -h
+
+install: Makefile main.go asset
+	go install
+	showme -h
 
 push:
 	git add .
@@ -8,15 +17,19 @@ push:
 pull:
 	git pull origin $(shell git branch|grep '*'|awk '{print $$2}')
 
-install: Makefile main.go
-	go build
-	chmod +x showme 
-	./showme
+# 静态文件转go二进制文件
+asset:
+	cd tty/static && go-bindata -o=../asset.go -pkg=tty ./
 
 run: main.go
 	go run main.go static
 
+# tty功能测试
+tty:
+	go run main.go tty
+
 clean:
 	rm -f 123.mp4
 	rm -f 1.db
+	rm -f tty/asset.go
 
