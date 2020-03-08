@@ -4,6 +4,7 @@
 # This helps ensure that nothing gets broken.
 
 _tests() {
+    local vet="" # TODO: make it off
     local gover=$( go version | cut -f 3 -d ' ' )
     # note that codecgen requires fastpath, so you cannot do "codecgen notfastpath"
     local a=( "" "safe"  "notfastpath" "notfastpath safe" "codecgen" "codecgen safe" )
@@ -12,10 +13,9 @@ _tests() {
         echo ">>>> TAGS: $i"
         local i2=${i:-default}
         case $gover in
-            go1.[0-6]*) go vet -printfuncs "errorf" "$@" &&
-                              go test ${zargs[*]} -vet off -tags "$i" "$@" ;;
+            go1.[0-6]*) go test ${zargs[*]} -tags "$i" "$@" ;;
             *) go vet -printfuncs "errorf" "$@" &&
-                     go test ${zargs[*]} -vet off -tags "alltests $i" -run "Suite" -coverprofile "${i2// /-}.cov.out" "$@" ;;
+                     go test ${zargs[*]} -vet "$vet" -tags "alltests $i" -run "Suite" -coverprofile "${i2// /-}.cov.out" "$@" ;;
         esac
         if [[ "$?" != 0 ]]; then return 1; fi 
     done
@@ -146,7 +146,7 @@ _codegenerators() {
         fi &&
         $c8 -rt codecgen -t 'codecgen generated' -o values_codecgen${c5} -d 19780 $zfin $zfin2 &&
         cp mammoth2_generated_test.go $c9 &&
-        $c8 -t '!notfastpath' -o mammoth2_codecgen${c5} -d 19781 mammoth2_generated_test.go &&
+        $c8 -t 'codecgen,!notfastpath generated,!notfastpath' -o mammoth2_codecgen${c5} -d 19781 mammoth2_generated_test.go &&
         rm -f $c9 &&
         echo "generators done!" 
 }
@@ -235,17 +235,15 @@ _main() {
     if [[ -z "$1" ]]; then _usage; return 1; fi
     local x
     local zforce
-    local zargs
-    local zbenchflags
-    # unset zforce
-    zargs=()
-    zbenchflags=""
+    local zargs=()
+    local zverbose=()
+    local zbenchflags=""
     OPTIND=1
-    while getopts ":ctmnrgpfvlzdb:" flag
+    while getopts ":ctmnrgpfvlyzdb:" flag
     do
         case "x$flag" in
             'xf') zforce=1 ;;
-            'xv') zverbose=1 ;;
+            'xv') zverbose+=(1) ;;
             'xl') zargs+=("-gcflags"); zargs+=("-l=4") ;;
             'xn') zargs+=("-gcflags"); zargs+=("-m=2") ;;
             'xd') zargs+=("-race") ;;
@@ -263,6 +261,7 @@ _main() {
         'xg') _go ;;
         'xp') _prebuild "$@" ;;
         'xc') _clean "$@" ;;
+        'xy') _analyze_extra "$@" ;;
         'xz') _analyze "$@" ;;
         'xb') _bench "$@" ;;
     esac
