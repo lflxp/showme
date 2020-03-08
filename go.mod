@@ -15,6 +15,7 @@ require (
 	github.com/google/gopacket v1.1.16
 	github.com/imdario/mergo v0.3.8 // indirect
 	github.com/jroimartin/gocui v0.4.0
+	github.com/jteeuwen/go-bindata v3.0.7+incompatible // indirect
 	github.com/juju/errors v0.0.0-20190207033735-e65537c515d7
 	github.com/juju/loggo v0.0.0-20190212223446-d976af380377 // indirect
 	github.com/juju/testing v0.0.0-20190415054131-a282c42ba059 // indirect

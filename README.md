@@ -4,6 +4,13 @@
 
 > 快速诊断系统状态工具（性能监控、网络扫描、mysql性能监控）
 
+# 环境准备
+
+```
+go get github.com/jteeuwen/go-bindata/...
+go get github.com/elazarl/go-bindata-assetfs/...
+```
+
 # Usage
 
 tags:

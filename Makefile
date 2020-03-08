@@ -10,8 +10,8 @@ pull:
 
 install: Makefile main.go
 	go build
-	chmod +x message
-	./message
+	chmod +x showme 
+	./showme
 
 run: main.go
 	go run main.go static
