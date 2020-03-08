@@ -32,7 +32,7 @@ const (
 	socksCmdConnect = 1
 )
 
-func init() {
+func initManual() {
 	rand.Seed(time.Now().Unix())
 	debug = true
 	cmdConfig = &ss.Config{

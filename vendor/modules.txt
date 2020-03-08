@@ -79,7 +79,7 @@ github.com/konsorten/go-windows-terminal-sequences
 github.com/kr/pty
 # github.com/leodido/go-urn v1.1.0
 github.com/leodido/go-urn
-# github.com/lflxp/goproxys v0.0.0-20190718040056-668050361fa8
+# github.com/lflxp/goproxys v0.0.0-20200308164541-294d52d6ffa9
 github.com/lflxp/goproxys/protocol
 # github.com/magiconair/properties v1.8.0
 github.com/magiconair/properties

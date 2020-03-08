@@ -24,7 +24,7 @@ require (
 	github.com/juju/testing v0.0.0-20190415054131-a282c42ba059 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kr/pty v1.1.1
-	github.com/lflxp/goproxys v0.0.0-20190718040056-668050361fa8
+	github.com/lflxp/goproxys v0.0.0-20200308164541-294d52d6ffa9
 	github.com/mattn/go-colorable v0.1.1 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/mattn/go-sqlite3 v1.10.0

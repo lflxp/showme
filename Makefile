@@ -1,4 +1,4 @@
-.PHONY: push pull install run clean asset tty build
+.PHONY: push pull install run clean asset tty build gopacket
 
 build: Makefile main.go asset
 	go build
@@ -16,6 +16,11 @@ push:
 
 pull:
 	git pull origin $(shell git branch|grep '*'|awk '{print $$2}')
+
+gopacket: Makefile main.go asset
+	go build -tags=gopacket
+	chmod +x showme 
+	./showme -h
 
 # 静态文件转go二进制文件
 asset:
