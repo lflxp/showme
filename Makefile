@@ -1,5 +1,13 @@
 .PHONY: push pull install run clean asset tty build gopacket bindata
 
+push: pull
+	git add .
+	git commit -m "{{ m }}"
+	git push origin $(shell git branch|grep '*'|awk '{print $$2}')
+
+pull:
+	git pull origin $(shell git branch|grep '*'|awk '{print $$2}')
+
 build: Makefile main.go asset
 	go build
 	chmod +x showme 
@@ -8,14 +16,6 @@ build: Makefile main.go asset
 install: Makefile main.go asset
 	go install
 	showme -h
-
-push:
-	git add .
-	git commit -m "auto `date`"
-	git push origin $(shell git branch|grep '*'|awk '{print $$2}')
-
-pull:
-	git pull origin $(shell git branch|grep '*'|awk '{print $$2}')
 
 gopacket: Makefile main.go asset
 	go build -tags=gopacket
