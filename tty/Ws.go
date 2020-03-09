@@ -84,7 +84,7 @@ func (this *ClientContext) Send(quitChan chan bool) {
 			// 读取命令执行结果并通过ws反馈给用户
 			size, err := this.Pty.Read(buf)
 			if err != nil {
-				log.Errorf("%s命令执行错误退出: %s", this.Request.RemoteAddr, err.Error())
+				log.Errorf("%s -> %s", this.Request.RemoteAddr, err.Error())
 				return
 			}
 			log.Debugf("Send Size: %d buf: %s buf[:size]: %s\n", size, string(buf), string(buf[:size]))
