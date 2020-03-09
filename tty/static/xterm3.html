@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Lflxp tty</title>
+    <title>{{ .host }}</title>
     <style>body, #terminal {position: absolute; height: 100%; width: 100%; margin: 0px;}</style>
     <link rel="stylesheet" href="/static/xterm.css" />
     <link rel="stylesheet" href="/static/fullscreen.css" />
@@ -141,7 +141,7 @@
         term.write('\r\n')
       }
       
-      term.writeln('Welcome to \x1B[1;3;31mxterm.js\x1B[0m')
+      term.writeln('Welcome to \x1B[1;3;31mhttps://github.com/lflxp/showme\x1B[0m')
       term.writeln('This is a local terminal emulation, without a real terminal in the back-end.')
       term.writeln('Type some keys and commands to play around.')
       term.prompt()
@@ -164,6 +164,23 @@
         term.setOption('cursorBlink', false)
         console.log('console.web_socket_disconnect')
       }
+
+      async function test() {
+        console.log('Hello')
+        await sleep(1000)
+        let rows = document.body.clientHeight / 18  - 5 
+        let cols = document.body.clientWidth / 14
+        console.log(rows,cols)
+        // ws.send('2' + Base64.encode(parseInt(rows) + ':' + parseInt(cols)))
+        ws.send('2' + Base64.encode(31 + ':' + 126))
+        console.log('world!')
+      }
+
+      function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms))
+      }
+
+      test()
 
       bindTerminal(term, ws, true, -1)
       bindTerminalResize(term, ws)

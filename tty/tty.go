@@ -132,7 +132,7 @@ func ServeGin(host, port, username, password string, isdebug bool) {
 	indexhtml.Add("index", t)
 	router.HTMLRender = indexhtml
 	apiGroup.GET("/index", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index", gin.H{})
+		c.HTML(http.StatusOK, "index", gin.H{"host": c.Request.RemoteAddr})
 	})
 
 	server := &http.Server{

@@ -1,7 +1,7 @@
 .PHONY: push pull install run clean asset tty build gopacket bindata
 
 # 默认位置 以后都保持不变
-push: pull
+push: asset pull
 	git add .
 	git commit -m "${m}"
 	git push origin $(shell git branch|grep '*'|awk '{print $$2}')
