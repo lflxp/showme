@@ -32,7 +32,7 @@ run: main.go
 
 # tty功能测试
 tty: asset
-	go run main.go tty
+	go run main.go tty -w -m 10 -r -d showme proxy http
 
 bindata:
 	@echo 安装预制环境

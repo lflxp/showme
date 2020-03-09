@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -18,13 +19,18 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/kr/pty"
+	"github.com/lflxp/showme/utils"
 	log "github.com/sirupsen/logrus"
 )
+
+var xterm *XtermJs
 
 func init() {
 	// 设置将日志输出到标准输出（默认的输出为stderr，标准错误）
 	// 日志消息输出可以是任意的io.writer类型
 	log.SetOutput(os.Stdout)
+
+	log.SetReportCaller(false)
 }
 
 var upGrader = websocket.Upgrader{
@@ -35,56 +41,7 @@ var upGrader = websocket.Upgrader{
 	},
 }
 
-// 标准化
-func wstty(c *gin.Context) {
-	// 升级get请求为webSocket协议
-	ws, err := upGrader.Upgrade(c.Writer, c.Request, nil)
-	if err != nil {
-		return
-	}
-	defer ws.Close()
-
-	cmd := exec.Command("bash")
-	//这里得到标准输出和标准错误输出的两个管道，此处获取了错误处理
-	ptmx, err := pty.Start(cmd)
-	if err != nil {
-		log.Error(err.Error())
-		return
-	}
-
-	connections := int64(0)
-	connections = atomic.AddInt64(&connections, 1)
-	xterm := XtermJs{
-		Options: Options{
-			PermitWrite:    true,
-			CloseSignal:    9,
-			MaxConnections: 100,
-		},
-		Title:       "message",
-		Connections: &connections,
-		Server:      NewServer(),
-	}
-
-	log.Printf("Command is running for client %s with PID %d (args=%q), connections: %d",
-		c.Request.RemoteAddr, cmd.Process.Pid, "bash", connections)
-	xterm.Server.StartGo()
-
-	context := &ClientContext{
-		Xtermjs:    &xterm,
-		Request:    c.Request,
-		WsConn:     ws,
-		Cmd:        cmd,
-		Pty:        ptmx,
-		Cache:      bytes.NewBuffer([]byte("")),
-		CacheMutex: &sync.Mutex{},
-		WriteMutex: &sync.Mutex{},
-	}
-
-	context.HandleClient()
-	xterm.Server.WaitGo()
-}
-
-func ServeGin(host, port, username, password string, isdebug bool) {
+func ServeGin(port, username, password string, cmds []string, isdebug, isReconnect, isPermitWrite bool, MaxConnections int64) {
 	if isdebug {
 		// 设置日志级别为warn以上
 		log.SetLevel(log.DebugLevel)
@@ -99,6 +56,24 @@ func ServeGin(host, port, username, password string, isdebug bool) {
 	// 使用 Recovery 中间件
 	router.Use(gin.Recovery())
 
+	// 判断cmds输入，为空默认设置为bash
+	if len(cmds) == 0 {
+		cmds = append(cmds, "bash")
+	}
+
+	// 初始化XtermJs全局属性配置
+	connections := int64(0)
+	xterm = &XtermJs{
+		Options: Options{
+			PermitWrite:    isPermitWrite,
+			CloseSignal:    9,
+			MaxConnections: MaxConnections,
+		},
+		Title:       "Showme",
+		Connections: &connections,
+		Server:      NewServer(),
+	}
+
 	// 静态二进制文件
 	fs := assetfs.AssetFS{
 		Asset:    Asset,
@@ -111,8 +86,64 @@ func ServeGin(host, port, username, password string, isdebug bool) {
 	router.GET("/", func(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, "/api/index")
 	})
-	apiGroup := router.Group("/api", gin.BasicAuth(gin.Accounts{username: password}))
-	apiGroup.GET("/ws", wstty)
+
+	var apiGroup *gin.RouterGroup
+	// 是否密码登录
+	if username == "" && password == "" {
+		apiGroup = router.Group("/api")
+	} else {
+		apiGroup = router.Group("/api", gin.BasicAuth(gin.Accounts{username: password}))
+	}
+
+	// 后端websocket服务
+	apiGroup.GET("/ws", func(c *gin.Context) {
+		conns := atomic.AddInt64(xterm.Connections, 1)
+		if xterm.Options.MaxConnections != 0 {
+			if conns > xterm.Options.MaxConnections {
+				log.Printf("Max Connected: %d", xterm.Options.MaxConnections)
+				atomic.AddInt64(xterm.Connections, -1)
+				return
+			}
+		}
+		// 升级get请求为webSocket协议
+		ws, err := upGrader.Upgrade(c.Writer, c.Request, nil)
+		if err != nil {
+			return
+		}
+		defer ws.Close()
+
+		cmd := exec.Command(cmds[0], cmds[1:]...)
+		//这里得到标准输出和标准错误输出的两个管道，此处获取了错误处理
+		ptmx, err := pty.Start(cmd)
+		if err != nil {
+			log.Errorf("ptmx[52] %s", err.Error())
+			return
+		}
+
+		if xterm.Options.MaxConnections != 0 {
+			log.Printf("Command is running for client %s with PID %d (args=%q), connections: %d/%d",
+				c.Request.RemoteAddr, cmd.Process.Pid, cmds, conns, xterm.Options.MaxConnections)
+		} else {
+			log.Printf("Command is running for client %s with PID %d (args=%q), connections: %d",
+				c.Request.RemoteAddr, cmd.Process.Pid, cmds, conns)
+		}
+
+		xterm.Server.StartGo()
+
+		context := &ClientContext{
+			Xtermjs:    xterm,
+			Request:    c.Request,
+			WsConn:     ws,
+			Cmd:        cmd,
+			Pty:        ptmx,
+			Cache:      bytes.NewBuffer([]byte("")),
+			CacheMutex: &sync.Mutex{},
+			WriteMutex: &sync.Mutex{},
+		}
+
+		context.HandleClient()
+		xterm.Server.WaitGo()
+	})
 
 	// 主页
 	// 从内存取出然后渲染加载
@@ -132,11 +163,19 @@ func ServeGin(host, port, username, password string, isdebug bool) {
 	indexhtml.Add("index", t)
 	router.HTMLRender = indexhtml
 	apiGroup.GET("/index", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index", gin.H{"host": c.Request.RemoteAddr})
+		c.HTML(http.StatusOK, "index", gin.H{
+			"host":      c.Request.RemoteAddr,
+			"Reconnect": isReconnect,
+			"Debug":     isdebug,
+			"Write":     isPermitWrite,
+			"MaxC":      MaxConnections,
+			"Conn":      *xterm.Connections + 1,
+			"Cmd":       strings.Join(cmds, " "),
+		})
 	})
 
 	server := &http.Server{
-		Addr:    fmt.Sprintf("%s:%s", host, port),
+		Addr:    fmt.Sprintf("0.0.0.0:%s", port),
 		Handler: router,
 	}
 
@@ -160,7 +199,11 @@ func ServeGin(host, port, username, password string, isdebug bool) {
 		log.Println("Server exiting")
 	}()
 
-	log.Infof("Listening and serving HTTPS on %s:%s", host, port)
+	ips := utils.GetIPs()
+	for _, ip := range ips {
+		log.Infof("Listening and serving HTTPS on %s:%s", ip, port)
+	}
+
 	if err := server.ListenAndServe(); err != nil {
 		if err == http.ErrServerClosed {
 			log.Println("Server closed under request")

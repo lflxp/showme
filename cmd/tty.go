@@ -21,20 +21,23 @@ import (
 )
 
 var (
-	isDebug  bool
-	username string
-	password string
-	host     string
-	port     string
+	isPermitWrite  bool
+	MaxConnections int64
+	isReconnect    bool
+	isDebug        bool
+	username       string
+	password       string
+	port           string
 )
 
 // ttyCmd represents the tty command
 var ttyCmd = &cobra.Command{
 	Use:   "tty",
 	Short: "web terminial",
-	Long:  `gin web + websocket + xterm.js`,
+	Long: `showme tty [flags] [command] [args]
+eg: showme tty -w -r showme proxy http`,
 	Run: func(cmd *cobra.Command, args []string) {
-		tty.ServeGin(host, port, username, password, isDebug)
+		tty.ServeGin(port, username, password, args, isDebug, isReconnect, isPermitWrite, MaxConnections)
 	},
 }
 
@@ -50,9 +53,11 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// ttyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	ttyCmd.Flags().StringVarP(&username, "username", "u", "admin", "BasicAuth 用户名")
-	ttyCmd.Flags().StringVarP(&password, "password", "p", "system", "BasicAuth 密码")
-	ttyCmd.Flags().StringVarP(&host, "host", "H", "0.0.0.0", "http host")
+	ttyCmd.Flags().StringVarP(&username, "username", "u", "", "BasicAuth 用户名")
+	ttyCmd.Flags().StringVarP(&password, "password", "p", "", "BasicAuth 密码")
 	ttyCmd.Flags().StringVarP(&port, "port", "P", "8080", "http port")
-	ttyCmd.Flags().BoolVarP(&isDebug, "debug", "d", false, "debug日志输出")
+	ttyCmd.Flags().BoolVarP(&isDebug, "debug", "d", false, "debug log mode")
+	ttyCmd.Flags().BoolVarP(&isReconnect, "reconnect", "r", false, "is auto reconnect")
+	ttyCmd.Flags().BoolVarP(&isPermitWrite, "write", "w", false, "is permit write")
+	ttyCmd.Flags().Int64VarP(&MaxConnections, "maxconnect", "m", 0, "max connect number")
 }

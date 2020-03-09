@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"syscall"
 	"unsafe"
 
@@ -48,7 +49,12 @@ func (this *ClientContext) HandleClient() {
 		// 结束异步请求
 		defer this.Xtermjs.Server.DoneGo()
 		defer func() {
-			log.Debug("设置前端连接数并关闭连接")
+			conns := atomic.AddInt64(this.Xtermjs.Connections, -1)
+			if this.Xtermjs.Options.MaxConnections != 0 {
+				log.Infof("连接关闭: %s , 连接状态: %d/%d", this.Request.RemoteAddr, conns, this.Xtermjs.Options.MaxConnections)
+			} else {
+				log.Infof("连接关闭: %s, 连接总数: %d", this.Request.RemoteAddr, conns)
+			}
 		}()
 
 		// 任意接受或发送被关闭 立即触发
@@ -84,7 +90,7 @@ func (this *ClientContext) Send(quitChan chan bool) {
 			// 读取命令执行结果并通过ws反馈给用户
 			size, err := this.Pty.Read(buf)
 			if err != nil {
-				log.Errorf("%s -> %s", this.Request.RemoteAddr, err.Error())
+				log.Warnf("Send[87] %s -> %s", this.Request.RemoteAddr, err.Error())
 				return
 			}
 			log.Debugf("Send Size: %d buf: %s buf[:size]: %s\n", size, string(buf), string(buf[:size]))
@@ -109,7 +115,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 			// 读取ws中的数据
 			_, message, err := this.WsConn.ReadMessage()
 			if err != nil {
-				log.Error(err.Error())
+				log.Warnf("Receive[112] %s", err.Error())
 				return
 			}
 
@@ -126,7 +132,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 				if message[0] == Input {
 					rs, err := utils.DecodeBase64(string(message[1:]))
 					if err != nil {
-						log.Error(err.Error())
+						log.Error("Recive[129]", err.Error())
 						return
 					}
 					switch rs {
@@ -145,7 +151,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 			// @Params msg:message
 			switch message[0] {
 			case Input:
-				// TODO: 用户是否能写入
+				// 用户是否能写入
 				if !this.Xtermjs.Options.PermitWrite {
 					break
 				}
@@ -153,14 +159,14 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 				// base64解码
 				decode, err := utils.DecodeBase64Bytes(string(message[1:]))
 				if err != nil {
-					log.Error(err.Error())
+					log.Error("Recive[156] ", err.Error())
 					break
 				}
 
 				// 向pty中传入执行命令
 				_, err = this.Pty.Write(decode)
 				if err != nil {
-					log.Error(err.Error())
+					log.Error("Recive[163] ", err.Error())
 					return
 				}
 			case Heartbeat:
@@ -172,20 +178,20 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 				// base64解码
 				decode, err := utils.DecodeBase64(string(message[1:]))
 				if err != nil {
-					log.Error(err.Error())
+					log.Errorf("Recive[175] %s", err.Error())
 					break
 				}
 
 				tmp := strings.Split(decode, ":")
 				rows, err := strconv.Atoi(tmp[0])
 				if err != nil {
-					log.Error(err.Error())
+					log.Errorf("Recive[182] %s", err.Error())
 					this.write([]byte(err.Error()))
 					break
 				}
 				cols, err := strconv.Atoi(tmp[1])
 				if err != nil {
-					log.Error(err.Error())
+					log.Errorf("Recive[188] %s", err.Error())
 					this.write([]byte(err.Error()))
 					break
 				}

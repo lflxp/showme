@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>{{ .host }}</title>
+    <title>ShowMe-{{ .host }}</title>
     <style>body, #terminal {position: absolute; height: 100%; width: 100%; margin: 0px;}</style>
     <link rel="stylesheet" href="/static/xterm.css" />
     <link rel="stylesheet" href="/static/fullscreen.css" />
@@ -11,6 +11,7 @@
     <script src="/static/search.js"></script>
     <script src="/static/fullscreen.js"></script>
     <script src="/static/base64.min.js"></script>
+    <script src="/static/reconnecting-websocket.min.js"></script>
   </head>
   <body>
     <div id="terminal"></div>
@@ -47,15 +48,22 @@
           //     cols: size.cols
           //   })
           // )
+          {{if .Debug}}
           console.log('resize',size)
+          {{- end}}
           websocket.send('2' + Base64.encode(size.rows + ':' + size.cols))
         }
         // register resize event.
         term.on('resize', onTermResize)
         // unregister resize event when WebSocket closed.
         websocket.addEventListener('close', function() {
+          {{if .Reconnect}}
+          console.log("close ws envent, reconnect")
+          {{- else}}
           term.off('resize', onTermResize)
+          {{- end}}
         })
+        
       }
 
       const bindTerminal = (term, websocket, bidirectional, bufferedTime) => {
@@ -73,6 +81,7 @@
             }
           } else {
             term.write(ev.data)
+            // term.writeUtf8(ev.data)
           }
         }
 
@@ -102,9 +111,14 @@
 
         websocket.addEventListener('close', function() {
           websocket.removeEventListener('message', handleWebSocketMessage)
+          {{if .Reconnect}}
+          console.log("close ws message, reconnect")
+          {{- else}}
           term.off('data', handleTerminalData)
           delete term.socket
           clearInterval(heartBeatTimer)
+          {{- end}}
+          
         })
       }
 
@@ -141,46 +155,62 @@
         term.write('\r\n')
       }
       
-      term.writeln('Welcome to \x1B[1;3;31mhttps://github.com/lflxp/showme\x1B[0m')
-      term.writeln('This is a local terminal emulation, without a real terminal in the back-end.')
-      term.writeln('Type some keys and commands to play around.')
+      term.writeln('Welcome to \x1B[1;3;31mShowMe TTY\x1B[0m')
+      {{if .Reconnect}}
+      term.writeln('连接模式: \x1B[1;3;32mReconnect\x1B[0m')
+      {{- else}}
+      term.writeln('连接模式: \x1B[1;3;32mOnce\x1B[0m')
+      {{- end}}
+
+      {{if .Write}}
+      term.writeln('输入模式：\x1B[1;3;31m读/写\x1B[0m')
+      {{- else}}
+      term.writeln('输入模式：\x1B[1;3;31m读\x1B[0m')
+      {{- end}}
+      
+      {{if .MaxC}}
+      term.writeln('连接状态：\x1B[1;3;34m{{.Conn}}/{{.MaxC}}\x1B[0m')
+      {{- else}}
+      term.writeln('连接总数：\x1B[1;3;34m{{.Conn}}\x1B[0m')
+      {{- end}}
+
+      term.writeln('启动参数: \x1B[1;3;30m{{ .Cmd }}\x1B[0m')
       term.prompt()
 
+      {{if .Debug}}
       term.on('key', function(key,ev) {
         console.log(key, ev, ev.keyCode)
       })
+      {{- end}}
 
       term.open(document.getElementById('terminal'))
       window.addEventListener('resize', Resize)
-      this.term.webLinksInit(doLink)
+      term.webLinksInit(doLink)
       term.fit()
 
-      ws = new WebSocket('ws://' + window.location.host + '/api/ws')
-      ws.onerror = () => {
-        console.error('ws has no token, please login first')
+      {{if .Reconnect}}
+        console.log("Recoonect Mode")
+        ws = new ReconnectingWebSocket('ws://' + window.location.host + '/api/ws')
+      {{- else}}
+        console.log("Once Mode")
+        ws = new WebSocket('ws://' + window.location.host + '/api/ws')
+      {{- end}}
+      
+      ws.onopen = () => {
+        let rows = document.body.clientHeight / 18  - 5 
+        let cols = document.body.clientWidth / 12
+        console.log(rows,cols)
+        ws.send('2' + Base64.encode(parseInt(rows) + ':' + parseInt(cols)))
+      }
+
+      ws.onerror = (e) => {
+        console.error(e)
       }
 
       ws.onclose = () => {
         term.setOption('cursorBlink', false)
         console.log('console.web_socket_disconnect')
       }
-
-      async function test() {
-        console.log('Hello')
-        await sleep(1000)
-        let rows = document.body.clientHeight / 18  - 5 
-        let cols = document.body.clientWidth / 14
-        console.log(rows,cols)
-        // ws.send('2' + Base64.encode(parseInt(rows) + ':' + parseInt(cols)))
-        ws.send('2' + Base64.encode(31 + ':' + 126))
-        console.log('world!')
-      }
-
-      function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms))
-      }
-
-      test()
 
       bindTerminal(term, ws, true, -1)
       bindTerminalResize(term, ws)
