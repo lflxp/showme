@@ -1,4 +1,4 @@
-.PHONY: push pull install run clean asset tty build gopacket
+.PHONY: push pull install run clean asset tty build gopacket bindata
 
 build: Makefile main.go asset
 	go build
@@ -23,15 +23,20 @@ gopacket: Makefile main.go asset
 	./showme -h
 
 # 静态文件转go二进制文件
-asset:
+asset: bindata
 	cd tty/static && go-bindata -o=../asset.go -pkg=tty ./
 
 run: main.go
 	go run main.go static
 
 # tty功能测试
-tty:
+tty: asset
 	go run main.go tty
+
+bindata:
+	@echo 安装预制环境
+	go get -u github.com/jteeuwen/go-bindata/...
+	go get -u github.com/elazarl/go-bindata-assetfs/...
 
 clean:
 	rm -f 123.mp4
