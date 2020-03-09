@@ -3,7 +3,7 @@
 # 默认位置 以后都保持不变
 push: pull
 	git add .
-	git commit -m "{{ m }}"
+	git commit -m "${m}"
 	git push origin $(shell git branch|grep '*'|awk '{print $$2}')
 
 pull:
