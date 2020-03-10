@@ -102,6 +102,16 @@ func (this *ClientContext) Send(quitChan chan bool) {
 	}
 }
 
+// xsrf验证
+func (this *ClientContext) ParseXsrf(info []byte) (string, bool) {
+	token := info[1:33]
+	if v, ok := this.Xtermjs.XsrfToken.Load(string(token)); ok {
+		log.Debugf("%s XsrfToken %s Created %s Message %s", this.Request.RemoteAddr, string(token), v.(string), string(info[33:]))
+		return string(info[33:]), true
+	}
+	return string(info[33:]), false
+}
+
 // 获取用户发送命令
 // 发送到pty进行执行
 func (this *ClientContext) Receive(quitChan chan bool) {
@@ -126,11 +136,18 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 
 			log.Debugf("input %s\n", string(message))
 
+			// Xsrf校验
+			msg, status := this.ParseXsrf(message)
+			if !status {
+				this.write([]byte("401"))
+				break
+			}
+
 			// 利用cache来计算命令，并写入数据库
 			// remoteAddr cmd 入库字段
 			go func() {
 				if message[0] == Input {
-					rs, err := utils.DecodeBase64(string(message[1:]))
+					rs, err := utils.DecodeBase64(msg)
 					if err != nil {
 						log.Error("Recive[129]", err.Error())
 						return
@@ -148,7 +165,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 			}()
 
 			// 判断命令
-			// @Params msg:message
+			// @Params msg:xsrf:message  0:32:&
 			switch message[0] {
 			case Input:
 				// 用户是否能写入
@@ -157,7 +174,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 				}
 
 				// base64解码
-				decode, err := utils.DecodeBase64Bytes(string(message[1:]))
+				decode, err := utils.DecodeBase64Bytes(msg)
 				if err != nil {
 					log.Error("Recive[156] ", err.Error())
 					break
@@ -176,7 +193,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 			case ResizeTerminal:
 				// @数据格式 type+rows:cols
 				// base64解码
-				decode, err := utils.DecodeBase64(string(message[1:]))
+				decode, err := utils.DecodeBase64(msg)
 				if err != nil {
 					log.Errorf("Recive[175] %s", err.Error())
 					break

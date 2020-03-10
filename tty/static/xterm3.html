@@ -51,7 +51,7 @@
           {{if .Debug}}
           console.log('resize',size)
           {{- end}}
-          websocket.send('2' + Base64.encode(size.rows + ':' + size.cols))
+          websocket.send('2{{ .Xsrf }}' + Base64.encode(size.rows + ':' + size.cols))
         }
         // register resize event.
         term.on('resize', onTermResize)
@@ -92,8 +92,11 @@
           //     cmd: Base64.encode(data) // encode data as base64 format
           //   })
           // )
-          websocket.send('0' + Base64.encode(data))
+          websocket.send('0{{ .Xsrf }}' + Base64.encode(data))
 
+          {{if .DEBUG}}
+            console.log('0{{ .Xsrf }}' + Base64.encode(data))
+          {{- end}}
           // term.write(data)
         }
 
@@ -106,7 +109,7 @@
         const heartBeatTimer = setInterval(function() {
           // websocket.send(JSON.stringify({ type: 'heartbeat', data: '' }))
           // heartbeat
-          websocket.send('3')
+          websocket.send('3{{ .Xsrf }}heartbeat')
         }, 20 * 1000)
 
         websocket.addEventListener('close', function() {
@@ -175,6 +178,7 @@
       {{- end}}
 
       term.writeln('启动参数: \x1B[1;3;30m{{ .Cmd }}\x1B[0m')
+      term.writeln('XsrfToken: {{ .Xsrf }}')
       term.prompt()
 
       {{if .Debug}}
@@ -200,7 +204,7 @@
         let rows = document.body.clientHeight / 18  - 5 
         let cols = document.body.clientWidth / 12
         console.log(rows,cols)
-        ws.send('2' + Base64.encode(parseInt(rows) + ':' + parseInt(cols)))
+        ws.send('2{{ .Xsrf }}' + Base64.encode(parseInt(rows) + ':' + parseInt(cols)))
       }
 
       ws.onerror = (e) => {

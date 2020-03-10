@@ -57,5 +57,6 @@ type XtermJs struct {
 	Title       string
 	Server      *Server
 	Options     Options
-	Connections *int64 // 统计连接数
+	Connections *int64   // 统计连接数
+	XsrfToken   sync.Map // xsrftoken存储
 }

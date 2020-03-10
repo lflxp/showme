@@ -72,6 +72,7 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 		Title:       "Showme",
 		Connections: &connections,
 		Server:      NewServer(),
+		XsrfToken:   sync.Map{},
 	}
 
 	// 静态二进制文件
@@ -163,6 +164,8 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 	indexhtml.Add("index", t)
 	router.HTMLRender = indexhtml
 	apiGroup.GET("/index", func(c *gin.Context) {
+		newXsrf := utils.GetRandomSalt()
+		xterm.XsrfToken.Store(newXsrf, time.Now().String())
 		c.HTML(http.StatusOK, "index", gin.H{
 			"host":      c.Request.RemoteAddr,
 			"Reconnect": isReconnect,
@@ -171,6 +174,7 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 			"MaxC":      MaxConnections,
 			"Conn":      *xterm.Connections + 1,
 			"Cmd":       strings.Join(cmds, " "),
+			"Xsrf":      newXsrf,
 		})
 	})
 
