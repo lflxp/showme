@@ -1,7 +1,6 @@
 package tty
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
 	"os"
@@ -20,14 +19,14 @@ import (
 
 // 服务端内部处理对象
 type ClientContext struct {
-	Xtermjs    *XtermJs        // 前端配置
-	Request    *http.Request   // http客户端请求
-	WsConn     *websocket.Conn // websocket连接
-	Cmd        *exec.Cmd       // exec.Command实例
-	Pty        *os.File        // 命令行pty代理
-	Cache      *bytes.Buffer   // 命令缓存
-	CacheMutex *sync.Mutex     // 缓存并发锁
-	WriteMutex *sync.Mutex     // 并发安全 通过ws发送给客户
+	Xtermjs *XtermJs        // 前端配置
+	Request *http.Request   // http客户端请求
+	WsConn  *websocket.Conn // websocket连接
+	Cmd     *exec.Cmd       // exec.Command实例
+	Pty     *os.File        // 命令行pty代理
+	// Cache      *bytes.Buffer   // 命令缓存
+	// CacheMutex *sync.Mutex     // 缓存并发锁
+	WriteMutex *sync.Mutex // 并发安全 通过ws发送给客户
 }
 
 // 处理请求
@@ -93,7 +92,7 @@ func (this *ClientContext) Send(quitChan chan bool) {
 				log.Warnf("Send[87] %s -> %s", this.Request.RemoteAddr, err.Error())
 				return
 			}
-			log.Debugf("Send Size: %d buf: %s buf[:size]: %s\n", size, string(buf), string(buf[:size]))
+			log.Debugf("Send Size: %d\n", size)
 			if err = this.write(buf[:size]); err != nil {
 				log.Error(err.Error())
 				return
@@ -145,24 +144,44 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 
 			// 利用cache来计算命令，并写入数据库
 			// remoteAddr cmd 入库字段
-			go func() {
-				if message[0] == Input {
-					rs, err := utils.DecodeBase64(msg)
-					if err != nil {
-						log.Error("Recive[129]", err.Error())
-						return
-					}
-					switch rs {
-					case "\r":
-						log.Debug("Command %s", this.Cache.String())
-						// 清楚上一次的缓存命令
-						// TODO insert into databases
-						this.Cache.Reset()
-					default:
-						this.cacheWrite([]byte(rs))
-					}
+
+			// go func() {
+			// 	if message[0] == Input {
+			// 		rs, err := utils.DecodeBase64(msg)
+			// 		if err != nil {
+			// 			log.Error("Recive[129]", err.Error())
+			// 			return
+			// 		}
+			// 		switch rs {
+			// 		case "\r\n":
+			// 			log.Debug("Command %s", this.Cache.String())
+			// 			// 清楚上一次的缓存命令
+			// 			// TODO insert into databases
+			// 			this.Cache.Reset()
+			// 		default:
+			// 			this.cacheWrite([]byte(rs))
+			// 		}
+			// 	}
+			// }()
+
+			// 审计
+			if this.Xtermjs.Options.Audit {
+				cm, err := utils.DecodeBase64(msg)
+				if err != nil {
+					log.Error("Recive[172]", err.Error())
+					break
 				}
-			}()
+				tmp := &Aduit{
+					Remoteaddr: this.Request.RemoteAddr,
+					Token:      string(message[1:33]),
+					Command:    cm,
+					Pid:        this.Cmd.Process.Pid,
+				}
+				err = AddAduit(tmp)
+				if err != nil {
+					log.Error("AddAduit error", err.Error())
+				}
+			}
 
 			// 判断命令
 			// @Params msg:xsrf:message  0:32:&
@@ -238,12 +257,12 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 }
 
 // 缓存并发安全
-func (this *ClientContext) cacheWrite(data []byte) error {
-	this.CacheMutex.Lock()
-	defer this.CacheMutex.Unlock()
-	_, err := this.Cache.Write(data)
-	return err
-}
+// func (this *ClientContext) cacheWrite(data []byte) error {
+// 	this.CacheMutex.Lock()
+// 	defer this.CacheMutex.Unlock()
+// 	_, err := this.Cache.Write(data)
+// 	return err
+// }
 
 // 发送websocket信息给客户端
 func (this *ClientContext) write(data []byte) error {

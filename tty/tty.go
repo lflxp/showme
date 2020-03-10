@@ -1,7 +1,6 @@
 package tty
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"html/template"
@@ -41,13 +40,18 @@ var upGrader = websocket.Upgrader{
 	},
 }
 
-func ServeGin(port, username, password string, cmds []string, isdebug, isReconnect, isPermitWrite bool, MaxConnections int64) {
+func ServeGin(port, username, password string, cmds []string, isdebug, isReconnect, isPermitWrite, isAudit bool, MaxConnections int64) {
 	if isdebug {
 		// 设置日志级别为warn以上
 		log.SetLevel(log.DebugLevel)
 	} else {
 		// 设置日志级别为warn以上
 		log.SetLevel(log.InfoLevel)
+	}
+
+	if isAudit {
+		utils.InitSqlite()
+		utils.Engine.Sync2(new(Aduit))
 	}
 
 	gin.SetMode(gin.ReleaseMode)
@@ -68,6 +72,7 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 			PermitWrite:    isPermitWrite,
 			CloseSignal:    9,
 			MaxConnections: MaxConnections,
+			Audit:          isAudit,
 		},
 		Title:       "Showme",
 		Connections: &connections,
@@ -94,6 +99,19 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 		apiGroup = router.Group("/api")
 	} else {
 		apiGroup = router.Group("/api", gin.BasicAuth(gin.Accounts{username: password}))
+	}
+
+	// 添加审计查询接口
+	if isAudit {
+		apiGroup.GET("/check", func(c *gin.Context) {
+			name := c.DefaultQuery("name", "")
+			data, err := GetAduit(name)
+			if err != nil {
+				c.String(http.StatusOK, err.Error())
+			} else {
+				c.JSONP(http.StatusOK, data)
+			}
+		})
 	}
 
 	// 后端websocket服务
@@ -132,13 +150,13 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 		xterm.Server.StartGo()
 
 		context := &ClientContext{
-			Xtermjs:    xterm,
-			Request:    c.Request,
-			WsConn:     ws,
-			Cmd:        cmd,
-			Pty:        ptmx,
-			Cache:      bytes.NewBuffer([]byte("")),
-			CacheMutex: &sync.Mutex{},
+			Xtermjs: xterm,
+			Request: c.Request,
+			WsConn:  ws,
+			Cmd:     cmd,
+			Pty:     ptmx,
+			// Cache:      bytes.NewBuffer([]byte("")),
+			// CacheMutex: &sync.Mutex{},
 			WriteMutex: &sync.Mutex{},
 		}
 

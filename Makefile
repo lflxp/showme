@@ -44,4 +44,5 @@ clean:
 	rm -f 123.mp4
 	rm -f 1.db
 	rm -f tty/asset.go
+	rm -f showme
 

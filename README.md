@@ -30,23 +30,23 @@ showme -h
 `使用`
 
 ```
-gin web + websocket + xterm.js
+showme tty [flags] [command] [args]
+eg: showme tty -w -r showme proxy http
 
 Usage:
   showme tty [flags]
 
 Flags:
+  -a, --audit             is audit
+  -d, --debug             debug log mode
   -h, --help              help for tty
-  -H, --host string       http host (default "0.0.0.0")
-  -p, --password string   BasicAuth 密码 (default "system")
+  -m, --maxconnect int    max connect number
+  -p, --password string   BasicAuth 密码
   -P, --port string       http port (default "8080")
-  -u, --username string   BasicAuth 用户名 (default "admin")
+  -r, --reconnect         is auto reconnect
+  -u, --username string   BasicAuth 用户名
+  -w, --write             is permit writ
 ```
-
-`TODO`
-
-1. 增加xsrf攻击
-2. 操作审计
 
 - gopacket
 
