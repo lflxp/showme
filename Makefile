@@ -32,7 +32,7 @@ run: main.go
 
 # tty功能测试
 tty: asset
-	go run main.go tty -w -m 1 -r -d  -a -u admin -p admin bash 
+	go run main.go tty -w -m 1 -d -a -u admin -p admin bash 
 	# go run main.go tty -w -m 10 -r -d showme proxy http
 
 bindata:

@@ -12,6 +12,7 @@ type Aduit struct {
 	Token      string    `json:"token" xorm:"varchar(32)"`
 	Command    string    `json:"command" xorm:"varchar(10)"`
 	Pid        int       `json:"pid"`
+	Status     string    `json:"status" xorm:"varchar(40)"`
 	Created    time.Time `json:"created" xorm:"created"`
 }
 
@@ -24,7 +25,7 @@ func GetAduit(name string) ([]Aduit, error) {
 	var err error
 	data := make([]Aduit, 0)
 	if name == "" {
-		err = utils.Engine.Find(&data)
+		err = utils.Engine.Desc("created").Find(&data)
 	} else {
 		err = utils.Engine.Where("id = ? or remoteaddr = ? or  token = ?", name, name, name).Desc("created").Find(&data)
 	}

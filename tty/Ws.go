@@ -1,6 +1,7 @@
 package tty
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"os"
@@ -93,7 +94,10 @@ func (this *ClientContext) Send(quitChan chan bool) {
 				return
 			}
 			log.Debugf("Send Size: %d\n", size)
-			if err = this.write(buf[:size]); err != nil {
+			// 将所有返回结果包括UTF8编码的内容用base64进行编码，client解码再显示，避免了直接UTF8编码传输的报错
+			// Could not decode a text frame as UTF-8 的解决
+			safeMessage := base64.StdEncoding.EncodeToString([]byte(buf[:size]))
+			if err = this.write([]byte(safeMessage)); err != nil {
 				log.Error(err.Error())
 				return
 			}
@@ -133,12 +137,23 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 				return
 			}
 
-			log.Debugf("input %s\n", string(message))
+			log.Debugf("Receive %s\n", string(message))
 
 			// Xsrf校验
 			msg, status := this.ParseXsrf(message)
 			if !status {
-				this.write([]byte("401"))
+				tmp := &Aduit{
+					Remoteaddr: this.Request.RemoteAddr,
+					Token:      string(message[1:33]),
+					Command:    msg,
+					Pid:        this.Cmd.Process.Pid,
+					Status:     "非法xsrf",
+				}
+				err = AddAduit(tmp)
+				if err != nil {
+					log.Error("AddAduit error", err.Error())
+				}
+				this.write([]byte("\x1B[1;3;31mPermission Denied\x1B[0m\n"))
 				break
 			}
 
@@ -168,7 +183,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 			if this.Xtermjs.Options.Audit {
 				cm, err := utils.DecodeBase64(msg)
 				if err != nil {
-					log.Error("Recive[172]", err.Error())
+					log.Errorf("Recive[172] [%s] %s", msg, err.Error())
 					break
 				}
 				tmp := &Aduit{
@@ -176,6 +191,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 					Token:      string(message[1:33]),
 					Command:    cm,
 					Pid:        this.Cmd.Process.Pid,
+					Status:     "success",
 				}
 				err = AddAduit(tmp)
 				if err != nil {
