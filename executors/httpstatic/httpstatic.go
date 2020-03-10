@@ -3,6 +3,7 @@ package httpstatic
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -11,12 +12,14 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 	"github.com/jroimartin/gocui"
 	"github.com/lflxp/showme/utils"
 )
 
 var (
+	isvideo   bool
 	path      string
 	port      string
 	closeChan chan os.Signal
@@ -87,6 +90,14 @@ func Cors(g *gocui.Gui) gin.HandlerFunc {
 }
 
 func serverGin(g *gocui.Gui) {
+	var staticUrl, indexUrl string
+	if isvideo {
+		staticUrl = "/static"
+		indexUrl = "/"
+	} else {
+		staticUrl = "/"
+		indexUrl = ""
+	}
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
@@ -97,7 +108,7 @@ func serverGin(g *gocui.Gui) {
 	// 使用 Recovery 中间件
 	router.Use(gin.Recovery())
 
-	router.StaticFS("/", http.Dir(path))
+	router.StaticFS(staticUrl, http.Dir(path))
 	// curl -X POST http://127.0.0.1:9090/upload -F "file=@/Users/lxp/123.mp4" -H "Content-Type:multipart/form-data"
 	router.POST("/upload", func(c *gin.Context) {
 		// 多文件
@@ -111,6 +122,46 @@ func serverGin(g *gocui.Gui) {
 		}
 		c.String(http.StatusOK, fmt.Sprintf("%d files uploaded!", len(files)))
 	})
+
+	if isvideo {
+		indexhtml := multitemplate.New()
+		htmlTemplate := `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style type="text/css">
+	li {
+		float: left;
+		display: inline;
+		list-style: none;
+		border: 1px solid #161EE8FF;
+		text-align: center;
+		line-height: 200px;
+		padding: 0px;
+		height: 200px;
+		width: 200px;
+		margin: 10 10px;
+	}
+</style>
+</head>
+<body>
+<div id="nav">
+  <ul>
+	{{ range $src := .data }}
+	<li><video src="{{ $src }}" controls="controls" height="200" width="200">{{ $src }}</video></li>
+	{{ end }}
+  </ul>
+</div>
+</body>
+</html>`
+		t, _ := template.New("index").Parse(htmlTemplate)
+		indexhtml.Add("index", t)
+		router.HTMLRender = indexhtml
+		router.GET(indexUrl, func(c *gin.Context) {
+			data, _ := utils.GetAllFiles(".")
+			c.HTML(http.StatusOK, "index", gin.H{"data": data})
+		})
+	}
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%s", port),
@@ -146,10 +197,11 @@ func serverGin(g *gocui.Gui) {
 	}
 }
 
-func HttpStaticServeForCorba(ports, paths string) {
+func HttpStaticServeForCorba(ports, paths string, isVideo bool) {
 	// httpstatic -port 9090 -path ./
 	port = ports
 	path = paths
+	isvideo = isVideo
 
 	g, err := gocui.NewGui(gocui.OutputNormal)
 	if err != nil {
@@ -280,7 +332,12 @@ func dlayout(g *gocui.Gui) error {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		v.Title = "静态服务器地址"
+		if isvideo {
+			v.Title = "视频服务器地址"
+		} else {
+			v.Title = "静态服务器地址"
+		}
+
 		v.Wrap = true
 		// v.Highlight = true
 		// v.Autoscroll = true

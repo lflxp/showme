@@ -28,7 +28,7 @@ asset: bindata
 	cd tty/static && go-bindata -o=../asset.go -pkg=tty ./
 
 run: main.go
-	go run main.go static
+	go run main.go static ${n}
 
 # tty功能测试
 tty: asset
