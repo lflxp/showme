@@ -7,12 +7,12 @@ import (
 	"strings"
 )
 
-var suff []string = []string{".avi", ".wma", ".rmvb", ".rm", ".mp4", ".mov", ".3gp", ".mpeg", ".mpg", ".mpe", ".m4v", ".mkv", ".flv", ".vob", ".wmv", ".asf", ".asx"}
+// var suff []string = []string{".avi", ".wma", ".rmvb", ".rm", ".mp4", ".mov", ".3gp", ".mpeg", ".mpg", ".mpe", ".m4v", ".mkv", ".flv", ".vob", ".wmv", ".asf", ".asx"}
 
 // 获取指定目录下的所有文件,包含子目录下的文件
 // strings.Replace(dirPth+PthSep+fi.Name(), ".", "/static", 1)
 // 只能查找当前目录下的所有视频文件
-func GetAllFiles(dirPth string) (files []string, err error) {
+func GetAllFiles(dirPth string, suff []string) (files []string, err error) {
 	var dirs []string
 	dir, err := ioutil.ReadDir(dirPth)
 	if err != nil {
@@ -25,7 +25,7 @@ func GetAllFiles(dirPth string) (files []string, err error) {
 	for _, fi := range dir {
 		if fi.IsDir() { // 目录, 递归遍历
 			dirs = append(dirs, dirPth+PthSep+fi.Name())
-			GetAllFiles(dirPth + PthSep + fi.Name())
+			GetAllFiles(dirPth+PthSep+fi.Name(), suff)
 		} else {
 			// 过滤指定格式
 			for _, x := range suff {
@@ -40,7 +40,7 @@ func GetAllFiles(dirPth string) (files []string, err error) {
 
 	// 读取子目录下文件
 	for _, table := range dirs {
-		temp, _ := GetAllFiles(table)
+		temp, _ := GetAllFiles(table, suff)
 		for _, temp1 := range temp {
 			files = append(files, temp1)
 		}

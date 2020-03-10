@@ -20,6 +20,7 @@ import (
 )
 
 var (
+	types     []string
 	pageSize  int
 	isvideo   bool
 	path      string
@@ -126,7 +127,7 @@ func serverGin(g *gocui.Gui) {
 	})
 
 	if isvideo {
-		data, _ := utils.GetAllFiles(".")
+		data, _ := utils.GetAllFiles(".", types)
 		indexhtml := multitemplate.New()
 		htmlTemplate := `<!DOCTYPE html>
 <html>
@@ -234,12 +235,13 @@ func serverGin(g *gocui.Gui) {
 	}
 }
 
-func HttpStaticServeForCorba(ports, paths string, isVideo bool, pagesize int) {
+func HttpStaticServeForCorba(ports, paths, typesed string, isVideo bool, pagesize int) {
 	// httpstatic -port 9090 -path ./
 	port = ports
 	path = paths
 	isvideo = isVideo
 	pageSize = pagesize
+	types = strings.Split(typesed, ",")
 
 	g, err := gocui.NewGui(gocui.OutputNormal)
 	if err != nil {
