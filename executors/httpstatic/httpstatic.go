@@ -125,6 +125,7 @@ func serverGin(g *gocui.Gui) {
 	})
 
 	if isvideo {
+		data, _ := utils.GetAllFiles(".")
 		indexhtml := multitemplate.New()
 		htmlTemplate := `<!DOCTYPE html>
 <html>
@@ -179,7 +180,7 @@ func serverGin(g *gocui.Gui) {
 					return
 				}
 			}
-			data, _ := utils.GetAllFiles(".")
+
 			var pages int
 			if len(data)%PageSize > 0 {
 				pages = len(data)/PageSize + 1
