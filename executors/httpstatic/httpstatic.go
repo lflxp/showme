@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -134,12 +135,13 @@ func serverGin(g *gocui.Gui) {
 		float: left;
 		display: inline;
 		list-style: none;
-		border: 1px solid #161EE8FF;
+		border: 0px solid #161EE8FF;
 		text-align: center;
 		line-height: 200px;
-		padding: 0px;
-		height: 200px;
-		width: 200px;
+		padding: 9px;
+		margin-top: 10px;
+		height: 220px;
+		width: 220px;
 		margin: 10 10px;
 	}
 </style>
@@ -148,7 +150,13 @@ func serverGin(g *gocui.Gui) {
 <div id="nav">
   <ul>
 	{{ range $src := .data }}
-	<li><video src="{{ $src }}" controls="controls" height="200" width="200">{{ $src }}</video></li>
+	<li><video src="{{ $src }}" controls="controls" height="200" width="200" preload="metadata">{{ $src }}</video></li>
+	{{ end }}
+  </ul>
+  {{ .page }}
+  <ul>
+	{{ range $n,$page := .pages }}
+		<li><a href="{{$page}}" target="_self">{{ $n }}</a></li>
 	{{ end }}
   </ul>
 </div>
@@ -158,8 +166,36 @@ func serverGin(g *gocui.Gui) {
 		indexhtml.Add("index", t)
 		router.HTMLRender = indexhtml
 		router.GET(indexUrl, func(c *gin.Context) {
+			var currentPage int
+			const PageSize = 20
+			page := c.DefaultQuery("page", "")
+			if page == "" {
+				currentPage = 1
+			} else {
+				var err error
+				currentPage, err = strconv.Atoi(page)
+				if err != nil {
+					c.String(http.StatusBadRequest, err.Error())
+					return
+				}
+			}
 			data, _ := utils.GetAllFiles(".")
-			c.HTML(http.StatusOK, "index", gin.H{"data": data})
+			var pages int
+			if len(data)%PageSize > 0 {
+				pages = len(data)/PageSize + 1
+			} else {
+				pages = len(data) / PageSize
+			}
+			pagestring := []string{}
+			for i := 1; i <= pages; i++ {
+				pagestring = append(pagestring, fmt.Sprintf("/?page=%d", i))
+			}
+			if PageSize*currentPage < len(data)-1 {
+				c.HTML(http.StatusOK, "index", gin.H{"data": data[PageSize*(currentPage-1) : PageSize*currentPage], "pages": pagestring})
+			} else {
+				c.HTML(http.StatusOK, "index", gin.H{"data": data[PageSize*(currentPage-1) : len(data)-1], "pages": pagestring})
+			}
+
 		})
 	}
 
