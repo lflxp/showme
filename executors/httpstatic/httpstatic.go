@@ -153,7 +153,7 @@ func serverGin(g *gocui.Gui) {
 <div id="nav">
   <ul>
 	{{ range $src := .data }}
-	<li><video src="{{ $src }}" controls="controls" height="200" width="200" preload="metadata">{{ $src }}</video></li>
+	<li><video src="{{ $src }}" controls="controls" height="200" width="200" preload="metadata" loop="loop">{{ $src }}</video></li>
 	{{ end }}
   </ul>
   {{ .page }}
