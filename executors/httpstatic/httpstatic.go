@@ -20,6 +20,7 @@ import (
 )
 
 var (
+	pageSize  int
 	isvideo   bool
 	path      string
 	port      string
@@ -168,7 +169,6 @@ func serverGin(g *gocui.Gui) {
 		router.HTMLRender = indexhtml
 		router.GET(indexUrl, func(c *gin.Context) {
 			var currentPage int
-			const PageSize = 20
 			page := c.DefaultQuery("page", "")
 			if page == "" {
 				currentPage = 1
@@ -182,19 +182,19 @@ func serverGin(g *gocui.Gui) {
 			}
 
 			var pages int
-			if len(data)%PageSize > 0 {
-				pages = len(data)/PageSize + 1
+			if len(data)%pageSize > 0 {
+				pages = len(data)/pageSize + 1
 			} else {
-				pages = len(data) / PageSize
+				pages = len(data) / pageSize
 			}
 			pagestring := []string{}
 			for i := 1; i <= pages; i++ {
 				pagestring = append(pagestring, fmt.Sprintf("/?page=%d", i))
 			}
-			if PageSize*currentPage < len(data)-1 {
-				c.HTML(http.StatusOK, "index", gin.H{"data": data[PageSize*(currentPage-1) : PageSize*currentPage], "pages": pagestring})
+			if pageSize*currentPage < len(data)-1 {
+				c.HTML(http.StatusOK, "index", gin.H{"data": data[pageSize*(currentPage-1) : pageSize*currentPage], "pages": pagestring})
 			} else {
-				c.HTML(http.StatusOK, "index", gin.H{"data": data[PageSize*(currentPage-1) : len(data)-1], "pages": pagestring})
+				c.HTML(http.StatusOK, "index", gin.H{"data": data[pageSize*(currentPage-1) : len(data)-1], "pages": pagestring})
 			}
 
 		})
@@ -234,11 +234,12 @@ func serverGin(g *gocui.Gui) {
 	}
 }
 
-func HttpStaticServeForCorba(ports, paths string, isVideo bool) {
+func HttpStaticServeForCorba(ports, paths string, isVideo bool, pagesize int) {
 	// httpstatic -port 9090 -path ./
 	port = ports
 	path = paths
 	isvideo = isVideo
+	pageSize = pagesize
 
 	g, err := gocui.NewGui(gocui.OutputNormal)
 	if err != nil {

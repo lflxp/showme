@@ -23,6 +23,7 @@ var (
 	portHttpStatic string
 	pathHttpStatic string
 	isVideo        bool
+	pagesize       int
 )
 
 // staticCmd represents the static command
@@ -31,7 +32,7 @@ var staticCmd = &cobra.Command{
 	Short: "本地静态文件服务器",
 	Long:  `通过本地http服务进行简单的文件传输和文件展示`,
 	Run: func(cmd *cobra.Command, args []string) {
-		httpstatic.HttpStaticServeForCorba(portHttpStatic, pathHttpStatic, isVideo)
+		httpstatic.HttpStaticServeForCorba(portHttpStatic, pathHttpStatic, isVideo, pagesize)
 	},
 }
 
@@ -50,4 +51,5 @@ func init() {
 	staticCmd.Flags().StringVarP(&portHttpStatic, "port", "p", "9090", "服务端口")
 	staticCmd.Flags().StringVarP(&pathHttpStatic, "path", "f", "./", "加载目录")
 	staticCmd.Flags().BoolVarP(&isVideo, "video", "v", false, "是否切换为视频模式")
+	staticCmd.Flags().IntVarP(&pagesize, "pagesize", "c", 20, "每页显示视频数")
 }
