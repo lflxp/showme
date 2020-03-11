@@ -108,6 +108,9 @@ func (this *ClientContext) Send(quitChan chan bool) {
 // xsrf验证
 // token = xsrf + request.remoteAddr
 func (this *ClientContext) ParseXsrf(info []byte) (string, string, bool) {
+	if len(info) < 34 {
+		return "", "", false
+	}
 	token := fmt.Sprintf("%s%s", string(info[1:33]), strings.Split(this.Request.RemoteAddr, ":")[0])
 	if v, ok := this.Xtermjs.XsrfToken.Load(token); ok {
 		log.Debugf("%s XsrfToken %s Created %s Message %s", this.Request.RemoteAddr, string(info[1:33]), v.(string), string(info[33:]))
@@ -138,26 +141,34 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 				return
 			}
 
-			log.Debugf("Receive %s\n", string(message))
+			log.Debugf("Receive[144] %s\n", string(message))
 
+			var msg string
 			// Xsrf校验
-			cacheKey, msg, status := this.ParseXsrf(message)
-			if !status {
-				tmp := &Aduit{
-					Remoteaddr: this.Request.RemoteAddr,
-					Token:      string(message[1:33]),
-					Command:    msg,
-					Pid:        this.Cmd.Process.Pid,
-					Status:     "非法xsrf",
+			if !this.Xtermjs.Options.Xsrf {
+				cacheKey, msg, status := this.ParseXsrf(message)
+				if !status {
+					tmp := &Aduit{
+						Remoteaddr: this.Request.RemoteAddr,
+						Token:      string(message[1:33]),
+						Command:    msg,
+						Pid:        this.Cmd.Process.Pid,
+						Status:     "非法xsrf",
+					}
+					err = AddAduit(tmp)
+					if err != nil {
+						log.Error("AddAduit error", err.Error())
+					}
+					this.write([]byte("\x1B[1;3;31mPermission Denied\x1B[0m\n"))
+					break
 				}
-				err = AddAduit(tmp)
-				if err != nil {
-					log.Error("AddAduit error", err.Error())
+				defer xterm.XsrfToken.Delete(cacheKey)
+			} else {
+				if len(message) < 34 {
+					return
 				}
-				this.write([]byte("\x1B[1;3;31mPermission Denied\x1B[0m\n"))
-				break
+				msg = string(message[33:])
 			}
-			defer xterm.XsrfToken.Delete(cacheKey)
 
 			// 利用cache来计算命令，并写入数据库
 			// remoteAddr cmd 入库字段
@@ -216,7 +227,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 					log.Error("Recive[156] ", err.Error())
 					break
 				}
-
+				log.Debugf("Write info %s", string(decode))
 				// 向pty中传入执行命令
 				_, err = this.Pty.Write(decode)
 				if err != nil {

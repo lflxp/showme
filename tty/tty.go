@@ -13,6 +13,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/DeanThompson/ginpprof"
+
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
@@ -40,13 +42,15 @@ var upGrader = websocket.Upgrader{
 	},
 }
 
-func ServeGin(port, username, password string, cmds []string, isdebug, isReconnect, isPermitWrite, isAudit bool, MaxConnections int64) {
+func ServeGin(port, username, password string, cmds []string, isdebug, isReconnect, isPermitWrite, isAudit, isXsrf, isProf bool, MaxConnections int64) {
 	if isdebug {
 		// 设置日志级别为warn以上
 		log.SetLevel(log.DebugLevel)
+		gin.SetMode(gin.DebugMode)
 	} else {
 		// 设置日志级别为warn以上
 		log.SetLevel(log.InfoLevel)
+		gin.SetMode(gin.ReleaseMode)
 	}
 
 	if isAudit {
@@ -54,7 +58,6 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 		utils.Engine.Sync2(new(Aduit))
 	}
 
-	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
 	// 使用 Recovery 中间件
@@ -73,6 +76,7 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 			CloseSignal:    9,
 			MaxConnections: MaxConnections,
 			Audit:          isAudit,
+			Xsrf:           isXsrf,
 		},
 		Title:       "Showme",
 		Connections: &connections,
@@ -179,7 +183,10 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 	router.HTMLRender = indexhtml
 	apiGroup.GET("/", func(c *gin.Context) {
 		newXsrf := utils.GetRandomSalt()
-		xterm.XsrfToken.Store(fmt.Sprintf("%s%s", newXsrf, strings.Split(c.Request.RemoteAddr, ":")[0]), time.Now().String())
+		log.Debugf("%s xsrftoken %s", c.Request.RemoteAddr, newXsrf)
+		if !xterm.Options.Xsrf {
+			xterm.XsrfToken.Store(fmt.Sprintf("%s%s", newXsrf, strings.Split(c.Request.RemoteAddr, ":")[0]), time.Now().String())
+		}
 		c.HTML(http.StatusOK, "index", gin.H{
 			"host":      c.Request.RemoteAddr,
 			"Reconnect": isReconnect,
@@ -191,6 +198,12 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 			"Xsrf":      newXsrf,
 		})
 	})
+
+	// automatically add routers for net/http/pprof
+	// e.g. /debug/pprof, /debug/pprof/heap, etc.
+	if isProf {
+		ginpprof.Wrapper(router)
+	}
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf("0.0.0.0:%s", port),

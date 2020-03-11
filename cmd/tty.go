@@ -21,6 +21,8 @@ import (
 )
 
 var (
+	isProf         bool
+	isXsrf         bool
 	isAudit        bool
 	isPermitWrite  bool
 	MaxConnections int64
@@ -38,7 +40,7 @@ var ttyCmd = &cobra.Command{
 	Long: `showme tty [flags] [command] [args]
 eg: showme tty -w -r showme proxy http`,
 	Run: func(cmd *cobra.Command, args []string) {
-		tty.ServeGin(port, username, password, args, isDebug, isReconnect, isPermitWrite, isAudit, MaxConnections)
+		tty.ServeGin(port, username, password, args, isDebug, isReconnect, isPermitWrite, isAudit, isXsrf, isProf, MaxConnections)
 	},
 }
 
@@ -61,5 +63,7 @@ func init() {
 	ttyCmd.Flags().BoolVarP(&isReconnect, "reconnect", "r", false, "is auto reconnect")
 	ttyCmd.Flags().BoolVarP(&isPermitWrite, "write", "w", false, "is permit write")
 	ttyCmd.Flags().BoolVarP(&isAudit, "audit", "a", false, "is audit")
+	ttyCmd.Flags().BoolVarP(&isXsrf, "xsrf", "x", false, "是否开启xsrf,默认开启")
+	ttyCmd.Flags().BoolVarP(&isProf, "prof", "f", false, "是否开启pprof性能分析")
 	ttyCmd.Flags().Int64VarP(&MaxConnections, "maxconnect", "m", 0, "max connect number")
 }
