@@ -22,7 +22,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/kr/pty"
 	"github.com/lflxp/showme/utils"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/prometheus/client_golang/prometheus/promhttp" // https://blog.csdn.net/u014029783/article/details/80001251 教程
 	log "github.com/sirupsen/logrus"
 )
 
