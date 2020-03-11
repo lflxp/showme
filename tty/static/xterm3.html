@@ -179,7 +179,7 @@
       {{- end}}
 
       term.writeln('启动参数: \x1B[1;3;30m{{ .Cmd }}\x1B[0m')
-      term.writeln('XsrfToken: {{ .Xsrf }}')
+      // term.writeln('XsrfToken: {{ .Xsrf }}')
       term.prompt()
 
       {{if .Debug}}
