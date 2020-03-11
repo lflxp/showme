@@ -104,7 +104,29 @@ go build -tags=gopacket main.go
 
 4. static http server
 
-> httpstatic -port 9999
+static功能主要是快速启动一个http服务进行文件的传输，包括文件上传和下载，拜托无工具可用的尴尬境地。
+
+目前static新增了视频模式，通过过滤常用的视频文件格式在前端通过video标签进行直接播放，本地离线视频服务。
+
+> showme static -h
+
+```
+通过本地http服务进行简单的文件传输和文件展示
+
+Usage:
+  showme static [flags]
+
+Flags:
+  -h, --help           help for static
+  -c, --pagesize int   每页显示视频数 (default 20)
+  -f, --path string    加载目录 (default "./")
+  -p, --port string    服务端口 (default "9090")
+  -t, --types string   过滤视频类型，多个用逗号隔开 (default ".avi,.wma,.rmvb,.rm,.mp4,.mov,.3gp,.mpeg,.mpg,.mpe,.m4v,.mkv,.flv,.vob,.wmv,.asf,.asx")
+  -v, --video          是否切换为视频模式
+
+Global Flags:
+      --config string   config file (default is $HOME/.showme.yaml)
+```      
 
 - port: static http port, default: 9090
 
@@ -151,6 +173,7 @@ todo:
 6. command visio
 7. 网络监听（原始报文解析和展示）
 8. web terminial
+9. 快速文件传输
 
 # functions
 
