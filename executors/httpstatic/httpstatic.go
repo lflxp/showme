@@ -111,6 +111,24 @@ func serverGin(g *gocui.Gui) {
 	// 使用 Recovery 中间件
 	router.Use(gin.Recovery())
 
+	// LoggerWithFormatter 中间件会将日志写入 gin.DefaultWriter
+	// By default gin.DefaultWriter = os.Stdout
+	router.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
+		return ""
+		// 你的自定义格式
+		// return fmt.Sprintf("%s - [%s] \"%s %s %s %d %s \"%s\" %s\"\n",
+		//         param.ClientIP,
+		//         param.TimeStamp.Format(time.RFC1123),
+		//         param.Method,
+		//         param.Path,
+		//         param.Request.Proto,
+		//         param.StatusCode,
+		//         param.Latency,
+		//         param.Request.UserAgent(),
+		//         param.ErrorMessage,
+		// )
+	}))
+
 	router.StaticFS(staticUrl, http.Dir(path))
 	// curl -X POST http://127.0.0.1:9090/upload -F "file=@/Users/lxp/123.mp4" -H "Content-Type:multipart/form-data"
 	router.POST("/upload", func(c *gin.Context) {
@@ -195,7 +213,11 @@ func serverGin(g *gocui.Gui) {
 			if pageSize*currentPage < len(data)-1 {
 				c.HTML(http.StatusOK, "index", gin.H{"data": data[pageSize*(currentPage-1) : pageSize*currentPage], "pages": pagestring})
 			} else {
-				c.HTML(http.StatusOK, "index", gin.H{"data": data[pageSize*(currentPage-1) : len(data)-1], "pages": pagestring})
+				if len(data) == 0 {
+					c.String(http.StatusOK, "这小子什么都没留下！")
+				} else {
+					c.HTML(http.StatusOK, "index", gin.H{"data": data[pageSize*(currentPage-1) : len(data)-1], "pages": pagestring})
+				}
 			}
 
 		})
