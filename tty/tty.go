@@ -119,6 +119,9 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 	// 2). And I wish to ignore endpoint start with `/prefix`.
 	// ginprom.PromMiddleware(&ginprom.PromOpts{ExcludeRegexEndpoint: "^/prefix"})
 	router.Use(ginprom.PromMiddleware(nil))
+	// The Handler function provides a default handler to expose metrics
+	// via an HTTP server. "/metrics" is the usual endpoint for that.
+	doMetrics()
 	apiGroup.GET("/metrics", ginprom.PromHandler(promhttp.Handler()))
 
 	// 添加审计查询接口
