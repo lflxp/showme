@@ -205,6 +205,7 @@ https://blog.csdn.net/lengyuezuixue/article/details/79664409
 - 考虑是否取消自动刷新的功能或者优化自动查询效率
 - web terminial 前端界面优化
 - 结合GuiLite进行美化
+- tty 添加install自动部署systemctl服务的功能
 
 # k8s resource list
 
