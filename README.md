@@ -204,6 +204,7 @@ https://blog.csdn.net/lengyuezuixue/article/details/79664409
 - 添加pod和deployment手动刷新数据的错误
 - 考虑是否取消自动刷新的功能或者优化自动查询效率
 - web terminial 前端界面优化
+- 结合GuiLite进行美化
 
 # k8s resource list
 
