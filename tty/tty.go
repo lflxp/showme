@@ -15,12 +15,14 @@ import (
 
 	"github.com/DeanThompson/ginpprof"
 
+	"github.com/chenjiandongx/ginprom"
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/kr/pty"
 	"github.com/lflxp/showme/utils"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -100,6 +102,24 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 	} else {
 		apiGroup = router.Group("/", gin.BasicAuth(gin.Accounts{username: password}))
 	}
+
+	// 添加prometheus监控
+	// use prometheus metrics exporter middleware.
+	//
+	// ginprom.PromMiddleware() expects a ginprom.PromOpts{} poniter.
+	// It was used for filtering labels with regex. `nil` will pass every requests.
+	//
+	// ginprom promethues-labels:
+	//   `status`, `endpoint`, `method`
+	//
+	// for example:
+	// 1). I want not to record the 404 status request. That's easy for it.
+	// ginprom.PromMiddleware(&ginprom.PromOpts{ExcludeRegexStatus: "404"})
+	//
+	// 2). And I wish to ignore endpoint start with `/prefix`.
+	// ginprom.PromMiddleware(&ginprom.PromOpts{ExcludeRegexEndpoint: "^/prefix"})
+	router.Use(ginprom.PromMiddleware(nil))
+	apiGroup.GET("/metrics", ginprom.PromHandler(promhttp.Handler()))
 
 	// 添加审计查询接口
 	if isAudit {
