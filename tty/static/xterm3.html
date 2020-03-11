@@ -142,7 +142,7 @@
         convertEol: true, // 启用时，光标将设置为下一行的开头
         scrollback: 100, // 终端中的回滚量
         disableStdin: false, // 是否应禁用输入
-        fontSize: 12,
+        fontSize: 16,
         cursorBlink: true, // 光标闪烁
         cursorStyle: 'bar', // 光标样式 underline
         bellStyle: 'sound',
@@ -195,14 +195,14 @@
 
       {{if .Reconnect}}
         console.log("Recoonect Mode")
-        ws = new ReconnectingWebSocket('ws://' + window.location.host + '/api/ws')
+        ws = new ReconnectingWebSocket('ws://' + window.location.host + '/ws')
       {{- else}}
         console.log("Once Mode")
-        ws = new WebSocket('ws://' + window.location.host + '/api/ws')
+        ws = new WebSocket('ws://' + window.location.host + '/ws')
       {{- end}}
       
       ws.onopen = () => {
-        let rows = document.body.clientHeight / 12  - 5 
+        let rows = document.body.clientHeight / 16  - 5 
         let cols = document.body.clientWidth / 12
         console.log(rows,cols)
         ws.send('2{{ .Xsrf }}' + Base64.encode(parseInt(rows) + ':' + parseInt(cols)))

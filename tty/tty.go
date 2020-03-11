@@ -89,16 +89,12 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 	// 静态文件
 	// router.StaticFS("/static", http.Dir("./tty/static"))
 
-	router.GET("/", func(c *gin.Context) {
-		c.Redirect(http.StatusMovedPermanently, "/api/index")
-	})
-
 	var apiGroup *gin.RouterGroup
 	// 是否密码登录
 	if username == "" && password == "" {
-		apiGroup = router.Group("/api")
+		apiGroup = router.Group("/")
 	} else {
-		apiGroup = router.Group("/api", gin.BasicAuth(gin.Accounts{username: password}))
+		apiGroup = router.Group("/", gin.BasicAuth(gin.Accounts{username: password}))
 	}
 
 	// 添加审计查询接口
@@ -181,9 +177,9 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 
 	indexhtml.Add("index", t)
 	router.HTMLRender = indexhtml
-	apiGroup.GET("/index", func(c *gin.Context) {
+	apiGroup.GET("/", func(c *gin.Context) {
 		newXsrf := utils.GetRandomSalt()
-		xterm.XsrfToken.Store(newXsrf, time.Now().String())
+		xterm.XsrfToken.Store(fmt.Sprintf("%s%s", newXsrf, strings.Split(c.Request.RemoteAddr, ":")[0]), time.Now().String())
 		c.HTML(http.StatusOK, "index", gin.H{
 			"host":      c.Request.RemoteAddr,
 			"Reconnect": isReconnect,

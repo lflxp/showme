@@ -106,13 +106,14 @@ func (this *ClientContext) Send(quitChan chan bool) {
 }
 
 // xsrf验证
-func (this *ClientContext) ParseXsrf(info []byte) (string, bool) {
-	token := info[1:33]
-	if v, ok := this.Xtermjs.XsrfToken.Load(string(token)); ok {
-		log.Debugf("%s XsrfToken %s Created %s Message %s", this.Request.RemoteAddr, string(token), v.(string), string(info[33:]))
-		return string(info[33:]), true
+// token = xsrf + request.remoteAddr
+func (this *ClientContext) ParseXsrf(info []byte) (string, string, bool) {
+	token := fmt.Sprintf("%s%s", string(info[1:33]), strings.Split(this.Request.RemoteAddr, ":")[0])
+	if v, ok := this.Xtermjs.XsrfToken.Load(token); ok {
+		log.Debugf("%s XsrfToken %s Created %s Message %s", this.Request.RemoteAddr, string(info[1:33]), v.(string), string(info[33:]))
+		return token, string(info[33:]), true
 	}
-	return string(info[33:]), false
+	return token, string(info[33:]), false
 }
 
 // 获取用户发送命令
@@ -140,7 +141,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 			log.Debugf("Receive %s\n", string(message))
 
 			// Xsrf校验
-			msg, status := this.ParseXsrf(message)
+			cacheKey, msg, status := this.ParseXsrf(message)
 			if !status {
 				tmp := &Aduit{
 					Remoteaddr: this.Request.RemoteAddr,
@@ -156,6 +157,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 				this.write([]byte("\x1B[1;3;31mPermission Denied\x1B[0m\n"))
 				break
 			}
+			defer xterm.XsrfToken.Delete(cacheKey)
 
 			// 利用cache来计算命令，并写入数据库
 			// remoteAddr cmd 入库字段
