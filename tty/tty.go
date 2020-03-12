@@ -143,7 +143,9 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 		connects.Set(float64(conns))
 		if xterm.Options.MaxConnections != 0 {
 			if conns > xterm.Options.MaxConnections {
-				log.Printf("Max Connected: %d", xterm.Options.MaxConnections)
+				log.WithFields(log.Fields{
+					"tty.go": "147",
+				}).Printf("Max Connected: %d", xterm.Options.MaxConnections)
 				atomic.AddInt64(xterm.Connections, -1)
 				return
 			}
@@ -164,10 +166,10 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 		}
 
 		if xterm.Options.MaxConnections != 0 {
-			log.Printf("Command is running for client %s with PID %d (args=%q), connections: %d/%d",
+			log.WithField("tty.go", "169").Printf("Command is running for client %s with PID %d (args=%q), connections: %d/%d",
 				c.Request.RemoteAddr, cmd.Process.Pid, cmds, conns, xterm.Options.MaxConnections)
 		} else {
-			log.Printf("Command is running for client %s with PID %d (args=%q), connections: %d",
+			log.WithField("tty.go", "172").Printf("Command is running for client %s with PID %d (args=%q), connections: %d",
 				c.Request.RemoteAddr, cmd.Process.Pid, cmds, conns)
 		}
 
@@ -193,7 +195,7 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 	indexhtml := multitemplate.New()
 	xterm3, err := Asset("xterm3.html")
 	if err != nil {
-		log.Error(err.Error())
+		log.WithField("tty.go", "198").Error(err.Error())
 		return
 	}
 
@@ -207,7 +209,7 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 	router.HTMLRender = indexhtml
 	apiGroup.GET("/", func(c *gin.Context) {
 		newXsrf := utils.GetRandomSalt()
-		log.Debugf("%s xsrftoken %s", c.Request.RemoteAddr, newXsrf)
+		log.WithField("tty.go", "212").Debugf("%s xsrftoken %s", c.Request.RemoteAddr, newXsrf)
 		if !xterm.Options.Xsrf {
 			xterm.XsrfToken.Store(fmt.Sprintf("%s%s", newXsrf, strings.Split(c.Request.RemoteAddr, ":")[0]), time.Now().String())
 		}
@@ -244,28 +246,28 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 		// 	log.Fatal("Server Close:", err)
 		// }
 
-		log.Println("Shutdown Server ...")
+		log.WithField("tty.go", "249").Println("Shutdown Server ...")
 
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		if err := server.Shutdown(ctx); err != nil {
-			log.Fatal("Server Shutdown:", err)
+			log.WithField("tty.go", "254").Fatal("Server Shutdown:", err)
 		}
-		log.Println("Server exiting")
+		log.WithField("tty.go", "256").Println("Server exiting")
 	}()
 
 	ips := utils.GetIPs()
 	for _, ip := range ips {
-		log.Infof("Listening and serving HTTPS on %s:%s", ip, port)
+		log.WithField("tty.go", "261").Infof("Listening and serving HTTPS on %s:%s", ip, port)
 	}
 
 	if err := server.ListenAndServe(); err != nil {
 		if err == http.ErrServerClosed {
-			log.Println("Server closed under request")
+			log.WithField("tty.go", "266").Println("Server closed under request")
 		} else {
-			log.Fatal("Server closed unexpect", err.Error())
+			log.WithField("tty.go", "268").Fatal("Server closed unexpect", err.Error())
 		}
 	}
 
-	log.Println("Server exiting")
+	log.WithField("tty.go", "272").Println("Server exiting")
 }
