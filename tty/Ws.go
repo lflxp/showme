@@ -108,6 +108,7 @@ func (this *ClientContext) Send(quitChan chan bool) {
 // xsrf验证
 // token = xsrf + request.remoteAddr
 func (this *ClientContext) ParseXsrf(info []byte) (string, string, bool) {
+	log.Debugf("xsrf[111] before %s", string(info))
 	if len(info) < 34 {
 		return "", "", false
 	}
@@ -146,7 +147,12 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 			var msg string
 			// Xsrf校验
 			if !this.Xtermjs.Options.Xsrf {
-				cacheKey, msg, status := this.ParseXsrf(message)
+				var (
+					status   bool
+					cacheKey string
+				)
+				cacheKey, msg, status = this.ParseXsrf(message)
+				log.Debugf("xsrf[155] after %s %s %v", cacheKey, msg, status)
 				if !status {
 					tmp := &Aduit{
 						Remoteaddr: this.Request.RemoteAddr,
