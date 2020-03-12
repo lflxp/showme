@@ -96,14 +96,6 @@ func Cors(g *gocui.Gui) gin.HandlerFunc {
 }
 
 func serverGin(g *gocui.Gui) {
-	var staticUrl, indexUrl string
-	if isvideo {
-		staticUrl = "/static"
-		indexUrl = "/"
-	} else {
-		staticUrl = "/"
-		indexUrl = ""
-	}
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
@@ -116,6 +108,13 @@ func serverGin(g *gocui.Gui) {
 	router.Use(ginprom.PromMiddleware(nil))
 	router.GET("/metrics", ginprom.PromHandler(promhttp.Handler()))
 
+	router.GET("/", func(c *gin.Context) {
+		if isvideo {
+			c.Redirect(http.StatusMovedPermanently, "/video")
+		} else {
+			c.Redirect(http.StatusMovedPermanently, "/static")
+		}
+	})
 	// automatically add routers for net/http/pprof
 	// e.g. /debug/pprof, /debug/pprof/heap, etc.
 	ginpprof.Wrapper(router)
@@ -138,7 +137,7 @@ func serverGin(g *gocui.Gui) {
 		// )
 	}))
 
-	router.StaticFS(staticUrl, http.Dir(path))
+	router.StaticFS("/static", http.Dir(path))
 	// curl -X POST http://127.0.0.1:9090/upload -F "file=@/Users/lxp/123.mp4" -H "Content-Type:multipart/form-data"
 	router.POST("/upload", func(c *gin.Context) {
 		// 多文件
@@ -195,7 +194,7 @@ func serverGin(g *gocui.Gui) {
 		t, _ := template.New("index").Parse(htmlTemplate)
 		indexhtml.Add("index", t)
 		router.HTMLRender = indexhtml
-		router.GET(indexUrl, func(c *gin.Context) {
+		router.GET("/video", func(c *gin.Context) {
 			var currentPage int
 			page := c.DefaultQuery("page", "")
 			if page == "" {
