@@ -6,6 +6,8 @@ import (
 	"github.com/lflxp/showme/utils"
 )
 
+// TODO
+// cgo效率太低 后期转mmap或者bbolt
 type Aduit struct {
 	Id         int64     `json:"id"`
 	Remoteaddr string    `json:"remoteaddr" xorm:"varchar(40) notnull index"`

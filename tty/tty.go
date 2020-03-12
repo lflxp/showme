@@ -140,6 +140,7 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 	// 后端websocket服务
 	apiGroup.GET("/ws", func(c *gin.Context) {
 		conns := atomic.AddInt64(xterm.Connections, 1)
+		connects.Set(float64(conns))
 		if xterm.Options.MaxConnections != 0 {
 			if conns > xterm.Options.MaxConnections {
 				log.Printf("Max Connected: %d", xterm.Options.MaxConnections)

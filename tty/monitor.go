@@ -5,11 +5,18 @@ import (
 )
 
 var (
-	cpuTemp    prometheus.Gauge
-	hdFailures *prometheus.CounterVec
+	cpuTemp    prometheus.Gauge       // 数组
+	hdFailures *prometheus.CounterVec // 统计
+	connects   prometheus.Gauge
+	wsCounts   prometheus.CounterVec
+	cmdCounts  prometheus.CounterVec
 )
 
 func init() {
+	connects = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "ws_connect",
+		Help: "current websocket connections",
+	})
 	cpuTemp = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "cpu_temperature_celsius",
 		Help: "Current temperature of the CPU.",
