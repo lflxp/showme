@@ -13,6 +13,8 @@ import (
 	"syscall"
 	"unsafe"
 
+	"github.com/prometheus/client_golang/prometheus"
+
 	"github.com/gorilla/websocket"
 	"github.com/lflxp/showme/utils"
 	log "github.com/sirupsen/logrus"
@@ -94,6 +96,8 @@ func (this *ClientContext) Send(quitChan chan bool) {
 				return
 			}
 			log.WithField("Ws.go", "96").Debugf("Send Size: %d\n", size)
+			// prometheus 监控
+			wsCounts.With(prometheus.Labels{"send": "count"}).Inc()
 			// 将所有返回结果包括UTF8编码的内容用base64进行编码，client解码再显示，避免了直接UTF8编码传输的报错
 			// Could not decode a text frame as UTF-8 的解决
 			safeMessage := base64.StdEncoding.EncodeToString([]byte(buf[:size]))
@@ -226,7 +230,8 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 				if !this.Xtermjs.Options.PermitWrite {
 					break
 				}
-
+				// prometheus 监控
+				cmdCounts.With(prometheus.Labels{"receive": "count"}).Inc()
 				// base64解码
 				decode, err := utils.DecodeBase64Bytes(msg)
 				if err != nil {
