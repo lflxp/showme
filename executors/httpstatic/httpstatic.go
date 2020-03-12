@@ -13,10 +13,13 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/DeanThompson/ginpprof"
+	"github.com/chenjiandongx/ginprom"
 	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 	"github.com/jroimartin/gocui"
 	"github.com/lflxp/showme/utils"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var (
@@ -110,6 +113,12 @@ func serverGin(g *gocui.Gui) {
 	}))
 	// 使用 Recovery 中间件
 	router.Use(gin.Recovery())
+	router.Use(ginprom.PromMiddleware(nil))
+	router.GET("/metrics", ginprom.PromHandler(promhttp.Handler()))
+
+	// automatically add routers for net/http/pprof
+	// e.g. /debug/pprof, /debug/pprof/heap, etc.
+	ginpprof.Wrapper(router)
 
 	// LoggerWithFormatter 中间件会将日志写入 gin.DefaultWriter
 	// By default gin.DefaultWriter = os.Stdout
