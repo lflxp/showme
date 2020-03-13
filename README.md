@@ -48,6 +48,8 @@ Flags:
   -w, --write             is permit writ
 ```
 
+![](./tty.png)
+
 - gopacket
 
 ```
