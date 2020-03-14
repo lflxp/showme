@@ -216,7 +216,7 @@ func serverGin(g *gocui.Gui) {
 			}
 			pagestring := []string{}
 			for i := 1; i <= pages; i++ {
-				pagestring = append(pagestring, fmt.Sprintf("/?page=%d", i))
+				pagestring = append(pagestring, fmt.Sprintf("/video?page=%d", i))
 			}
 			if pageSize*currentPage < len(data)-1 {
 				c.HTML(http.StatusOK, "index", gin.H{"data": data[pageSize*(currentPage-1) : pageSize*currentPage], "pages": pagestring})
