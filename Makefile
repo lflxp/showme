@@ -49,6 +49,7 @@ clean:
 	rm -f *.key
 	rm -f *.csr
 	rm -f tls/*
+	rm -f *.tar.gz
 
 .PHONY: windows
 windows: asset

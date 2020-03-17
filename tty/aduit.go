@@ -27,9 +27,33 @@ func GetAduit(name string) ([]Aduit, error) {
 	var err error
 	data := make([]Aduit, 0)
 	if name == "" {
-		err = utils.Engine.Desc("created").Find(&data)
+		err = utils.Engine.Desc("created").Limit(200).Find(&data)
 	} else {
-		err = utils.Engine.Where("id = ? or remoteaddr = ? or  token = ?", name, name, name).Desc("created").Find(&data)
+		err = utils.Engine.Where("id = ? or remoteaddr = ? or  token = ?", name, name, name).Desc("created").Limit(200).Find(&data)
+	}
+	return data, err
+}
+
+// 记录谁来访问过
+type Whos struct {
+	Id         int64     `json:"id"`
+	Remoteaddr string    `json:"remoteaddr" xorm:"varchar(40)" notnull index`
+	Path       string    `json:"path" xorm:"varchar(20)"`
+	Created    time.Time `json:"created" xorm:"created"`
+}
+
+func AddWhos(data *Whos) error {
+	_, err := utils.Engine.Insert(data)
+	return err
+}
+
+func GetWhos(name string) ([]Whos, error) {
+	var err error
+	data := make([]Whos, 0)
+	if name == "" {
+		err = utils.Engine.Desc("created").Limit(200).Find(&data)
+	} else {
+		err = utils.Engine.Where("id = ? or remoteaddr = ? or  path = ?", name, name, name).Desc("created").Limit(200).Find(&data)
 	}
 	return data, err
 }

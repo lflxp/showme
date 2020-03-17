@@ -59,6 +59,7 @@ func ServeGin(host, port, username, password, crtpath, keypath string, cmds []st
 	if isAudit {
 		utils.InitSqlite()
 		utils.Engine.Sync2(new(Aduit))
+		utils.Engine.Sync2(new(Whos))
 	}
 
 	router := gin.Default()
@@ -135,8 +136,32 @@ func ServeGin(host, port, username, password, crtpath, keypath string, cmds []st
 	// 添加审计查询接口
 	if isAudit {
 		apiGroup.GET("/check", func(c *gin.Context) {
+			defer func() {
+				who := &Whos{
+					Remoteaddr: c.Request.RemoteAddr,
+					Path:       "/check",
+				}
+				AddWhos(who)
+			}()
 			name := c.DefaultQuery("name", "")
 			data, err := GetAduit(name)
+			if err != nil {
+				c.String(http.StatusOK, err.Error())
+			} else {
+				c.JSONP(http.StatusOK, data)
+			}
+		})
+
+		apiGroup.GET("/who", func(c *gin.Context) {
+			defer func() {
+				who := &Whos{
+					Remoteaddr: c.Request.RemoteAddr,
+					Path:       "/who",
+				}
+				AddWhos(who)
+			}()
+			name := c.DefaultQuery("name", "")
+			data, err := GetWhos(name)
 			if err != nil {
 				c.String(http.StatusOK, err.Error())
 			} else {
@@ -147,6 +172,15 @@ func ServeGin(host, port, username, password, crtpath, keypath string, cmds []st
 
 	// 后端websocket服务
 	apiGroup.GET("/ws", func(c *gin.Context) {
+		defer func() {
+			if isAudit {
+				who := &Whos{
+					Remoteaddr: c.Request.RemoteAddr,
+					Path:       "/ws",
+				}
+				AddWhos(who)
+			}
+		}()
 		conns := atomic.AddInt64(xterm.Connections, 1)
 		connects.Set(float64(conns))
 		if xterm.Options.MaxConnections != 0 {
@@ -216,6 +250,15 @@ func ServeGin(host, port, username, password, crtpath, keypath string, cmds []st
 	indexhtml.Add("index", t)
 	router.HTMLRender = indexhtml
 	apiGroup.GET("/", func(c *gin.Context) {
+		defer func() {
+			if isAudit {
+				who := &Whos{
+					Remoteaddr: c.Request.RemoteAddr,
+					Path:       "/",
+				}
+				AddWhos(who)
+			}
+		}()
 		var protocol string
 		if xterm.Options.EnableTLS && utils.IsPathExists(xterm.Options.CrtPath) && utils.IsPathExists(xterm.Options.KeyPath) {
 			protocol = "wss"
