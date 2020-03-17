@@ -26,6 +26,7 @@ gopacket: Makefile main.go asset
 # 静态文件转go二进制文件
 asset: bindata
 	cd tty/static && go-bindata -o=../asset.go -pkg=tty ./
+	cd executors/httpstatic/static && go-bindata -o=../asset.go -pkg=httpstatic ./
 
 run: main.go
 	go run main.go static ${n}
@@ -44,6 +45,7 @@ clean:
 	rm -f 123.mp4
 	rm -f 1.db
 	rm -f tty/asset.go
+	rm -f executors/httpstatic/asset.go
 	rm -f showme
 	rm -f *.crt
 	rm -f *.key

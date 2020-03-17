@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style type="text/css">
+li {
+	float: left;
+	display: inline;
+	list-style: none;
+	border: 0px solid #161EE8FF;
+	text-align: center;
+	line-height: 200px;
+	padding: 9px;
+	margin-top: 10px;
+	height: 220px;
+	width: 220px;
+	margin: 10 10px;
+}
+</style>
+</head>
+<body>
+<div id="nav">
+<ul>
+{{ range $src := .data }}
+<li><video src="{{ $src }}" controls="controls" height="200" width="200" preload="metadata" loop="loop">{{ $src }}</video></li>
+{{ end }}
+</ul>
+{{ .page }}
+<ul>
+{{ range $n,$page := .pages }}
+	<li><a href="{{$page}}" target="_self">{{ $n }}</a></li>
+{{ end }}
+</ul>
+</div>
+</body>
+</html>
