@@ -200,8 +200,8 @@
       {{- end}}
       
       ws.onopen = () => {
-        let rows = document.body.clientHeight / 18 
-        let cols = document.body.clientWidth / 12
+        let rows = document.body.clientHeight / 18 - 7
+        let cols = document.body.clientWidth / 14
         console.log(rows,cols)
         ws.send('2{{ .Xsrf }}' + Base64.encode(parseInt(rows) + ':' + parseInt(cols)))
       }
