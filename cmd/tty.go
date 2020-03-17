@@ -21,6 +21,9 @@ import (
 )
 
 var (
+	enableTLS      bool
+	crtPath        string
+	keyPath        string
 	isProf         bool
 	isXsrf         bool
 	isAudit        bool
@@ -31,6 +34,7 @@ var (
 	username       string
 	password       string
 	port           string
+	host           string
 )
 
 // ttyCmd represents the tty command
@@ -40,7 +44,7 @@ var ttyCmd = &cobra.Command{
 	Long: `showme tty [flags] [command] [args]
 eg: showme tty -w -r showme proxy http`,
 	Run: func(cmd *cobra.Command, args []string) {
-		tty.ServeGin(port, username, password, args, isDebug, isReconnect, isPermitWrite, isAudit, isXsrf, isProf, MaxConnections)
+		tty.ServeGin(host, port, username, password, crtPath, keyPath, args, isDebug, isReconnect, isPermitWrite, isAudit, isXsrf, isProf, enableTLS, MaxConnections)
 	},
 }
 
@@ -58,12 +62,16 @@ func init() {
 	// ttyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	ttyCmd.Flags().StringVarP(&username, "username", "u", "", "BasicAuth 用户名")
 	ttyCmd.Flags().StringVarP(&password, "password", "p", "", "BasicAuth 密码")
-	ttyCmd.Flags().StringVarP(&port, "port", "P", "8080", "http port")
+	ttyCmd.Flags().StringVarP(&host, "host", "H", "0.0.0.0", "http bind host")
+	ttyCmd.Flags().StringVarP(&port, "port", "P", "8080", "http bind port")
 	ttyCmd.Flags().BoolVarP(&isDebug, "debug", "d", false, "debug log mode")
 	ttyCmd.Flags().BoolVarP(&isReconnect, "reconnect", "r", false, "是否自动重连")
 	ttyCmd.Flags().BoolVarP(&isPermitWrite, "write", "w", false, "是否开启写入模式")
 	ttyCmd.Flags().BoolVarP(&isAudit, "audit", "a", false, "是否开启审计")
 	ttyCmd.Flags().BoolVarP(&isXsrf, "xsrf", "x", false, "是否开启xsrf,默认开启")
 	ttyCmd.Flags().BoolVarP(&isProf, "prof", "f", false, "是否开启pprof性能分析")
+	ttyCmd.Flags().BoolVarP(&enableTLS, "tls", "t", false, "是否开启https")
+	ttyCmd.Flags().StringVarP(&crtPath, "crt", "c", "./server.crt", "*.crt文件路径")
+	ttyCmd.Flags().StringVarP(&keyPath, "key", "k", "./server.key", "*.key文件路径")
 	ttyCmd.Flags().Int64VarP(&MaxConnections, "maxconnect", "m", 0, "最大连接数")
 }

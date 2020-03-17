@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/DeanThompson/ginpprof"
+	"github.com/unrolled/secure"
 
 	"github.com/chenjiandongx/ginprom"
 	assetfs "github.com/elazarl/go-bindata-assetfs"
@@ -44,7 +45,7 @@ var upGrader = websocket.Upgrader{
 	},
 }
 
-func ServeGin(port, username, password string, cmds []string, isdebug, isReconnect, isPermitWrite, isAudit, isXsrf, isProf bool, MaxConnections int64) {
+func ServeGin(host, port, username, password, crtpath, keypath string, cmds []string, isdebug, isReconnect, isPermitWrite, isAudit, isXsrf, isProf, enabletls bool, MaxConnections int64) {
 	if isdebug {
 		// 设置日志级别为warn以上
 		log.SetLevel(log.DebugLevel)
@@ -65,6 +66,10 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 	// 使用 Recovery 中间件
 	router.Use(gin.Recovery())
 
+	if enabletls {
+		router.Use(TlsHandler(host, port))
+	}
+
 	// 判断cmds输入，为空默认设置为bash
 	if len(cmds) == 0 {
 		cmds = append(cmds, "bash")
@@ -79,6 +84,9 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 			MaxConnections: MaxConnections,
 			Audit:          isAudit,
 			Xsrf:           isXsrf,
+			EnableTLS:      enabletls,
+			CrtPath:        crtpath,
+			KeyPath:        keypath,
 		},
 		Title:       "Showme",
 		Connections: &connections,
@@ -208,6 +216,12 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 	indexhtml.Add("index", t)
 	router.HTMLRender = indexhtml
 	apiGroup.GET("/", func(c *gin.Context) {
+		var protocol string
+		if xterm.Options.EnableTLS && utils.IsPathExists(xterm.Options.CrtPath) && utils.IsPathExists(xterm.Options.KeyPath) {
+			protocol = "wss"
+		} else {
+			protocol = "ws"
+		}
 		newXsrf := utils.GetRandomSalt()
 		log.WithField("tty.go", "212").Debugf("%s xsrftoken %s", c.Request.RemoteAddr, newXsrf)
 		if !xterm.Options.Xsrf {
@@ -222,6 +236,7 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 			"Conn":      *xterm.Connections + 1,
 			"Cmd":       strings.Join(cmds, " "),
 			"Xsrf":      newXsrf,
+			"Protocol":  protocol,
 		})
 	})
 
@@ -232,7 +247,7 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 	}
 
 	server := &http.Server{
-		Addr:    fmt.Sprintf("0.0.0.0:%s", port),
+		Addr:    fmt.Sprintf("%s:%s", host, port),
 		Handler: router,
 	}
 
@@ -256,18 +271,53 @@ func ServeGin(port, username, password string, cmds []string, isdebug, isReconne
 		log.WithField("tty.go", "256").Println("Server exiting")
 	}()
 
-	ips := utils.GetIPs()
-	for _, ip := range ips {
-		log.WithField("tty.go", "261").Infof("Listening and serving HTTPS on %s:%s", ip, port)
+	if host == "0.0.0.0" {
+		ips := utils.GetIPs()
+		for _, ip := range ips {
+			log.WithField("tty.go", "261").Infof("Listening and serving HTTPS on %s:%s", ip, port)
+		}
+	} else {
+		log.WithField("tty.go", "261").Infof("Listening and serving HTTPS on %s:%s", host, port)
 	}
 
-	if err := server.ListenAndServe(); err != nil {
-		if err == http.ErrServerClosed {
-			log.WithField("tty.go", "266").Println("Server closed under request")
+	if xterm.Options.EnableTLS {
+		if utils.IsPathExists(xterm.Options.CrtPath) && utils.IsPathExists(xterm.Options.KeyPath) {
+			if err := server.ListenAndServeTLS(xterm.Options.CrtPath, xterm.Options.KeyPath); err != nil {
+				if err == http.ErrServerClosed {
+					log.WithField("tty.go", "266").Println("Server closed under request")
+				} else {
+					log.WithField("tty.go", "268").Fatal("Server closed unexpect", err.Error())
+				}
+			}
 		} else {
-			log.WithField("tty.go", "268").Fatal("Server closed unexpect", err.Error())
+			log.WithField("tty.go", "277").Error("EnableTLS is true,but crt or key path is not exists")
+		}
+	} else {
+		if err := server.ListenAndServe(); err != nil {
+			if err == http.ErrServerClosed {
+				log.WithField("tty.go", "266").Println("Server closed under request")
+			} else {
+				log.WithField("tty.go", "268").Fatal("Server closed unexpect", err.Error())
+			}
 		}
 	}
 
 	log.WithField("tty.go", "272").Println("Server exiting")
+}
+
+func TlsHandler(host, port string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		secureMiddleware := secure.New(secure.Options{
+			SSLRedirect: true,
+			SSLHost:     fmt.Sprintf("%s:%s", host, port),
+		})
+		err := secureMiddleware.Process(c.Writer, c.Request)
+
+		// If there was an error, do not continue.
+		if err != nil {
+			return
+		}
+
+		c.Next()
+	}
 }

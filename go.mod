@@ -45,6 +45,7 @@ require (
 	github.com/spf13/viper v1.3.2
 	github.com/tatsushid/go-fastping v0.0.0-20160109021039-d7bb493dee3e
 	github.com/ugorji/go/codec v1.1.7
+	github.com/unrolled/secure v1.0.7
 	go.etcd.io/bbolt v1.3.3 // indirect
 	golang.org/x/net v0.0.0-20191004110552-13f9640d40b9
 	golang.org/x/text v0.3.2 // indirect

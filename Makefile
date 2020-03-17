@@ -45,7 +45,21 @@ clean:
 	rm -f 1.db
 	rm -f tty/asset.go
 	rm -f showme
+	rm -f *.crt
+	rm -f *.key
+	rm -f *.csr
+	rm -f tls/*
 
 .PHONY: windows
 windows: asset
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build
+
+.PHONY: crt csr key
+crt: csr
+	openssl x509 -req -sha256 -days 3650 -in tls/server.csr -signkey tls/server.key -out tls/server.crt
+
+csr: key
+	openssl req -nodes -new -key tls/server.key -subj "/CN=www.lflxp.cn" -out tls/server.csr
+
+key: clean
+	openssl genrsa -out tls/server.key 2048

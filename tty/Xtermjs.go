@@ -23,11 +23,13 @@ const (
 )
 
 type Options struct {
-	PermitWrite    bool
-	MaxConnections int64
-	CloseSignal    int
-	Audit          bool
-	Xsrf           bool
+	PermitWrite      bool
+	MaxConnections   int64
+	CloseSignal      int
+	Audit            bool
+	Xsrf             bool
+	EnableTLS        bool
+	CrtPath, KeyPath string
 }
 
 // 原本是命令端http server管理，这里后期可以改成gin server管理

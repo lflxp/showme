@@ -195,10 +195,10 @@
 
       {{if .Reconnect}}
         console.log("Recoonect Mode")
-        ws = new ReconnectingWebSocket('ws://' + window.location.host + '/ws')
+        ws = new ReconnectingWebSocket('{{.Protocol}}://' + window.location.host + '/ws')
       {{- else}}
         console.log("Once Mode")
-        ws = new WebSocket('ws://' + window.location.host + '/ws')
+        ws = new WebSocket('{{.Protocol}}://' + window.location.host + '/ws')
       {{- end}}
       
       ws.onopen = () => {
