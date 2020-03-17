@@ -48,6 +48,37 @@ Flags:
   -w, --write             is permit writ
 ```
 
+`注意`
+
+用systemctl进行部署的时候会报`TERM environment variable not set`，这个需要在service文件里面指定环境变量`TERM=xterm-256color`
+
+```
+root@8.8.8.8:/etc/systemd/system# cat showme.service 
+[Unit]
+Description=showme
+After=syslog.target
+After=network.target
+
+[Service]
+# Modify these two values and uncomment them if you have
+# repos with lots of files and get an HTTP error 500 because
+# of that
+###
+#LimitMEMLOCK=infinity
+#LimitNOFILE=65535
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/tls
+ExecStart=/usr/bin/showme tty -P 9999 -w -a -t -f -m 10 -u $user -p $pwd -c /tls/server.crt -k /tls/server.key
+# ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+Environment=USER=root HOME=/opt TERM=xterm-256color
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ![](./tty.png)
 
 - gopacket
