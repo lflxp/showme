@@ -14,14 +14,15 @@ import (
 	"time"
 
 	"github.com/DeanThompson/ginpprof"
+	"github.com/gin-contrib/multitemplate"
 	"github.com/unrolled/secure"
 
 	"github.com/chenjiandongx/ginprom"
 	assetfs "github.com/elazarl/go-bindata-assetfs"
-	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/kr/pty"
+	"github.com/lflxp/showme/executors/httpstatic"
 	"github.com/lflxp/showme/utils"
 	"github.com/prometheus/client_golang/prometheus/promhttp" // https://blog.csdn.net/u014029783/article/details/80001251 教程
 	log "github.com/sirupsen/logrus"
@@ -100,7 +101,13 @@ func ServeGin(host, port, username, password, crtpath, keypath string, cmds []st
 		Asset:    Asset,
 		AssetDir: AssetDir,
 	}
+
+	vue := assetfs.AssetFS{
+		Asset:    httpstatic.Asset,
+		AssetDir: httpstatic.AssetDir,
+	}
 	router.StaticFS("/static", &fs)
+	router.StaticFS("/dist", &vue)
 	// 静态文件
 	// router.StaticFS("/static", http.Dir("./tty/static"))
 
@@ -132,6 +139,38 @@ func ServeGin(host, port, username, password, crtpath, keypath string, cmds []st
 	// via an HTTP server. "/metrics" is the usual endpoint for that.
 	doMetrics()
 	apiGroup.GET("/metrics", ginprom.PromHandler(promhttp.Handler()))
+
+	// 添加html template
+	// 主页
+	// 从内存取出然后渲染加载
+	indexhtml := multitemplate.New()
+	xterm3, err := Asset("xterm3.html")
+	if err != nil {
+		log.WithField("tty.go", "198").Error(err.Error())
+		return
+	}
+
+	t, err := template.New("index").Parse(string(xterm3))
+	if err != nil {
+		log.Error(err.Error())
+		return
+	}
+
+	admin, err := Asset("admin.html")
+	if err != nil {
+		log.WithField("tty.go", "198").Error(err.Error())
+		return
+	}
+
+	ta, err := template.New("admin").Parse(string(admin))
+	if err != nil {
+		log.Error(err.Error())
+		return
+	}
+
+	indexhtml.Add("index", t)
+	indexhtml.Add("admin", ta)
+	router.HTMLRender = indexhtml
 
 	// 添加审计查询接口
 	if isAudit {
@@ -167,6 +206,17 @@ func ServeGin(host, port, username, password, crtpath, keypath string, cmds []st
 			} else {
 				c.JSONP(http.StatusOK, data)
 			}
+		})
+
+		apiGroup.GET("/admin", func(c *gin.Context) {
+			defer func() {
+				who := &Whos{
+					Remoteaddr: c.Request.RemoteAddr,
+					Path:       "/admin",
+				}
+				AddWhos(who)
+			}()
+			c.HTML(http.StatusOK, "admin", gin.H{})
 		})
 	}
 
@@ -232,23 +282,6 @@ func ServeGin(host, port, username, password, crtpath, keypath string, cmds []st
 		xterm.Server.WaitGo()
 	})
 
-	// 主页
-	// 从内存取出然后渲染加载
-	indexhtml := multitemplate.New()
-	xterm3, err := Asset("xterm3.html")
-	if err != nil {
-		log.WithField("tty.go", "198").Error(err.Error())
-		return
-	}
-
-	t, err := template.New("index").Parse(string(xterm3))
-	if err != nil {
-		log.Error(err.Error())
-		return
-	}
-
-	indexhtml.Add("index", t)
-	router.HTMLRender = indexhtml
 	apiGroup.GET("/", func(c *gin.Context) {
 		defer func() {
 			if isAudit {
@@ -259,11 +292,13 @@ func ServeGin(host, port, username, password, crtpath, keypath string, cmds []st
 				AddWhos(who)
 			}
 		}()
-		var protocol string
+		var protocol, httproto string
 		if xterm.Options.EnableTLS && utils.IsPathExists(xterm.Options.CrtPath) && utils.IsPathExists(xterm.Options.KeyPath) {
 			protocol = "wss"
+			httproto = "https"
 		} else {
 			protocol = "ws"
+			httproto = "http"
 		}
 		newXsrf := utils.GetRandomSalt()
 		log.WithField("tty.go", "212").Debugf("%s xsrftoken %s", c.Request.RemoteAddr, newXsrf)
@@ -280,6 +315,8 @@ func ServeGin(host, port, username, password, crtpath, keypath string, cmds []st
 			"Cmd":       strings.Join(cmds, " "),
 			"Xsrf":      newXsrf,
 			"Protocol":  protocol,
+			"Httproto":  httproto,
+			"isAduit":   isAudit,
 		})
 	})
 

@@ -27,9 +27,9 @@ func GetAduit(name string) ([]Aduit, error) {
 	var err error
 	data := make([]Aduit, 0)
 	if name == "" {
-		err = utils.Engine.Desc("created").Limit(200).Find(&data)
+		err = utils.Engine.Desc("created").Limit(300).Find(&data)
 	} else {
-		err = utils.Engine.Where("id = ? or remoteaddr = ? or  token = ?", name, name, name).Desc("created").Limit(200).Find(&data)
+		err = utils.Engine.Where("id = ? or remoteaddr = ? or  token = ?", name, name, name).Desc("created").Limit(300).Find(&data)
 	}
 	return data, err
 }
@@ -51,9 +51,9 @@ func GetWhos(name string) ([]Whos, error) {
 	var err error
 	data := make([]Whos, 0)
 	if name == "" {
-		err = utils.Engine.Desc("created").Limit(200).Find(&data)
+		err = utils.Engine.Desc("created").Limit(300).Find(&data)
 	} else {
-		err = utils.Engine.Where("id = ? or remoteaddr = ? or  path = ?", name, name, name).Desc("created").Limit(200).Find(&data)
+		err = utils.Engine.Where("id = ? or remoteaddr = ? or  path = ?", name, name, name).Desc("created").Limit(300).Find(&data)
 	}
 	return data, err
 }
