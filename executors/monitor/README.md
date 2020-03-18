@@ -1,7 +1,7 @@
 monitor Linux主机实时性能分析模块，提供多维数据汇总展示
 
-![](../../img/monitor1.png)
-![](../../img/monitor.png)
+![](https://github.com/lflxp/showme/blob/master/img/monitor1.png)
+![](https://github.com/lflxp/showme/blob/master/img/monitor.png)
 
 ## 特点
 

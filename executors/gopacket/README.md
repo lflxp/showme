@@ -6,7 +6,7 @@ using gopacket
 study gocui by github.com/miguelmota/cointop
 ```
 
-![](../../img/gopacket.png)
+![](https://github.com/lflxp/showme/blob/master/img/gopacket.png)
 
 ## Install
 

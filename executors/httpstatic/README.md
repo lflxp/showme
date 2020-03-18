@@ -2,7 +2,7 @@ static功能主要是快速启动一个http服务进行文件的传输，包括�
 
 目前static新增了视频模式，通过过滤常用的视频文件格式在前端通过video标签进行直接播放，本地离线视频服务。
 
-![](../../img/httpstatic.png)
+![](https://github.com/lflxp/showme/blob/master/img/httpstatic.png)
 
 ## 功能点
 

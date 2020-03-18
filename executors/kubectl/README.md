@@ -2,8 +2,8 @@ kubectl是k8s集群管理模块，提供GUI界面进行数据查询和资源操�
 
 `注意：因为kubernetes client_golang版本更新太频繁，接口参数异常，导致历史版本无法正常编译，暂时移出！！！`
 
-![s1.png](../../img/s1.png)
-![s2.png](../../img/s2.png)
+![s1.png](https://github.com/lflxp/showme/blob/master/img/s1.png)
+![s2.png](https://github.com/lflxp/showme/blob/master/img/s2.png)
 
 ## 功能点
 

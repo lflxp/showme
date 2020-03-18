@@ -16,31 +16,31 @@ showme -h
 
 * [【DONE】tty 【WEB TERMINIAL】](./tty/README.md)
 
-![](./img/tty.png)
+![](https://github.com/lflxp/showme/blob/master/img/tty.png)
 
 * [【DONE】gopacket 网络流量分析](./executors/gopacket/README.md)
 
-![](./img/gopacket.png)
+![](https://github.com/lflxp/showme/blob/master/img/gopacket.png)
 
 * [【DONE】monitor 监控展示](./executors/monitor/README.md)
 
-![monitor.png](./img/monitor.png)
+![monitor.png](https://github.com/lflxp/showme/blob/master/img/monitor.png)
 
 * [【DONE】mysql 数据库监控](./executors/mysql/README.md)
 
-![](./img/mysql2.png)
+![](https://github.com/lflxp/showme/blob/master/img/mysql2.png)
 
 * [【DONE】scan 扫描工具](./executors/scan/README.md)
 
-![](./img/scan.png)
+![](https://github.com/lflxp/showme/blob/master/img/scan.png)
 
 * [【DONE】static 文件传输](./httpstatic/README.md)
 
-![](./img/httpstatic.png)
+![](https://github.com/lflxp/showme/blob/master/img/httpstatic.png)
 
 * [【TO BE FIX】k8s 管理工具](./executors/kubectl/README.md)
 
-![s1.png](./img/s1.png)
+![s1.png](https://github.com/lflxp/showme/blob/master/img/s1.png)
 
 * [【TODO】proxy 代理工具](#PROXY)
   * http正向代理

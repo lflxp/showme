@@ -1,7 +1,7 @@
 mysql Orzdba go版本性能分析工具
 
-![](../../img/mysql.png)
-![](../../img/mysql2.png)
+![](https://github.com/lflxp/showme/blob/master/img/mysql.png)
+![](https://github.com/lflxp/showme/blob/master/img/mysql2.png)
 
 ## 特色
 

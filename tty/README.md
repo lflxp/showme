@@ -49,9 +49,9 @@ showme tty功能模块提供基于Web的Terminial工具，通过websocket实现�
     * vue
     * element-ui
 
-![主界面](../img/tty.png)
+![主界面](https://github.com/lflxp/showme/blob/master/img/tty.png)
 
-![后台界面](../img/ttyadmin.png)
+![后台界面](https://github.com/lflxp/showme/blob/master/img/ttyadmin.png)
 
 ## 安装
 

@@ -9,8 +9,8 @@ scan是扫描模块，提供：
     * 1-65535
 * 扫描结果展示
 
-![](../../img/scan1.png)
-![](../../img/scan.png)
+![](https://github.com/lflxp/showme/blob/master/img/scan1.png)
+![](https://github.com/lflxp/showme/blob/master/img/scan.png)
 
 ## 使用
 
