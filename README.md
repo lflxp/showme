@@ -4,245 +4,108 @@
 
 > 快速诊断系统状态工具（性能监控、网络扫描、mysql性能监控）
 
-# 环境准备
+# Install
 
-```
-go get github.com/jteeuwen/go-bindata/...
-go get github.com/elazarl/go-bindata-assetfs/...
-```
-
-# Usage
-
-tags:
-
-- tty
-
-> showme tty 是基于web的Terminal工具,提供后台可视化管理
-
-* 查看访问记录
-* 查看操作记录
-* 查看监控记录（prometheus metrics）
-* 全屏显示
-
-![](./img/ttyadmin.png)
-
-`安装`
-
-```
-git clone https://github.com/lflxp/showme
+```bash
+go get -u github.com/lflxp/showme
 make install
 showme -h
 ```
 
-`使用`
+# Module
 
-```
-showme tty [flags] [command] [args]
-eg: showme tty -w -r showme proxy http
-
-Usage:
-  showme tty [flags]
-
-Flags:
-  -a, --audit             是否开启审计
-  -c, --crt string        *.crt文件路径 (default "./server.crt")
-  -d, --debug             debug log mode
-  -h, --help              help for tty
-  -H, --host string       http bind host (default "0.0.0.0")
-  -k, --key string        *.key文件路径 (default "./server.key")
-  -m, --maxconnect int    最大连接数
-  -p, --password string   BasicAuth 密码
-  -P, --port string       http bind port (default "8080")
-  -f, --prof              是否开启pprof性能分析
-  -r, --reconnect         是否自动重连
-  -t, --tls               是否开启https
-  -u, --username string   BasicAuth 用户名
-  -w, --write             是否开启写入模式
-  -x, --xsrf              是否开启xsrf,默认开启
-
-Global Flags:
-      --config string   config file (default is $HOME/.showme.yaml)
-```
-
-`注意`
-
-用systemctl进行部署的时候会报`TERM environment variable not set`，这个需要在service文件里面指定环境变量`TERM=xterm-256color`
-
-```
-root@8.8.8.8:/etc/systemd/system# cat showme.service 
-[Unit]
-Description=showme
-After=syslog.target
-After=network.target
-
-[Service]
-# Modify these two values and uncomment them if you have
-# repos with lots of files and get an HTTP error 500 because
-# of that
-###
-#LimitMEMLOCK=infinity
-#LimitNOFILE=65535
-Type=simple
-User=root
-Group=root
-WorkingDirectory=/tls
-ExecStart=/usr/bin/showme tty -P 9999 -w -a -t -f -m 10 -u $user -p $pwd -c /tls/server.crt -k /tls/server.key
-# ExecReload=/bin/kill -s HUP $MAINPID
-Restart=always
-Environment=USER=root HOME=/opt TERM=xterm-256color
-
-[Install]
-WantedBy=multi-user.target
-```
-
-`功能界面`
+* [【DONE】tty 【WEB TERMINIAL】](./tty/README.md)
 
 ![](./img/tty.png)
 
-- gopacket
+* [【DONE】gopacket 网络流量分析](./executors/gopacket/README.md)
 
-```
-go get github.com/lflxp/showme
-go run main.go
-go build -tags=gopacket main.go
-```
+![](./img/gopacket.png)
 
-# Operation
-
-1. 命令提示
-
-- tty args...
-- monitor args...
-- dashboard args...
-- gocui active
-- gopacket args...
-- httpstatic
-- proxy
-  * http proxy
-  * https reverse proxy
-  * socket5 proxy
-  * mysql proxy
-  * shadowsocks-local & shadowsocks-server
-
-![command.png](./img/command.png)
-
-2. monitor 监控展示
+* [【DONE】monitor 监控展示](./executors/monitor/README.md)
 
 ![monitor.png](./img/monitor.png)
 
-- {Text: "-L", Description: "Print to Logfile. (default \"none\")"}
-- {Text: "-c", Description: "打印Cpu 信息负载信息"}
-- {Text: "-d", Description: "打印Disk info (default \"none\")"}
-- {Text: "-i", Description: "STRING 时间间隔 默认1秒 (default \"1\")"}
-- {Text: "-l", Description: "打印Load 信息"}
-- {Text: "-lazy", Description: "Print Info  (include -t,-l,-c,-s,-n)."}
-- {Text: "-n", Description: "打印net网络流量"}
-- {Text: "-N", Description: "打印net网络详细流量"}
-- {Text: "-s", Description: "打印swap 信息"}
-- {Text: "-t", Description: "打印当前时间"}
+* [【DONE】mysql 数据库监控](./executors/mysql/README.md)
 
-3. scan ip and port
+![](./img/mysql2.png)
 
-![scan.png](./img/scan.png)
+* [【DONE】scan 扫描工具](./executors/scan/README.md)
 
-- Tab: Next View
-- Enter: Select IP/Commit Input
-- F5: Input New Scan IP or Port range
-- ↑ ↓: Move View
-- ^c: Exit
-- F1: Help
-- Space: search result with ip view and port view
+![](./img/scan.png)
 
-4. static http server
-
-static功能主要是快速启动一个http服务进行文件的传输，包括文件上传和下载，摆脱无工具可用的尴尬境地。
-
-目前static新增了视频模式，通过过滤常用的视频文件格式在前端通过video标签进行直接播放，本地离线视频服务。
-
-`优化`
-
-* web页面进行全功能操作
-* web页面进行文件下载
-* web页面进行上传（无curl命令操作，方便快捷）
-* web页面查看监控指标，可对接prometheus server监控
-* web视频文件直接加载观看功能
+* [【DONE】static 文件传输](./httpstatic/README.md)
 
 ![](./img/httpstatic.png)
 
-> showme static -h
-
-```
-通过本地http服务进行简单的文件传输和文件展示
-
-Usage:
-  showme static [flags]
-
-Flags:
-  -h, --help           help for static
-  -c, --pagesize int   每页显示视频数 (default 20)
-  -f, --path string    加载目录 (default "./")
-  -p, --port string    服务端口 (default "9090")
-  -t, --types string   过滤视频类型，多个用逗号隔开 (default ".avi,.wma,.rmvb,.rm,.mp4,.mov,.3gp,.mpeg,.mpg,.mpe,.m4v,.mkv,.flv,.vob,.wmv,.asf,.asx")
-  -v, --video          是否切换为视频模式
-
-Global Flags:
-      --config string   config file (default is $HOME/.showme.yaml)
-```      
-
-- port: static http port, default: 9090
-
-5. gopacket 网络流量监控
-
-command: 
-- gopacket interface eth0
-- gopacket screen eth0
-
-> TIPS: 条件编译，需要该功能需要在build的指定tags
-> eg: go build -tags=gopacket main.go
-
-6. kubectl
+* [【TO BE FIX】k8s 管理工具](./executors/kubectl/README.md)
 
 ![s1.png](./img/s1.png)
-![s2.png](./img/s2.png)
 
-feature:
-- dashboard
-- pod
-- deployment
-- service
-- nodes
+* [【TODO】proxy 代理工具](#PROXY)
+  * http正向代理
+  * http 反向代理
+  * mysql tcp代理（负载均衡、读写分离、分布式调度）
+  * socket5 代理
+  * ss fq代理
+  * ss server
 
-function:
-- describe
-- delete
-- search
-- logs
+* [【TODO】playbook 任务编排工具](#PLAYBOOK)
 
-todo:
-- side menu
-- top five view table
-- bottom one detail view
-- like kubernetes dashboard
+* [【TODO】nmap 高级扫描工具](#NMAP)
 
-# feature
+## NMAP
 
-1. 非网络连接
-2. 非vue类界面操作
-3. 速度
-4. 本地性能、监控、操作
-5. 快速定位
-6. command visio
-7. 网络监听（原始报文解析和展示）
-8. web terminial
-9. 快速文件传输
+基于优秀的nmap工具进行封装，采用`gin`+`api`+`restful`+`remote`的方式进行远程调用。
 
-# functions
+## PLAYBOOK
+
+基于Ansible-playbook开发的Go原型工具，`功能特点`有：
+
+> showme playbook
+
+* RPC远程操作
+* Yaml Template
+* Go Template
+* Plugin Register
+* Mini CMDB Required
+
+## PROXY
+
+基于GOLANG的各种代理工具，处于测试阶段。
+
+`Usage`
+
+```bash
+➜  showme git:(master) ✗ showme proxy -h  
+* http正向代理
+* http 反向代理
+* mysql tcp代理（负载均衡、读写分离、分布式调度）
+* socket5 代理
+* ss fq代理
+
+Usage:
+  showme proxy [command]
+
+Available Commands:
+  http        http正向代理
+  httpreverse http反向代理
+  mysql       mysql proxy
+  socket5     socket5 http代理服务器
+  ss          shadowsocks
+```  
+
+# Technology Stack
 
 1. go-prompt
 2. gocui/tcell/tview/ncurses/goncurses
 3. 提示选项分为两种： 一、命令参数 dashboard status 二、配置参数 dashboard --status
 4. github.com/jroimartin/gocui
 5. github.com/gdamore/tcell
+6. vue 【Element-UI】
+7. websocket
+8. gin web api
+9. yaml
 
 # 新增操作
 
@@ -256,11 +119,8 @@ todo:
 
 https://blog.csdn.net/lengyuezuixue/article/details/79664409
 
-# todo
+# TODO
 
-- mysql 解析
-- 微服务管理和功能测试
-- 修复自动刷新全部跳转到deployment的错误
 - 结合GuiLite进行美化
 - tty 添加install自动部署systemctl服务的功能
 - 对接Mini CMDB
