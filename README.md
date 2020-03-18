@@ -17,7 +17,14 @@ tags:
 
 - tty
 
-> showme tty 是基于web的Terminal工具
+> showme tty 是基于web的Terminal工具,提供后台可视化管理
+
+* 查看访问记录
+* 查看操作记录
+* 查看监控记录（prometheus metrics）
+* 全屏显示
+
+![](./img/ttyadmin.png)
 
 `安装`
 
@@ -37,15 +44,24 @@ Usage:
   showme tty [flags]
 
 Flags:
-  -a, --audit             is audit
+  -a, --audit             是否开启审计
+  -c, --crt string        *.crt文件路径 (default "./server.crt")
   -d, --debug             debug log mode
   -h, --help              help for tty
-  -m, --maxconnect int    max connect number
+  -H, --host string       http bind host (default "0.0.0.0")
+  -k, --key string        *.key文件路径 (default "./server.key")
+  -m, --maxconnect int    最大连接数
   -p, --password string   BasicAuth 密码
-  -P, --port string       http port (default "8080")
-  -r, --reconnect         is auto reconnect
+  -P, --port string       http bind port (default "8080")
+  -f, --prof              是否开启pprof性能分析
+  -r, --reconnect         是否自动重连
+  -t, --tls               是否开启https
   -u, --username string   BasicAuth 用户名
-  -w, --write             is permit writ
+  -w, --write             是否开启写入模式
+  -x, --xsrf              是否开启xsrf,默认开启
+
+Global Flags:
+      --config string   config file (default is $HOME/.showme.yaml)
 ```
 
 `注意`
@@ -79,7 +95,9 @@ Environment=USER=root HOME=/opt TERM=xterm-256color
 WantedBy=multi-user.target
 ```
 
-![](./tty.png)
+`功能界面`
+
+![](./img/tty.png)
 
 - gopacket
 
@@ -106,11 +124,11 @@ go build -tags=gopacket main.go
   * mysql proxy
   * shadowsocks-local & shadowsocks-server
 
-![command.png](https://github.com/lflxp/showme/blob/master/command.png)
+![command.png](./img/command.png)
 
 2. monitor 监控展示
 
-![monitor.png](https://github.com/lflxp/showme/blob/master/monitor.png)
+![monitor.png](./img/monitor.png)
 
 - {Text: "-L", Description: "Print to Logfile. (default \"none\")"}
 - {Text: "-c", Description: "打印Cpu 信息负载信息"}
@@ -125,7 +143,7 @@ go build -tags=gopacket main.go
 
 3. scan ip and port
 
-![scan.png](https://github.com/lflxp/showme/blob/master/scan.png)
+![scan.png](./img/scan.png)
 
 - Tab: Next View
 - Enter: Select IP/Commit Input
@@ -137,9 +155,19 @@ go build -tags=gopacket main.go
 
 4. static http server
 
-static功能主要是快速启动一个http服务进行文件的传输，包括文件上传和下载，拜托无工具可用的尴尬境地。
+static功能主要是快速启动一个http服务进行文件的传输，包括文件上传和下载，摆脱无工具可用的尴尬境地。
 
 目前static新增了视频模式，通过过滤常用的视频文件格式在前端通过video标签进行直接播放，本地离线视频服务。
+
+`优化`
+
+* web页面进行全功能操作
+* web页面进行文件下载
+* web页面进行上传（无curl命令操作，方便快捷）
+* web页面查看监控指标，可对接prometheus server监控
+* web视频文件直接加载观看功能
+
+![](./img/httpstatic.png)
 
 > showme static -h
 
@@ -174,8 +202,8 @@ command:
 
 6. kubectl
 
-![s1.png](https://github.com/lflxp/showme/blob/master/s1.png)
-![s2.png](https://github.com/lflxp/showme/blob/master/s2.png)
+![s1.png](./img/s1.png)
+![s2.png](./img/s2.png)
 
 feature:
 - dashboard
@@ -232,13 +260,10 @@ https://blog.csdn.net/lengyuezuixue/article/details/79664409
 
 - mysql 解析
 - 微服务管理和功能测试
-- 日志系统 @[logrus](https://github.com/sirupsen/logrus)
 - 修复自动刷新全部跳转到deployment的错误
-- 添加pod和deployment手动刷新数据的错误
-- 考虑是否取消自动刷新的功能或者优化自动查询效率
-- web terminial 前端界面优化
 - 结合GuiLite进行美化
 - tty 添加install自动部署systemctl服务的功能
+- 对接Mini CMDB
 
 # k8s resource list
 
