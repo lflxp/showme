@@ -18,7 +18,8 @@
             <el-tooltip class="item" effect="dark" content="下载文件【/static】" placement="right">
                 <i class="el-icon-download"></i> 
             </el-tooltip></span>
-			<iframe src="/static" ref="iframe" width="100%" :height="clientHeight" frameborder="0" scrolling="yes"></iframe>
+			<el-page-header @back="goBack" :content="afterUrl"></el-page-header>
+			<iframe src="/static" ref="iframe"  @load="geturl" id="static" width="100%" :height="clientHeight" frameborder="0" scrolling="yes"></iframe>
 		</el-tab-pane>
 		<el-tab-pane><span slot="label">
             <el-tooltip class="item" effect="dark" content="上传文件【/upload】" placement="right">
@@ -61,6 +62,8 @@
 				drawer: false,
 				isCollapse: true,
 				video: {{ .isVideo}},
+				beforeUrl: '',
+				afterUrl: '',
 				clientHeight: document.documentElement.clientHeight - 20
 			}
 		},
@@ -69,9 +72,18 @@
 			window.onresize = function () {
 				self.clientHeight = document.documentElement.clientHeight - 20;
 			};
-			window.onresize();
+			window.onresize()
 		},
 		methods: {
+			goBack() {
+				window.history.back(-1)
+				this.geturl()
+			},
+			geturl() {
+				this.beforeUrl = this.afterUrl
+				this.afterUrl = document.getElementById('static').contentWindow.location.href.replace(window.location.href+'static','')
+				// console.log(document.getElementById('static').contentWindow.location.href)
+			},
 			handleOpen(key, keyPath) {
 			  console.log(key, keyPath);
 			},
