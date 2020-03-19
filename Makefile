@@ -10,12 +10,12 @@ pull:
 	git pull origin $(shell git branch|grep '*'|awk '{print $$2}')
 
 build: Makefile main.go asset
-	go build -tags=gopacket
+	go build
 	chmod +x showme 
 	./showme -h
 
 install: Makefile main.go asset
-	go install -tags=gopacket
+	go install
 	showme -h
 
 gopacket: Makefile main.go asset
