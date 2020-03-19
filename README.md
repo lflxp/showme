@@ -44,7 +44,7 @@ showme -h
 
 * [bolt 快速RESTFUL API](./boltapi/README.md)
 
-![](https://github.com/lflxp/showme/blob/master/img/boltapi.png)
+![](../img/boltapi.png)
 
 * [【TODO】proxy 代理工具](#PROXY)
   * http正向代理
