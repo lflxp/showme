@@ -9,12 +9,10 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/asdine/storm/v3 v3.1.0
 	github.com/astaxie/beego v1.11.1
-	github.com/boltdb/bolt v1.3.1
 	github.com/c-bata/go-prompt v0.2.3
 	github.com/chenjiandongx/ginprom v0.0.0-20191227144730-e11ebf56bc05
 	github.com/coreos/bbolt v1.3.2
 	github.com/elazarl/go-bindata-assetfs v1.0.0
-	github.com/etcd-io/bbolt v1.3.3
 	github.com/gin-contrib/multitemplate v0.0.0-20200226145339-3e397ee01bc6
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-ole/go-ole v1.2.4 // indirect
@@ -55,7 +53,6 @@ require (
 	github.com/unrolled/secure v1.0.7
 	go.etcd.io/bbolt v1.3.3
 	golang.org/x/net v0.0.0-20191105084925-a882066a44e0
-	golang.org/x/text v0.3.2 // indirect
 	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce // indirect
 )
 

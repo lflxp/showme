@@ -1,10 +1,26 @@
 # github.com/DeanThompson/ginpprof v0.0.0-20190408063150-3be636683586
 github.com/DeanThompson/ginpprof
+# github.com/KyleBanks/depth v1.2.1
+github.com/KyleBanks/depth
+# github.com/PuerkitoBio/purell v1.1.1
+github.com/PuerkitoBio/purell
+# github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578
+github.com/PuerkitoBio/urlesc
 # github.com/StackExchange/wmi v0.0.0-20181212234831-e0a55b97c705
 github.com/StackExchange/wmi
 # github.com/aead/chacha20 v0.0.0-20180709150244-8b13a72661da
 github.com/aead/chacha20
 github.com/aead/chacha20/chacha
+# github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
+github.com/alecthomas/template
+github.com/alecthomas/template/parse
+# github.com/asdine/storm/v3 v3.1.0
+github.com/asdine/storm/v3
+github.com/asdine/storm/v3/codec
+github.com/asdine/storm/v3/codec/json
+github.com/asdine/storm/v3/index
+github.com/asdine/storm/v3/internal
+github.com/asdine/storm/v3/q
 # github.com/astaxie/beego v1.11.1
 github.com/astaxie/beego
 github.com/astaxie/beego/config
@@ -41,6 +57,14 @@ github.com/gin-gonic/gin/render
 # github.com/go-ole/go-ole v1.2.4
 github.com/go-ole/go-ole
 github.com/go-ole/go-ole/oleutil
+# github.com/go-openapi/jsonpointer v0.19.3
+github.com/go-openapi/jsonpointer
+# github.com/go-openapi/jsonreference v0.19.3
+github.com/go-openapi/jsonreference
+# github.com/go-openapi/spec v0.19.4
+github.com/go-openapi/spec
+# github.com/go-openapi/swag v0.19.5
+github.com/go-openapi/swag
 # github.com/go-playground/locales v0.12.1
 github.com/go-playground/locales
 github.com/go-playground/locales/currency
@@ -87,7 +111,7 @@ github.com/json-iterator/go
 github.com/juju/errors
 # github.com/konsorten/go-windows-terminal-sequences v1.0.2
 github.com/konsorten/go-windows-terminal-sequences
-# github.com/kr/pty v1.1.1
+# github.com/kr/pty v1.1.5
 github.com/kr/pty
 # github.com/leodido/go-urn v1.1.0
 github.com/leodido/go-urn
@@ -95,6 +119,10 @@ github.com/leodido/go-urn
 github.com/lflxp/goproxys/protocol
 # github.com/magiconair/properties v1.8.0
 github.com/magiconair/properties
+# github.com/mailru/easyjson v0.0.0-20190626092158-b2ccc519800e
+github.com/mailru/easyjson/buffer
+github.com/mailru/easyjson/jlexer
+github.com/mailru/easyjson/jwriter
 # github.com/mattn/go-colorable v0.1.1
 github.com/mattn/go-colorable
 # github.com/mattn/go-isatty v0.0.9
@@ -163,19 +191,27 @@ github.com/spf13/jwalterweatherman
 github.com/spf13/pflag
 # github.com/spf13/viper v1.3.2
 github.com/spf13/viper
+# github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
+github.com/swaggo/files
+# github.com/swaggo/gin-swagger v1.2.0
+github.com/swaggo/gin-swagger
+# github.com/swaggo/swag v1.6.5
+github.com/swaggo/swag
 # github.com/tatsushid/go-fastping v0.0.0-20160109021039-d7bb493dee3e
 github.com/tatsushid/go-fastping
 # github.com/ugorji/go/codec v1.1.7
 github.com/ugorji/go/codec
 # github.com/unrolled/secure v1.0.7
 github.com/unrolled/secure
-# golang.org/x/crypto v0.0.0-20190513172903-22d7a77e9e5f
+# go.etcd.io/bbolt v1.3.3
+go.etcd.io/bbolt
+# golang.org/x/crypto v0.0.0-20190611184440-5c40567a22f8
 golang.org/x/crypto/acme
 golang.org/x/crypto/acme/autocert
 golang.org/x/crypto/blowfish
 golang.org/x/crypto/cast5
 golang.org/x/crypto/salsa20/salsa
-# golang.org/x/net v0.0.0-20191004110552-13f9640d40b9
+# golang.org/x/net v0.0.0-20191105084925-a882066a44e0
 golang.org/x/net/bpf
 golang.org/x/net/icmp
 golang.org/x/net/idna
@@ -183,6 +219,8 @@ golang.org/x/net/internal/iana
 golang.org/x/net/internal/socket
 golang.org/x/net/ipv4
 golang.org/x/net/ipv6
+golang.org/x/net/webdav
+golang.org/x/net/webdav/internal/xml
 golang.org/x/net/websocket
 # golang.org/x/sys v0.0.0-20200122134326-e047566fdf82
 golang.org/x/sys/cpu
@@ -193,7 +231,13 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
-# google.golang.org/appengine v1.6.0
+golang.org/x/text/width
+# golang.org/x/tools v0.0.0-20190614205625-5aca471b1d59
+golang.org/x/tools/go/ast/astutil
+golang.org/x/tools/go/buildutil
+golang.org/x/tools/go/internal/cgo
+golang.org/x/tools/go/loader
+# google.golang.org/appengine v1.6.5
 google.golang.org/appengine/cloudsql
 # gopkg.in/go-playground/validator.v9 v9.29.1
 gopkg.in/go-playground/validator.v9
