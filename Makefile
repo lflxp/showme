@@ -1,4 +1,4 @@
-.PHONY: push pull install run clean asset tty build gopacket bindata
+.PHONY: push pull install run clean asset tty build gopacket bindata swag
 
 # 默认位置 以后都保持不变
 push: asset pull
@@ -9,16 +9,17 @@ push: asset pull
 pull:
 	git pull origin $(shell git branch|grep '*'|awk '{print $$2}')
 
-build: Makefile main.go asset
+build: Makefile main.go asset swag
 	go build
 	chmod +x showme 
 	./showme -h
 
-install: Makefile main.go asset
+install: Makefile main.go asset swag
 	go install
 	showme -h
 
 gopacket: Makefile main.go asset
+	@echo please install pcap first
 	go build -tags=gopacket
 	chmod +x showme 
 	./showme -h
@@ -27,6 +28,10 @@ gopacket: Makefile main.go asset
 asset: bindata
 	cd tty/static && go-bindata -o=../asset.go -pkg=tty ./
 	cd executors/httpstatic/static && go-bindata -o=../asset.go -pkg=httpstatic ./
+	cd boltapi/static && go-bindata -o=../asset.go -pkg=boltapi ./
+
+swag:
+	cd boltapi && swag init
 
 run: main.go
 	go run main.go static ${n}
