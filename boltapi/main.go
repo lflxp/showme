@@ -109,6 +109,13 @@ func Api(host, port string, stats bool) {
 
 	r.StaticFS("/dist", &fs)
 
+	icon := assetfs.AssetFS{
+		Asset:    Asset,
+		AssetDir: AssetDir,
+	}
+
+	r.StaticFS("/static", &icon)
+
 	htmlTemplate, err := Asset("main.html")
 	if err != nil {
 		panic(err)

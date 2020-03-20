@@ -2,7 +2,7 @@ definitions:
   boltapi.TimeSeries:
     properties:
       created:
-        type: integer
+        type: string
       data:
         additionalProperties:
           type: string

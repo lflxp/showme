@@ -13,7 +13,7 @@ type TimeSeries struct {
 	ID      int               `storm:"id,increment"`
 	Name    string            `json:"name" storm:"index"`
 	Data    map[string]string `json:"data"`
-	Created int64             `storm:"index"`
+	Created string            `storm:"index"`
 }
 
 func (this *TimeSeries) Save() error {
@@ -80,7 +80,8 @@ func AddOrm(c *gin.Context) {
 	if err != nil {
 		c.JSONP(http.StatusBadRequest, err.Error())
 	} else {
-		temp.Created = time.Now().UnixNano()
+		// temp.Created = time.Now().UnixNano()
+		temp.Created = time.Now().Format("20060102150405")
 		err := temp.Save()
 		if err != nil {
 			c.JSONP(http.StatusOK, err.Error())

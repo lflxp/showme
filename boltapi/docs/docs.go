@@ -440,7 +440,7 @@ var doc = `{
             "type": "object",
             "properties": {
                 "created": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "data": {
                     "type": "object",

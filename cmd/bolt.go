@@ -28,14 +28,11 @@ var (
 
 // boltCmd represents the bolt command
 var boltCmd = &cobra.Command{
-	Use:   "bolt",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "api",
+	Short: "快速本地DB CRUD API",
+	Long: `1. 基于bolt+gin+swagger+web的简洁RESTFUL API服务
+2. 提供本地监控数据、外部服务数据的存储和查询功能
+3. 提供针对时间范围搜索的类时序数据库功能`,
 	Run: func(cmd *cobra.Command, args []string) {
 		boltapi.Api(bhost, bport, stats)
 	},
