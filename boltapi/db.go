@@ -17,7 +17,7 @@ func init() {
 		panic(err)
 	}
 
-	boltDB, err = storm.Open(fmt.Sprintf("%s/showme.bolt", homepath))
+	boltDB, err = storm.Open(fmt.Sprintf("%s/.showme.bolt", homepath))
 	if err != nil {
 		panic(err)
 	}
