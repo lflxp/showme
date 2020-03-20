@@ -18,11 +18,11 @@ install: Makefile main.go asset swag
 	go install
 	showme -h
 
-gopacket: Makefile main.go asset
+gopacket: Makefile main.go asset swag
 	@echo please install pcap first
-	go build -tags=gopacket
-	chmod +x showme 
-	./showme -h
+	@echo yum install libpcap-devel
+	go install -tags=gopacket
+	showme -h
 
 # 静态文件转go二进制文件
 asset: bindata

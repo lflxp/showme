@@ -46,3 +46,7 @@ TODO：基于Value的时序字段检索
 基于gin-swagger提供的api接口可视化界面
 
 ![](https://github.com/lflxp/showme/blob/master/img/b3.png)
+
+# 造数据
+
+> while true;do curl -X POST "http://127.0.0.1:8080/api/v1/key/add/monitor/$RANDOM/$RANDOM" -H "accept: application/json";done

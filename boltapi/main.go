@@ -10,19 +10,24 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/asdine/storm/v3"
 	"github.com/chenjiandongx/ginprom"
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lflxp/showme/boltapi/docs"
 	"github.com/lflxp/showme/executors/httpstatic"
+	"github.com/lflxp/showme/utils"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-var HtmlTemp multitemplate.Render
+var (
+	HtmlTemp multitemplate.Render
+	boltDB   *storm.DB
+)
 
 // 跨域设置
 func Cors() gin.HandlerFunc {
@@ -66,6 +71,7 @@ func Cors() gin.HandlerFunc {
 }
 
 func Api(host, port string, stats bool) {
+	boltDB = utils.NewBolt()
 	defer boltDB.Close()
 	if stats {
 		// Statistics

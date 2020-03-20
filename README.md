@@ -58,6 +58,20 @@ showme -h
 
 * [【TODO】nmap 高级扫描工具](#NMAP)
 
+* [【TODO】SFLOW网络流量分析](#SFLOW)
+
+![](https://github.com/lflxp/showme/blob/master/img/sflow1.png)
+
+![](https://github.com/lflxp/showme/blob/master/img/sflow2.png)
+
+`安装`
+
+> make gopacket
+
+* [【TODO】BENCHMARK性能测试](#benchmark)
+
+* [【TODO】HTTPMEASURE网络质量分析](#HTTPMEASURE)
+
 ## NMAP
 
 基于优秀的nmap工具进行封装，采用`gin`+`api`+`restful`+`remote`的方式进行远程调用。

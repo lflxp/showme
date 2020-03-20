@@ -24,7 +24,7 @@ import (
 // playbookCmd represents the playbook command
 var playbookCmd = &cobra.Command{
 	Use:   "playbook",
-	Short: "A brief description of your command",
+	Short: "批量主机任务编排脚本执行器",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 

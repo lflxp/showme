@@ -12,13 +12,19 @@ require (
 	github.com/c-bata/go-prompt v0.2.3
 	github.com/chenjiandongx/ginprom v0.0.0-20191227144730-e11ebf56bc05
 	github.com/coreos/bbolt v1.3.2
+	github.com/coreos/go-etcd v2.0.0+incompatible // indirect
+	github.com/cpuguy83/go-md2man v1.0.10 // indirect
+	github.com/elastic/beats v7.6.1+incompatible // indirect
+	github.com/elastic/go-sysinfo v1.3.0 // indirect
+	github.com/elastic/go-ucfg v0.8.3 // indirect
 	github.com/elazarl/go-bindata-assetfs v1.0.0
 	github.com/gin-contrib/multitemplate v0.0.0-20200226145339-3e397ee01bc6
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/go-xorm/xorm v0.7.1
-	github.com/google/gopacket v1.1.16
+	github.com/gofrs/uuid v3.2.0+incompatible // indirect
+	github.com/google/gopacket v1.1.17
 	github.com/gorilla/websocket v1.4.1
 	github.com/jroimartin/gocui v0.4.0
 	github.com/jteeuwen/go-bindata v3.0.7+incompatible // indirect
@@ -28,6 +34,7 @@ require (
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kr/pty v1.1.5
 	github.com/lflxp/goproxys v0.0.0-20200308164541-294d52d6ffa9
+	github.com/lflxp/sflowtool v0.0.0-20200320153314-630933f4918a
 	github.com/mattn/go-colorable v0.1.1 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/mattn/go-sqlite3 v1.10.0
@@ -42,9 +49,9 @@ require (
 	github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4 // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/afero v1.2.2 // indirect
-	github.com/spf13/cobra v0.0.4
+	github.com/spf13/cobra v0.0.6
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.3.2
+	github.com/spf13/viper v1.4.0
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.5
@@ -52,8 +59,10 @@ require (
 	github.com/ugorji/go/codec v1.1.7
 	github.com/unrolled/secure v1.0.7
 	go.etcd.io/bbolt v1.3.3
+	go.uber.org/zap v1.14.1 // indirect
 	golang.org/x/net v0.0.0-20191105084925-a882066a44e0
 	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce // indirect
+	gopkg.in/olivere/elastic.v5 v5.0.84 // indirect
 )
 
 replace github.com/ugorji/go v1.1.4 => github.com/ugorji/go/codec v0.0.0-20190204201341-e444a5086c43
