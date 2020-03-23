@@ -16,6 +16,7 @@ require (
 	github.com/lflxp/goproxys v0.0.0-20200308164541-294d52d6ffa9
 	github.com/lflxp/lflxp-api v0.0.0-20200323063154-619ec5845ffa
 	github.com/lflxp/lflxp-monitor v0.0.0-20200323111401-5aff81ef4fa3
+	github.com/lflxp/lflxp-orzdba v0.0.0-20200323151836-eee154e8db7a
 	github.com/lflxp/lflxp-scan v0.0.0-20200323114511-9ac561b61f89
 	github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee
 	github.com/lflxp/lflxp-static v0.0.0-20200323072822-0e507513cc6f
@@ -33,3 +34,4 @@ require (
 )
 
 replace github.com/ugorji/go v1.1.4 => github.com/ugorji/go/codec v0.0.0-20190204201341-e444a5086c43
+replace github.com/shirou/gopsutil v2.20.2+incompatible => github.com/shirou/gopsutil v2.18.12+incompatible

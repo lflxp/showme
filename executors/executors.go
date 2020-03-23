@@ -7,12 +7,12 @@ import (
 	"strings"
 
 	monitor "github.com/lflxp/lflxp-monitor/pkg"
+	mysql "github.com/lflxp/lflxp-orzdba/pkg"
 	scan "github.com/lflxp/lflxp-scan/pkg"
 	"github.com/lflxp/showme/completers"
 	"github.com/lflxp/showme/executors/dashboard"
 	"github.com/lflxp/showme/executors/helloworld"
 	"github.com/lflxp/showme/executors/layout"
-	"github.com/lflxp/showme/executors/mysql"
 	"github.com/lflxp/showme/utils"
 )
 
