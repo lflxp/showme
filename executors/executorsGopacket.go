@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"strings"
 
+	monitor "github.com/lflxp/lflxp-monitor/pkg"
 	"github.com/lflxp/showme/completers"
 	"github.com/lflxp/showme/executors/dashboard"
 	"github.com/lflxp/showme/executors/gopacket"
 	"github.com/lflxp/showme/executors/helloworld"
 	"github.com/lflxp/showme/executors/layout"
-	"github.com/lflxp/showme/executors/monitor"
 	"github.com/lflxp/showme/executors/scan"
 	"github.com/lflxp/showme/utils"
 )
