@@ -6,7 +6,6 @@ require (
 	github.com/astaxie/beego v1.12.1
 	github.com/c-bata/go-prompt v0.2.3
 	github.com/coreos/bbolt v1.3.2
-	github.com/go-sql-driver/mysql v1.4.1
 	github.com/go-xorm/xorm v0.7.9
 	github.com/google/gopacket v1.1.17
 	github.com/jroimartin/gocui v0.4.0
@@ -28,10 +27,10 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.6
 	github.com/spf13/viper v1.4.0
-	github.com/tatsushid/go-fastping v0.0.0-20160109021039-d7bb493dee3e
 	github.com/ugorji/go/codec v1.1.7
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22 // indirect
 )
 
 replace github.com/ugorji/go v1.1.4 => github.com/ugorji/go/codec v0.0.0-20190204201341-e444a5086c43
+
 replace github.com/shirou/gopsutil v2.20.2+incompatible => github.com/shirou/gopsutil v2.18.12+incompatible
