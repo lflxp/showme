@@ -14,7 +14,7 @@ showme -h
 
 # Module
 
-* [【DONE】tty 【WEB TERMINIAL】](./tty/README.md)
+* [【DONE】tty 【WEB TERMINIAL】](https://github.com/lflxp/lflxp-tty/blob/master/README.md)
 
 ![](https://github.com/lflxp/showme/blob/master/img/tty.png)
 
@@ -22,27 +22,27 @@ showme -h
 
 ![](https://github.com/lflxp/showme/blob/master/img/gopacket.png)
 
-* [【DONE】monitor 监控展示](./executors/monitor/README.md)
+* [【DONE】monitor 监控展示](https://github.com/lflxp/lflxp-monitor/blob/master/README.md)
 
 ![monitor.png](https://github.com/lflxp/showme/blob/master/img/monitor.png)
 
-* [【DONE】mysql 数据库监控](./executors/mysql/README.md)
+* [【DONE】mysql 数据库监控](https://github.com/lflxp/lflxp-orzdba/blob/master/README.md)
 
 ![](https://github.com/lflxp/showme/blob/master/img/mysql2.png)
 
-* [【DONE】scan 扫描工具](./executors/scan/README.md)
+* [【DONE】scan 扫描工具](https://github.com/lflxp/lflxp-scan/blob/master/README.md)
 
 ![](https://github.com/lflxp/showme/blob/master/img/scan.png)
 
-* [【DONE】static 文件传输](./httpstatic/README.md)
+* [【DONE】static 文件传输](https://github.com/lflxp/lflxp-static/blob/master/README.md)
 
 ![](https://github.com/lflxp/showme/blob/master/img/httpstatic.png)
 
-* [【TO BE FIX】k8s 管理工具](./executors/kubectl/README.md)
+* [【TO BE FIX】k8s 管理工具](https://github.com/lflxp/lflxp-kubectl/blob/master/README.md)
 
 ![s1.png](https://github.com/lflxp/showme/blob/master/img/s1.png)
 
-* [bolt 快速RESTFUL API](./boltapi/README.md)
+* [bolt 快速RESTFUL API](https://github.com/lflxp/lflxp-api/blob/master/README.md)
 
 ![](https://github.com/lflxp/showme/blob/master/img/b1.png)
 
@@ -54,11 +54,11 @@ showme -h
   * ss fq代理
   * ss server
 
-* [【TODO】playbook 任务编排工具](#PLAYBOOK)
+* [【TODO】playbook 任务编排工具](https://github.com/lflxp/lflxp-playbook/blob/master/README.md)
 
 * [【TODO】nmap 高级扫描工具](#NMAP)
 
-* [【TODO】SFLOW网络流量分析](#SFLOW)
+* [【TODO】SFLOW网络流量分析](https://github.com/lflxp/lflxp-sflowtool/blob/master/README.md)
 
 ![](https://github.com/lflxp/showme/blob/master/img/sflow1.png)
 

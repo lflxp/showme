@@ -14,6 +14,7 @@ require (
 	github.com/juju/testing v0.0.0-20191001232224-ce9dec17d28b // indirect
 	github.com/lflxp/goproxys v0.0.0-20200308164541-294d52d6ffa9
 	github.com/lflxp/lflxp-api v0.0.0-20200323063154-619ec5845ffa
+	github.com/lflxp/lflxp-kubectl v0.0.0-20200324075201-2c87c15ee42c
 	github.com/lflxp/lflxp-monitor v0.0.0-20200324040342-939febaf252c
 	github.com/lflxp/lflxp-orzdba v0.0.0-20200324050254-9ef68034f555
 	github.com/lflxp/lflxp-scan v0.0.0-20200323114511-9ac561b61f89
@@ -25,13 +26,14 @@ require (
 	github.com/shadowsocks/shadowsocks-go v0.0.0-20190614083952-6a03846ca9c0
 	github.com/shirou/gopsutil v2.20.2+incompatible
 	github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4 // indirect
-	github.com/sirupsen/logrus v1.4.2
+	github.com/sirupsen/logrus v1.5.0
 	github.com/spf13/cobra v0.0.6
 	github.com/spf13/viper v1.4.0
 	github.com/ugorji/go/codec v1.1.7
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22 // indirect
+	k8s.io/api v0.0.0-20180428142247-b7d77fa220f5
+	k8s.io/apimachinery v0.0.0-20180503031313-e7cad760a93d
+	k8s.io/client-go v0.0.0-20180501182648-01d6a1350dd5
 )
 
 replace github.com/ugorji/go v1.1.4 => github.com/ugorji/go/codec v0.0.0-20190204201341-e444a5086c43
-
-replace github.com/shirou/gopsutil v2.20.2+incompatible => github.com/shirou/gopsutil v2.18.12+incompatible

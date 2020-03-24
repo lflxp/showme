@@ -90,7 +90,6 @@ func FirstCommandFunc(d prompt.Document, args []string) []prompt.Suggest {
 			subcommands := []prompt.Suggest{
 				{Text: "test", Description: "测试获取数据"},
 				{Text: "status", Description: "查看状态"},
-				{Text: "status", Description: "查看状态"},
 				{Text: "processlist", Description: "查看进程"},
 			}
 			return prompt.FilterHasPrefix(subcommands, second, true)

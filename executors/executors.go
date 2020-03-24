@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	kubectl "github.com/lflxp/lflxp-kubectl/pkg"
 	monitor "github.com/lflxp/lflxp-monitor/pkg"
 	mysql "github.com/lflxp/lflxp-orzdba/pkg"
 	scan "github.com/lflxp/lflxp-scan/pkg"
@@ -32,6 +33,11 @@ func ParseExecutors(in string) (func(), bool) {
 	} else if in == "dashboard helloworld" {
 		result = func() {
 			helloworld.Run()
+		}
+		status = true
+	} else if in == "kubectl" {
+		result = func() {
+			kubectl.ManualInit()
 		}
 		status = true
 	} else if in == "gocui active" {
