@@ -3,6 +3,12 @@ package suggests
 import "github.com/c-bata/go-prompt"
 
 var MysqlOptions = []prompt.Suggest{
+	{Text: "-c", Description: "打印Cpu 信息负载信息"},
+	{Text: "-l", Description: "打印Load 信息"},
+	{Text: "-d", Description: "打印Disk info (default \"none\")"},
+	{Text: "-n", Description: "打印net网络流量"},
+	{Text: "-N", Description: "打印net网络详细流量"},
+	{Text: "-s", Description: "打印swap 信息"},
 	{Text: "-B", Description: "Print Bytes received from/send to MySQL(Bytes_received,Bytes_sent)."},
 	{Text: "-H", Description: "Mysql连接主机，默认127.0.0.1 (default \"127.0.0.1\")"},
 	{Text: "-L", Description: "Print to Logfile. (default \"none\")"},

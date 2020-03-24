@@ -14,8 +14,8 @@ require (
 	github.com/juju/testing v0.0.0-20191001232224-ce9dec17d28b // indirect
 	github.com/lflxp/goproxys v0.0.0-20200308164541-294d52d6ffa9
 	github.com/lflxp/lflxp-api v0.0.0-20200323063154-619ec5845ffa
-	github.com/lflxp/lflxp-monitor v0.0.0-20200323111401-5aff81ef4fa3
-	github.com/lflxp/lflxp-orzdba v0.0.0-20200323151836-eee154e8db7a
+	github.com/lflxp/lflxp-monitor v0.0.0-20200324040342-939febaf252c
+	github.com/lflxp/lflxp-orzdba v0.0.0-20200324050254-9ef68034f555
 	github.com/lflxp/lflxp-scan v0.0.0-20200323114511-9ac561b61f89
 	github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee
 	github.com/lflxp/lflxp-static v0.0.0-20200323072822-0e507513cc6f
@@ -24,6 +24,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/shadowsocks/shadowsocks-go v0.0.0-20190614083952-6a03846ca9c0
 	github.com/shirou/gopsutil v2.20.2+incompatible
+	github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4 // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.6
 	github.com/spf13/viper v1.4.0
