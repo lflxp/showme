@@ -1,5 +1,5 @@
 /*
-Copyright © 2020 NAME HERE <EMAIL ADDRESS>
+Copyright © 2020 NAME lflxp <382023823@qq.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/lflxp/showme/tty"
+	"github.com/lflxp/lflxp-tty/pkg"
 	"github.com/spf13/cobra"
 )
 
@@ -44,7 +44,29 @@ var ttyCmd = &cobra.Command{
 	Long: `showme tty [flags] [command] [args]
 eg: showme tty -w -r showme proxy http`,
 	Run: func(cmd *cobra.Command, args []string) {
-		tty.ServeGin(host, port, username, password, crtPath, keyPath, args, isDebug, isReconnect, isPermitWrite, isAudit, isXsrf, isProf, enableTLS, MaxConnections)
+		tty := pkg.Tty{
+			EnableTLS:      enableTLS,
+			CrtPath:        crtPath,
+			KeyPath:        keyPath,
+			IsProf:         isProf,
+			IsXsrf:         isXsrf,
+			IsAudit:        isAudit,
+			IsPermitWrite:  isPermitWrite,
+			MaxConnections: MaxConnections,
+			IsReconnect:    isReconnect,
+			IsDebug:        isDebug,
+			Username:       username,
+			Password:       password,
+			Port:           port,
+			Host:           host,
+			Cmds:           args,
+		}
+	
+		err := tty.Execute()
+		if err != nil {
+			panic(err)
+		}
+		// tty.ServeGin(host, port, username, password, crtPath, keyPath, args, isDebug, isReconnect, isPermitWrite, isAudit, isXsrf, isProf, enableTLS, MaxConnections)
 	},
 }
 

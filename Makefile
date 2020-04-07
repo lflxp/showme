@@ -26,7 +26,7 @@ gopacket: Makefile main.go asset swag
 
 # 静态文件转go二进制文件
 asset: bindata
-	cd tty/static && go-bindata -o=../asset.go -pkg=tty ./
+	# cd tty/static && go-bindata -o=../asset.go -pkg=tty ./
 	cd executors/httpstatic/static && go-bindata -o=../asset.go -pkg=httpstatic ./
 	cd boltapi/static && go-bindata -o=../asset.go -pkg=boltapi ./
 
