@@ -10,7 +10,7 @@ pull:
 	git pull origin $(shell git branch|grep '*'|awk '{print $$2}')
 
 build: Makefile main.go asset swag
-	go build
+	GOOS=linux GOARCH=amd64 go build
 	chmod +x showme 
 	./showme -h
 
