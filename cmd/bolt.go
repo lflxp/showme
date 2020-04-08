@@ -16,7 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/lflxp/showme/boltapi"
+	"github.com/lflxp/lflxp-api/pkg"
 	"github.com/spf13/cobra"
 )
 
@@ -34,7 +34,16 @@ var boltCmd = &cobra.Command{
 2. 提供本地监控数据、外部服务数据的存储和查询功能
 3. 提供针对时间范围搜索的类时序数据库功能`,
 	Run: func(cmd *cobra.Command, args []string) {
-		boltapi.Api(bhost, bport, stats)
+		api := pkg.Apis{
+			Host:  bhost,
+			Port:  bport,
+			Stats: stats,
+		}
+
+		err := api.Execute()
+		if err != nil {
+			panic(err)
+		}
 	},
 }
 

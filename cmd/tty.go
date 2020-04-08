@@ -61,7 +61,6 @@ eg: showme tty -w -r showme proxy http`,
 			Host:           host,
 			Cmds:           args,
 		}
-	
 		err := tty.Execute()
 		if err != nil {
 			panic(err)

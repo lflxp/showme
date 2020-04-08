@@ -1,4 +1,4 @@
-.PHONY: push pull install run clean asset tty build gopacket bindata swag
+.PHONY: push pull install run clean tty build gopacket bindata swag
 
 # 默认位置 以后都保持不变
 push: asset pull
@@ -9,16 +9,16 @@ push: asset pull
 pull:
 	git pull origin $(shell git branch|grep '*'|awk '{print $$2}')
 
-build: Makefile main.go asset swag
+build: Makefile main.go
 	GOOS=linux GOARCH=amd64 go build
 	chmod +x showme 
 	./showme -h
 
-install: Makefile main.go asset swag
+install: Makefile main.go 
 	go install
 	showme -h
 
-gopacket: Makefile main.go asset swag
+gopacket: Makefile main.go  
 	@echo please install pcap first
 	@echo yum install libpcap-devel
 	go install -tags=gopacket
@@ -27,17 +27,17 @@ gopacket: Makefile main.go asset swag
 # 静态文件转go二进制文件
 asset: bindata
 	# cd tty/static && go-bindata -o=../asset.go -pkg=tty ./
-	cd executors/httpstatic/static && go-bindata -o=../asset.go -pkg=httpstatic ./
-	cd boltapi/static && go-bindata -o=../asset.go -pkg=boltapi ./
+	# cd executors/httpstatic/static && go-bindata -o=../asset.go -pkg=httpstatic ./
+	# cd boltapi/static && go-bindata -o=../asset.go -pkg=boltapi ./
 
 swag:
-	cd boltapi && swag init
+	# cd boltapi && swag init
 
 run: main.go
 	go run main.go static ${n}
 
 # tty功能测试
-tty: asset
+tty: 
 	go run main.go tty -w -m 1 -d -a -u admin -p admin bash 
 	# go run main.go tty -w -m 10 -r -d showme proxy http
 
@@ -59,7 +59,7 @@ clean:
 	rm -f *.tar.gz
 
 .PHONY: windows
-windows: asset
+windows: 
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build
 
 .PHONY: crt csr key

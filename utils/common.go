@@ -1,11 +1,11 @@
 package utils
 
 import (
-	"bufio"
 	"bytes"
 	"crypto/md5"
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -14,42 +14,10 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 )
-
-/*
-#include <stdio.h>
-#include <termios.h>
-struct termios disable_echo() {
-  struct termios of, nf;
-  tcgetattr(fileno(stdin), &of);
-  nf = of;
-  nf.c_lflag &= ~ECHO;
-  nf.c_lflag |= ECHONL;
-  if (tcsetattr(fileno(stdin), TCSANOW, &nf) != 0) {
-    perror("tcsetattr");
-  }
-  return of;
-}
-void restore_echo(struct termios f) {
-  if (tcsetattr(fileno(stdin), TCSANOW, &f) != 0) {
-    perror("tcsetattr");
-  }
-}
-*/
-import "C"
-
-func Prompt(msg string) string {
-	fmt.Printf("%s: ", msg)
-	oldFlags := C.disable_echo()
-	passwd, err := bufio.NewReader(os.Stdin).ReadString('\n')
-	C.restore_echo(oldFlags)
-	if err != nil {
-		panic(err)
-	}
-	return strings.TrimSpace(passwd)
-}
 
 // 加密base64
 func EncodeBase64(in string) string {
@@ -183,4 +151,86 @@ func IsPathExists(path string) bool {
 		return false
 	}
 	return false
+}
+
+func GetIps() []string {
+	rs := []string{}
+	addrs, err := net.InterfaceAddrs()
+
+	if err != nil {
+		rs = append(rs, err.Error())
+		return rs
+	}
+
+	for _, address := range addrs {
+
+		// 检查ip地址判断是否回环地址
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				rs = append(rs, ipnet.IP.String())
+			}
+		}
+	}
+	return rs
+}
+
+func ParseIps(in string) ([]string, error) {
+	rs := []string{}
+	if strings.Contains(in, "-") {
+		tmp_a := strings.Split(in, ".")
+		if len(tmp_a) != 4 {
+			fmt.Println(tmp_a)
+			return nil, errors.New("ip地址不正确")
+		}
+		A := []string{}
+		B := []string{}
+		C := []string{}
+		D := []string{}
+		for m, n := range tmp_a {
+			if strings.Contains(n, "-") {
+				tmp := strings.Split(n, "-")
+				a, err := strconv.Atoi(tmp[0])
+				if err != nil {
+					return rs, err
+				}
+				b, err := strconv.Atoi(tmp[1])
+				if err != nil {
+					return rs, err
+				}
+				for i := a; i <= b; i++ {
+					if m == 0 {
+						A = append(A, fmt.Sprintf("%d", i))
+					} else if m == 1 {
+						B = append(B, fmt.Sprintf("%d", i))
+					} else if m == 2 {
+						C = append(C, fmt.Sprintf("%d", i))
+					} else if m == 3 {
+						D = append(D, fmt.Sprintf("%d", i))
+					}
+				}
+			} else {
+				if m == 0 {
+					A = append(A, n)
+				} else if m == 1 {
+					B = append(B, n)
+				} else if m == 2 {
+					C = append(C, n)
+				} else if m == 3 {
+					D = append(D, n)
+				}
+			}
+		}
+		for _, a1 := range A {
+			for _, b1 := range B {
+				for _, c1 := range C {
+					for _, d1 := range D {
+						rs = append(rs, fmt.Sprintf("%s.%s.%s.%s", a1, b1, c1, d1))
+					}
+				}
+			}
+		}
+	} else {
+		rs = append(rs, in)
+	}
+	return rs, nil
 }

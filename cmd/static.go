@@ -15,7 +15,7 @@
 package cmd
 
 import (
-	"github.com/lflxp/showme/executors/httpstatic"
+	"github.com/lflxp/lflxp-static/pkg"
 	"github.com/spf13/cobra"
 )
 
@@ -33,7 +33,20 @@ var staticCmd = &cobra.Command{
 	Short: "本地静态文件服务器",
 	Long:  `通过本地http服务进行简单的文件传输和文件展示`,
 	Run: func(cmd *cobra.Command, args []string) {
-		httpstatic.HttpStaticServeForCorba(portHttpStatic, pathHttpStatic, types, isVideo, pagesize)
+		api := pkg.Apis{
+			Port:     portHttpStatic,
+			Path:     pathHttpStatic,
+			Types:    types,
+			IsVideo:  isVideo,
+			PageSize: pagesize,
+		}
+
+		err := api.Check()
+		if err != nil {
+			panic(err)
+		}
+
+		api.Execute()
 	},
 }
 

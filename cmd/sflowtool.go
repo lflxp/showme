@@ -23,13 +23,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/lflxp/sflowtool/collected"
-	"github.com/lflxp/sflowtool/parse"
+	"github.com/lflxp/lflxp-sflowtool/pkg"
 	log "github.com/sirupsen/logrus"
 )
 
 var (
-	Con collected.Collected = collected.Collected{
+	Con pkg.Collected = pkg.Collected{
 		SnapShotLen: 65535,
 		Promiscuous: true,
 		Timeout:     30 * time.Second,
@@ -95,7 +94,7 @@ var sflowtoolCmd = &cobra.Command{
 		// 初始化es index
 		if Con.IsEs {
 			log.Info("开启es通道")
-			parse.InitEs(Con.EsPath, Con.Index)
+			pkg.InitEs(Con.EsPath, Con.Index)
 		}
 
 		// 是否开启udp数据转发

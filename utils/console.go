@@ -2,24 +2,12 @@ package utils
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
-
-	"github.com/shirou/gopsutil/cpu"
-	"github.com/shirou/gopsutil/disk"
-	"github.com/shirou/gopsutil/host"
-	"github.com/shirou/gopsutil/load"
-	"github.com/shirou/gopsutil/mem"
 )
 
 func GetNowTime() string {
 	return fmt.Sprintf("%s", time.Now().Format("15:04:05"))
-}
-
-func floatToString(x float64, f int) string {
-	rs := strconv.FormatFloat(x, 'f', f, 64)
-	return rs
 }
 
 // lambda for check length of Repeat " "
@@ -29,44 +17,6 @@ func parseRepeatSpace(info string, lens int) string {
 		info = replace
 	}
 	return strings.Repeat(" ", lens-len(info)) + info
-}
-
-func CollectEasy() []string {
-	rs := []string{}
-	v, _ := mem.VirtualMemory()
-	c, _ := cpu.Info()
-	load, _ := load.Avg()
-	// cc, _ := cpu.Percent(time.Second, false)
-	d, _ := disk.Usage("/")
-	n, _ := host.Info()
-	boottime, _ := host.BootTime()
-	btime := time.Unix(int64(boottime), 0).Format("2006-01-02 15:04:05")
-	rs = append(rs, fmt.Sprintf("%s: %s", Colorize("        Mem       ", "white", "red", true, true), Colorize(fmt.Sprintf("%v MB  Free: %v MB Used:%v Usage:%f%%", v.Total/1024/1024, v.Available/1024/1024, v.Used/1024/1024, v.UsedPercent), "yellow", "", false, false)))
-	// fmt.Printf("        Mem       : %v MB  Free: %v MB Used:%v Usage:%f%%", v.Total/1024/1024, v.Available/1024/1024, v.Used/1024/1024, v.UsedPercent)
-	if len(c) > 1 {
-		for _, sub_cpu := range c {
-			modelname := sub_cpu.ModelName
-			cores := sub_cpu.Cores
-			// fmt.Printf("        CPU       : %v   %v cores ", modelname, cores)
-			rs = append(rs, fmt.Sprintf("%s: %s ", Colorize("        CPU       ", "white", "red", true, true), Colorize(fmt.Sprintf("%v   %v cores", modelname, cores), "yellow", "", false, false)))
-		}
-	} else {
-		sub_cpu := c[0]
-		modelname := sub_cpu.ModelName
-		cores := sub_cpu.Cores
-		rs = append(rs, fmt.Sprintf("%s: %s ", Colorize("        CPU       ", "white", "red", true, true), Colorize(fmt.Sprintf("%v   %v cores", modelname, cores), "yellow", "", false, false)))
-	}
-	rs = append(rs, fmt.Sprintf("%s: %s ", Colorize("        LOAD      ", "white", "red", true, true), Colorize(fmt.Sprintf("%.2f %.2f %.2f", load.Load1, load.Load5, load.Load15), "yellow", "", false, false)))
-	rs = append(rs, fmt.Sprintf("%s: %s", Colorize("        SystemBoot", "white", "red", true, true), Colorize(btime, "yellow", "", false, false)))
-	// rs = append(rs, fmt.Sprintf("        CPU Used    : used %f%% ", cc[0]))
-	rs = append(rs, fmt.Sprintf("%s: %s", Colorize("        HD        ", "white", "red", true, true), Colorize(fmt.Sprintf("%v GB  Free: %v GB Usage:%f%%", d.Total/1024/1024/1024, d.Free/1024/1024/1024, d.UsedPercent), "yellow", "", false, false)))
-	rs = append(rs, fmt.Sprintf("%s: %s", Colorize("        OS        ", "white", "red", true, true), Colorize(fmt.Sprintf("%v %v(%v)   %v", n.OS, n.Platform, n.PlatformFamily, n.PlatformVersion), "yellow", "", false, false)))
-	rs = append(rs, fmt.Sprintf("%s: %s ", Colorize("        Kernel    ", "white", "red", true, true), Colorize(n.KernelVersion, "yellow", "", false, false)))
-	rs = append(rs, fmt.Sprintf("%s: %s ", Colorize("        HostID    ", "white", "red", true, true), Colorize(n.HostID, "yellow", "", false, false)))
-	rs = append(rs, fmt.Sprintf("%s: %s ", Colorize("        Procs     ", "white", "red", true, true), Colorize(fmt.Sprintf("%v", n.Procs), "yellow", "", false, false)))
-	rs = append(rs, fmt.Sprintf("%s: %s  ", Colorize("        Hostname  ", "white", "red", true, true), Colorize(n.Hostname, "yellow", "", false, false)))
-	rs = append(rs, fmt.Sprintf("%s: %s", Colorize("        IpLists   ", "white", "red", true, true), Colorize(strings.Join(GetIps(), ","), "yellow", "", false, false)))
-	return rs
 }
 
 // 文字字体 参数介绍：text->文本内容 status->文字颜色 background->背景颜色 underline->是否下划线 highshow->是否高亮

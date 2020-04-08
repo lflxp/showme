@@ -6,13 +6,15 @@ import (
 	"fmt"
 	"strings"
 
+	kubectl "github.com/lflxp/lflxp-kubectl/pkg"
+	monitor "github.com/lflxp/lflxp-monitor/pkg"
+	mysql "github.com/lflxp/lflxp-orzdba/pkg"
+	scan "github.com/lflxp/lflxp-scan/pkg"
 	"github.com/lflxp/showme/completers"
 	"github.com/lflxp/showme/executors/dashboard"
 	"github.com/lflxp/showme/executors/gopacket"
 	"github.com/lflxp/showme/executors/helloworld"
 	"github.com/lflxp/showme/executors/layout"
-	"github.com/lflxp/showme/executors/monitor"
-	"github.com/lflxp/showme/executors/scan"
 	"github.com/lflxp/showme/utils"
 )
 
@@ -32,6 +34,11 @@ func ParseExecutors(in string) (func(), bool) {
 	} else if in == "dashboard helloworld" {
 		result = func() {
 			helloworld.Run()
+		}
+		status = true
+	} else if in == "kubectl" {
+		result = func() {
+			kubectl.ManualInit()
 		}
 		status = true
 	} else if in == "gocui active" {
@@ -70,6 +77,14 @@ func ParseExecutors(in string) (func(), bool) {
 	} else if strings.Contains(in, "scan") {
 		result = func() {
 			scan.Scan(in)
+		}
+		status = true
+	} else if strings.Contains(in, "mysql") {
+		result = func() {
+			err := mysql.BeforeRun(in)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 		status = true
 	} else {
