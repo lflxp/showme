@@ -9,6 +9,7 @@ require (
 	github.com/coreos/bbolt v1.3.2
 	github.com/go-xorm/xorm v0.7.9
 	github.com/google/gopacket v1.1.17
+	github.com/google/gops v0.3.13
 	github.com/jroimartin/gocui v0.4.0
 	github.com/juju/errors v0.0.0-20200330140219-3fe23663418f
 	github.com/juju/loggo v0.0.0-20190526231331-6e530bcce5d8 // indirect
@@ -25,7 +26,7 @@ require (
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/shadowsocks/shadowsocks-go v0.0.0-20190614083952-6a03846ca9c0
-	github.com/shirou/gopsutil v2.20.2+incompatible
+	github.com/shirou/gopsutil v2.20.4+incompatible
 	github.com/sirupsen/logrus v1.5.0
 	github.com/spf13/cobra v0.0.6
 	github.com/spf13/viper v1.4.0
