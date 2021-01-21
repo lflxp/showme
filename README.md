@@ -16,35 +16,39 @@ showme -h
 
 * [【DONE】tty 【WEB TERMINIAL】](https://github.com/lflxp/lflxp-tty/blob/master/README.md)
 
-![](https://github.com/lflxp/showme/blob/master/img/tty.png)
+![](./img/tty.png)
 
 * [【DONE】gopacket 网络流量分析](./executors/gopacket/README.md)
 
-![](https://github.com/lflxp/showme/blob/master/img/gopacket.png)
+![](./img/gopacket.png)
 
 * [【DONE】monitor 监控展示](https://github.com/lflxp/lflxp-monitor/blob/master/README.md)
 
-![monitor.png](https://github.com/lflxp/showme/blob/master/img/monitor.png)
+![monitor.png](./img/monitor.png)
 
 * [【DONE】mysql 数据库监控](https://github.com/lflxp/lflxp-orzdba/blob/master/README.md)
 
-![](https://github.com/lflxp/showme/blob/master/img/mysql2.png)
+![](./img/mysql2.png)
 
 * [【DONE】scan 扫描工具](https://github.com/lflxp/lflxp-scan/blob/master/README.md)
 
-![](https://github.com/lflxp/showme/blob/master/img/scan.png)
+![](./img/scan.png)
 
 * [【DONE】static 文件传输](https://github.com/lflxp/lflxp-static/blob/master/README.md)
 
-![](https://github.com/lflxp/showme/blob/master/img/httpstatic.png)
+![](./img/httpstatic.png)
+
+* [【Doing】playbook 任务编排工具](https://github.com/devopsxp/xp/blob/master/README.md)
+
+![](./img/playbook.png)
 
 * [【TO BE FIX】k8s 管理工具](https://github.com/lflxp/lflxp-kubectl/blob/master/README.md)
 
-![s1.png](https://github.com/lflxp/showme/blob/master/img/s1.png)
+![s1.png](./img/s1.png)
 
 * [bolt 快速RESTFUL API](https://github.com/lflxp/lflxp-api/blob/master/README.md)
 
-![](https://github.com/lflxp/showme/blob/master/img/b1.png)
+![](./img/b1.png)
 
 * [【TODO】proxy 代理工具](#PROXY)
   * http正向代理
@@ -54,15 +58,13 @@ showme -h
   * ss fq代理
   * ss server
 
-* [【TODO】playbook 任务编排工具](https://github.com/lflxp/lflxp-playbook/blob/master/README.md)
-
 * [【TODO】nmap 高级扫描工具](#NMAP)
 
 * [【TODO】SFLOW网络流量分析](https://github.com/lflxp/lflxp-sflowtool/blob/master/README.md)
 
-![](https://github.com/lflxp/showme/blob/master/img/sflow1.png)
+![](./img/sflow1.png)
 
-![](https://github.com/lflxp/showme/blob/master/img/sflow2.png)
+![](./img/sflow2.png)
 
 `安装`
 

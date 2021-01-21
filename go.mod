@@ -10,7 +10,6 @@ require (
 	github.com/devopsxp/xp v0.0.0-20210120084237-346e7693b0f3
 	github.com/go-xorm/xorm v0.7.9
 	github.com/google/gopacket v1.1.17
-	github.com/google/gops v0.3.13 // indirect
 	github.com/jroimartin/gocui v0.4.0
 	github.com/juju/errors v0.0.0-20200330140219-3fe23663418f
 	github.com/juju/loggo v0.0.0-20190526231331-6e530bcce5d8 // indirect

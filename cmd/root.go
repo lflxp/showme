@@ -19,6 +19,7 @@ import (
 	"os"
 	"time"
 
+	_ "github.com/devopsxp/xp/module"
 	"github.com/lflxp/showme/executors"
 	"github.com/lflxp/showme/utils"
 	log "github.com/sirupsen/logrus"

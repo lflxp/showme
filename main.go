@@ -16,6 +16,7 @@ package main
 
 import (
 	// "github.com/google/gops/agent"
+	_ "github.com/devopsxp/xp/module"
 	"github.com/lflxp/showme/cmd"
 )
 
