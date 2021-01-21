@@ -15,17 +15,15 @@
 package main
 
 import (
-	"log"
-
-	"github.com/google/gops/agent"
+	// "github.com/google/gops/agent"
 	"github.com/lflxp/showme/cmd"
 )
 
-func init() {
-	if err := agent.Listen(agent.Options{}); err != nil {
-		log.Fatal(err)
-	}
-}
+// func init() {
+// 	if err := agent.Listen(agent.Options{}); err != nil {
+// 		panic(err)
+// 	}
+// }
 
 func main() {
 	cmd.Execute()

@@ -1,0 +1,290 @@
+definitions:
+  pkg.TimeSeries:
+    properties:
+      created:
+        type: string
+      data:
+        additionalProperties:
+          type: string
+        type: object
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+info:
+  contact: {}
+  license: {}
+paths:
+  /api/v1/bucket/add/{name}:
+    post:
+      description: Bucket Add
+      parameters:
+      - description: NAME
+        in: path
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: success" //成功返回的数据结构， 最后是示例
+          schema:
+            type: string
+      summary: 新增Bucket接口
+      tags:
+      - Bucket
+  /api/v1/bucket/delete/{name}:
+    delete:
+      description: DELETE Bucket
+      parameters:
+      - description: NAME
+        in: path
+        name: name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+      summary: 删除Bucket接口
+      tags:
+      - Bucket
+  /api/v1/bucket/get:
+    get:
+      description: Bucket GET
+      responses:
+        "200":
+          description: success" //成功返回的数据结构， 最后是示例
+          schema:
+            type: string
+      summary: 查询Bucket接口
+      tags:
+      - Bucket
+  /api/v1/db/backup:
+    get:
+      description: curl http://localhost/api/v1/db/backup > my.db
+      responses:
+        "200":
+          description: success" //成功返回的数据结构， 最后是示例
+          schema:
+            type: string
+      summary: BackUP数据库备份
+      tags:
+      - DB
+  /api/v1/key/add/{bucket}/{key}/{value}:
+    post:
+      description: 添加指定bucket下的key
+      parameters:
+      - description: BUCKET
+        in: path
+        name: bucket
+        required: true
+        type: string
+      - description: KEY
+        in: path
+        name: key
+        required: true
+        type: string
+      - description: VALUE
+        in: path
+        name: value
+        required: true
+        type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+      summary: 添加Key接口
+      tags:
+      - Key
+  /api/v1/key/batch/{bucket}/{key}/{value}:
+    post:
+      description: 批量添加指定bucket下的key
+      parameters:
+      - description: BUCKET
+        in: path
+        name: bucket
+        required: true
+        type: string
+      - description: KEY
+        in: path
+        name: key
+        required: true
+        type: string
+      - description: VALUE
+        in: path
+        name: value
+        required: true
+        type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+      summary: 批量添加Key接口
+      tags:
+      - Key
+  /api/v1/key/delete/{bucket}/{key}:
+    delete:
+      description: 删除指定bucket下的key
+      parameters:
+      - description: BUCKET
+        in: path
+        name: bucket
+        required: true
+        type: string
+      - description: KEY
+        in: path
+        name: key
+        required: true
+        type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+      summary: 删除Key接口
+      tags:
+      - Key
+  /api/v1/key/get/{bucket}:
+    get:
+      description: 查询指定bucket下所有key
+      parameters:
+      - description: BUCKET
+        in: path
+        name: bucket
+        required: true
+        type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+      summary: 查询Bucket All Key接口
+      tags:
+      - Key
+  /api/v1/key/get/{bucket}/{key}:
+    get:
+      description: 查询指定bucket下的key
+      parameters:
+      - description: BUCKET
+        in: path
+        name: bucket
+        required: true
+        type: string
+      - description: KEY
+        in: path
+        name: key
+        required: true
+        type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+      summary: 查询Key接口
+      tags:
+      - Key
+  /api/v1/key/prefix/{bucket}/{key}:
+    get:
+      description: 按前缀查询指定bucket数据
+      parameters:
+      - description: BUCKET
+        in: path
+        name: bucket
+        required: true
+        type: string
+      - description: KEY
+        in: path
+        name: key
+        required: true
+        type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+      summary: Search Prefix Key接口
+      tags:
+      - Key
+  /api/v1/key/range/{bucket}/{min}/{max}:
+    get:
+      description: 范围搜索指定bucket数据
+      parameters:
+      - description: BUCKET
+        in: path
+        name: bucket
+        required: true
+        type: string
+      - description: MIN
+        in: path
+        name: min
+        required: true
+        type: string
+      - description: MAX
+        in: path
+        name: max
+        required: true
+        type: string
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+      summary: Search Range接口
+      tags:
+      - Key
+  /api/v1/orm/add:
+    post:
+      description: TimeSeries Add
+      parameters:
+      - description: NAME
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.TimeSeries'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pkg.TimeSeries'
+      summary: 新增TimeSeries接口
+      tags:
+      - TimeSeries
+  /api/v1/orm/getall:
+    get:
+      description: TimeSeries GET
+      responses:
+        "200":
+          description: success" //成功返回的数据结构， 最后是示例
+          schema:
+            type: string
+      summary: 查询TimeSeries接口
+      tags:
+      - TimeSeries
+  /api/v1/orm/range/{min}/{max}:
+    get:
+      description: TimeSeries Range范围查询
+      parameters:
+      - description: MIN
+        in: path
+        name: min
+        required: true
+        type: string
+      - description: MAX
+        in: path
+        name: max
+        required: true
+        type: string
+      responses:
+        "200":
+          description: success" //成功返回的数据结构， 最后是示例
+          schema:
+            type: string
+      summary: 查询TimeSeries接口
+      tags:
+      - TimeSeries
+swagger: "2.0"

@@ -16,8 +16,8 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/devopsxp/xp/pipeline"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -25,14 +25,21 @@ import (
 var playbookCmd = &cobra.Command{
 	Use:   "playbook",
 	Short: "批量主机任务编排脚本执行器",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Long:  `测试ansile-playbook功能和pipeline流程管控`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("playbook called")
+		log.Debugln("playbook called")
+
+		// 根据yaml解析shell等模块，进行动态匹配，进行顺序执行
+		config := pipeline.DefaultPipeConfig("shell").
+			WithInputName("localyaml").
+			WithFilterName("shell").
+			WithOutputName("console")
+
+		p := pipeline.Of(*config)
+		p.Init()
+		p.Start()
+		p.Exec()
+		p.Stop()
 	},
 }
 

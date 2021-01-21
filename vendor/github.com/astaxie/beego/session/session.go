@@ -81,6 +81,15 @@ func Register(name string, provide Provider) {
 	provides[name] = provide
 }
 
+//GetProvider
+func GetProvider(name string) (Provider, error) {
+	provider, ok := provides[name]
+	if !ok {
+		return nil, fmt.Errorf("session: unknown provide %q (forgotten import?)", name)
+	}
+	return provider, nil
+}
+
 // ManagerConfig define the session config
 type ManagerConfig struct {
 	CookieName              string `json:"cookieName"`
@@ -261,7 +270,8 @@ func (manager *Manager) SessionDestroy(w http.ResponseWriter, r *http.Request) {
 			Path:     "/",
 			HttpOnly: !manager.config.DisableHTTPOnly,
 			Expires:  expiration,
-			MaxAge:   -1}
+			MaxAge:   -1,
+			Domain:   manager.config.Domain}
 
 		http.SetCookie(w, cookie)
 	}
