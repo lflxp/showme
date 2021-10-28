@@ -3,11 +3,14 @@ module github.com/lflxp/showme
 go 1.15
 
 require (
+	gitee.com/lflxp/proxy v0.0.0-20211028150814-d865977aee1d
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/astaxie/beego v1.12.1
 	github.com/c-bata/go-prompt v0.2.3
 	github.com/coreos/bbolt v1.3.2
 	github.com/devopsxp/xp v0.0.0-20210120084237-346e7693b0f3
+	github.com/gin-gonic/gin v1.7.4
+	github.com/go-eden/slf4go v1.1.1
 	github.com/go-xorm/xorm v0.7.9
 	github.com/google/gopacket v1.1.17
 	github.com/jroimartin/gocui v0.4.0
@@ -26,8 +29,8 @@ require (
 	github.com/shadowsocks/shadowsocks-go v0.0.0-20190614083952-6a03846ca9c0
 	github.com/shirou/gopsutil v3.20.10+incompatible
 	github.com/sirupsen/logrus v1.6.0
-	github.com/spf13/cobra v1.0.0
-	github.com/spf13/viper v1.7.1
+	github.com/spf13/cobra v1.2.1
+	github.com/spf13/viper v1.8.1
 	github.com/swaggo/swag v1.6.5
 	github.com/ugorji/go/codec v1.1.7
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22 // indirect

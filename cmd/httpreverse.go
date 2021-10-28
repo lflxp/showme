@@ -15,9 +15,18 @@
 package cmd
 
 import (
-	"github.com/lflxp/showme/proxy"
+	"net/http"
+	"os"
+	"os/signal"
+
+	"gitee.com/lflxp/proxy"
+	"github.com/gin-gonic/gin"
+	log "github.com/go-eden/slf4go"
 	"github.com/spf13/cobra"
 )
+
+var target string
+var local string
 
 // httpreverseCmd represents the httpreverse command
 var httpreverseCmd = &cobra.Command{
@@ -27,7 +36,35 @@ var httpreverseCmd = &cobra.Command{
 2、自动添加https tls支持
 3、技术探索和学习`,
 	Run: func(cmd *cobra.Command, args []string) {
-		proxy.RunProxy("httprp")
+		r := gin.Default()
+		funcs := proxy.NewHttpProxyByGinCustom(target, nil)
+		r.Any("/*action", funcs)
+		server := &http.Server{
+			Addr:    local,
+			Handler: r,
+		}
+
+		quit := make(chan os.Signal)
+		signal.Notify(quit, os.Interrupt)
+
+		go func() {
+			<-quit
+			log.Warn("receive interrupt signal")
+			if err := server.Close(); err != nil {
+				log.Fatal("Server Close:", err)
+			}
+		}()
+
+		log.Infof("Listening and serving HTTPS on %s", local)
+		if err := server.ListenAndServe(); err != nil {
+			if err == http.ErrServerClosed {
+				log.Warn("Server closed under request")
+			} else {
+				log.Fatal("Server closed unexpect")
+			}
+		}
+
+		log.Warn("Server exiting")
 	},
 }
 
@@ -43,4 +80,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// httpreverseCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	httpreverseCmd.Flags().StringVarP(&target, "target", "t", "https://www.baidu.com", "七层反向代理的http地址")
+	httpreverseCmd.Flags().StringVarP(&local, "local", "L", "0.0.0.0:8888", "本地代理服务器地址")
 }
