@@ -28,9 +28,9 @@ import (
 var target string
 var local string
 
-// httpreverseCmd represents the httpreverse command
-var httpreverseCmd = &cobra.Command{
-	Use:   "httpreverse",
+// httpCmd represents the httpreverse command
+var httpCmd = &cobra.Command{
+	Use:   "http",
 	Short: "http反向代理",
 	Long: `1、http反向代理 类似nginx
 2、自动添加https tls支持
@@ -69,17 +69,17 @@ var httpreverseCmd = &cobra.Command{
 }
 
 func init() {
-	proxyCmd.AddCommand(httpreverseCmd)
+	proxyCmd.AddCommand(httpCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// httpreverseCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// httpCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// httpreverseCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	httpreverseCmd.Flags().StringVarP(&target, "target", "t", "https://www.baidu.com", "七层反向代理的http地址")
-	httpreverseCmd.Flags().StringVarP(&local, "local", "L", "0.0.0.0:8888", "本地代理服务器地址")
+	// httpCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	httpCmd.Flags().StringVarP(&target, "target", "t", "https://www.baidu.com", "七层反向代理的http地址")
+	httpCmd.Flags().StringVarP(&local, "local", "L", "0.0.0.0:8888", "本地代理服务器地址")
 }
