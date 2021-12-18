@@ -15,7 +15,7 @@ build: Makefile main.go
 	./showme -h
 
 install: Makefile main.go 
-	go install
+	go install -v
 	showme -h
 
 gopacket: Makefile main.go  

@@ -18,10 +18,10 @@ require (
 	github.com/lflxp/lflxp-api v0.0.0-20200323063154-619ec5845ffa
 	github.com/lflxp/lflxp-kubectl v0.0.0-20200324075201-2c87c15ee42c
 	github.com/lflxp/lflxp-monitor v0.0.0-20200324040342-939febaf252c
-	github.com/lflxp/lflxp-orzdba v0.0.0-20200324050254-9ef68034f555
+	github.com/lflxp/lflxp-orzdba v0.0.0-20201102102701-b8902cead805
 	github.com/lflxp/lflxp-scan v0.0.0-20200323114511-9ac561b61f89
 	github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee
-	github.com/lflxp/lflxp-static v0.0.0-20200323072822-0e507513cc6f
+	github.com/lflxp/lflxp-static v1.0.0
 	github.com/lflxp/lflxp-tty v0.0.0-20201030085208-96cf85de2130
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/mitchellh/go-homedir v1.1.0
@@ -30,7 +30,7 @@ require (
 	github.com/sirupsen/logrus v1.5.0
 	github.com/spf13/cobra v0.0.6
 	github.com/spf13/viper v1.4.0
-	github.com/swaggo/swag v1.6.5
+	github.com/swaggo/swag v1.7.6
 	github.com/ugorji/go/codec v1.1.7
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22 // indirect
 )

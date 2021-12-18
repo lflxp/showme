@@ -23,6 +23,8 @@ var (
 	portHttpStatic string
 	pathHttpStatic string
 	isVideo        bool
+	raw            bool
+	staticPort     string
 	pagesize       int
 	types          string
 )
@@ -34,11 +36,13 @@ var staticCmd = &cobra.Command{
 	Long:  `通过本地http服务进行简单的文件传输和文件展示`,
 	Run: func(cmd *cobra.Command, args []string) {
 		api := pkg.Apis{
-			Port:     portHttpStatic,
-			Path:     pathHttpStatic,
-			Types:    types,
-			IsVideo:  isVideo,
-			PageSize: pagesize,
+			Port:       portHttpStatic,
+			Path:       pathHttpStatic,
+			Types:      types,
+			IsVideo:    isVideo,
+			PageSize:   pagesize,
+			Raw:        raw,
+			StaticPort: staticPort,
 		}
 
 		err := api.Check()
@@ -64,7 +68,9 @@ func init() {
 	// staticCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	staticCmd.Flags().StringVarP(&types, "types", "t", ".avi,.wma,.rmvb,.rm,.mp4,.mov,.3gp,.mpeg,.mpg,.mpe,.m4v,.mkv,.flv,.vob,.wmv,.asf,.asx", "过滤视频类型，多个用逗号隔开")
 	staticCmd.Flags().StringVarP(&portHttpStatic, "port", "p", "9090", "服务端口")
+	staticCmd.Flags().StringVarP(&staticPort, "staticPort", "P", "9091", "文件服务端口")
 	staticCmd.Flags().StringVarP(&pathHttpStatic, "path", "f", "./", "加载目录")
 	staticCmd.Flags().BoolVarP(&isVideo, "video", "v", false, "是否切换为视频模式")
+	staticCmd.Flags().BoolVarP(&raw, "raw", "r", false, "是否切换为无html页面状态")
 	staticCmd.Flags().IntVarP(&pagesize, "pagesize", "c", 20, "每页显示视频数")
 }
