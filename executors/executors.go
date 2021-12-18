@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	kubectl "github.com/lflxp/lflxp-kubectl/pkg"
+	// kubectl "github.com/lflxp/lflxp-kubectl/pkg"
 	monitor "github.com/lflxp/lflxp-monitor/pkg"
 	mysql "github.com/lflxp/lflxp-orzdba/pkg"
 	scan "github.com/lflxp/lflxp-scan/pkg"
@@ -18,6 +18,12 @@ import (
 )
 
 /** 解析执行命令函数
+else if in == "kubectl" {
+		result = func() {
+			kubectl.ManualInit()
+		}
+		status = true
+	}
 @param in   // command from
 @result func() // function
 @result bool // 状态 是否执行
@@ -33,11 +39,6 @@ func ParseExecutors(in string) (func(), bool) {
 	} else if in == "dashboard helloworld" {
 		result = func() {
 			helloworld.Run()
-		}
-		status = true
-	} else if in == "kubectl" {
-		result = func() {
-			kubectl.ManualInit()
 		}
 		status = true
 	} else if in == "gocui active" {

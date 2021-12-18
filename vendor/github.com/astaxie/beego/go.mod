@@ -2,9 +2,9 @@ module github.com/astaxie/beego
 
 require (
 	github.com/Knetic/govaluate v3.0.0+incompatible // indirect
+	github.com/OwnLocal/goes v1.0.0
 	github.com/beego/goyaml2 v0.0.0-20130207012346-5545475820dd
 	github.com/beego/x2j v0.0.0-20131220205130-a0352aadc542
-	github.com/belogik/goes v0.0.0-20151229125003-e54d722c3aff
 	github.com/bradfitz/gomemcache v0.0.0-20180710155616-bc664df96737
 	github.com/casbin/casbin v1.7.0
 	github.com/cloudflare/golz4 v0.0.0-20150217214814-ef862a3cdc58
@@ -29,11 +29,13 @@ require (
 	github.com/ssdb/gossdb v0.0.0-20180723034631-88f6b59b84ec
 	github.com/syndtr/goleveldb v0.0.0-20181127023241-353a9fca669c // indirect
 	github.com/wendal/errors v0.0.0-20130201093226-f66c77a7882b // indirect
-	golang.org/x/crypto v0.0.0-20181127143415-eb0de9b17e85
-	golang.org/x/net v0.0.0-20181114220301-adae6a3d119a // indirect
+	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
+	golang.org/x/tools v0.0.0-20200117065230-39095c1d176c
 	gopkg.in/yaml.v2 v2.2.1
 )
 
 replace golang.org/x/crypto v0.0.0-20181127143415-eb0de9b17e85 => github.com/golang/crypto v0.0.0-20181127143415-eb0de9b17e85
 
 replace gopkg.in/yaml.v2 v2.2.1 => github.com/go-yaml/yaml v0.0.0-20180328195020-5420a8b6744d
+
+go 1.13

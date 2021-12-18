@@ -15,7 +15,15 @@
 package cmd
 
 import (
+	"log"
+
+	"github.com/lflxp/showme/proxy"
 	"github.com/spf13/cobra"
+)
+
+var (
+	localPort string
+	targetUrl string
 )
 
 // proxyCmd represents the proxy command
@@ -27,6 +35,10 @@ var proxyCmd = &cobra.Command{
 * mysql tcp代理（负载均衡、读写分离、分布式调度）
 * socket5 代理
 * ss fq代理`,
+	Run: func(cmd *cobra.Command, args []string) {
+		log.Printf("本地服务 0.0.0.0:%s To %s\n", localPort, targetUrl)
+		proxy.Run(localPort, targetUrl)
+	},
 }
 
 func init() {
@@ -41,4 +53,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// proxyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	proxyCmd.Flags().StringVarP(&localPort, "port", "p", "9090", "本地代理服务器端口")
+	proxyCmd.Flags().StringVarP(&targetUrl, "target", "t", "http://127.0.0.1:8888", "需要代理的服务器")
 }

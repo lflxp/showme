@@ -15,19 +15,56 @@
 package cmd
 
 import (
-	"github.com/lflxp/showme/proxy"
+	"net/http"
+	"os"
+	"os/signal"
+
+	"gitee.com/lflxp/proxy"
+	"github.com/gin-gonic/gin"
+	log "github.com/go-eden/slf4go"
 	"github.com/spf13/cobra"
 )
 
-// httpCmd represents the http command
+var target string
+var local string
+
+// httpCmd represents the httpreverse command
 var httpCmd = &cobra.Command{
 	Use:   "http",
-	Short: "http正向代理",
-	Long: `1、http请求转发
-2、http内网服务增加https设置
-3、类似nginx`,
+	Short: "http反向代理",
+	Long: `1、http反向代理 类似nginx
+2、自动添加https tls支持
+3、技术探索和学习`,
 	Run: func(cmd *cobra.Command, args []string) {
-		proxy.RunProxy("http")
+		r := gin.Default()
+		funcs := proxy.NewHttpProxyByGinCustom(target, nil)
+		r.Any("/*action", funcs)
+		server := &http.Server{
+			Addr:    local,
+			Handler: r,
+		}
+
+		quit := make(chan os.Signal)
+		signal.Notify(quit, os.Interrupt)
+
+		go func() {
+			<-quit
+			log.Warn("receive interrupt signal")
+			if err := server.Close(); err != nil {
+				log.Fatal("Server Close:", err)
+			}
+		}()
+
+		log.Infof("Listening and serving HTTPS on %s", local)
+		if err := server.ListenAndServe(); err != nil {
+			if err == http.ErrServerClosed {
+				log.Warn("Server closed under request")
+			} else {
+				log.Fatal("Server closed unexpect")
+			}
+		}
+
+		log.Warn("Server exiting")
 	},
 }
 
@@ -43,4 +80,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// httpCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	httpCmd.Flags().StringVarP(&target, "target", "t", "https://www.baidu.com", "七层反向代理的http地址")
+	httpCmd.Flags().StringVarP(&local, "local", "L", "0.0.0.0:8888", "本地代理服务器地址")
 }
