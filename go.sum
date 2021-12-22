@@ -478,8 +478,8 @@ github.com/lflxp/lflxp-scan v0.0.0-20200323114511-9ac561b61f89 h1:xvG9ZOf3HuNPzq
 github.com/lflxp/lflxp-scan v0.0.0-20200323114511-9ac561b61f89/go.mod h1:hBQhwQ6D+L5QXP62zkNRL1U2i5XDDLkJiYld0p+okQQ=
 github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee h1:hFTosnSnlVZqdUExjGg6+yPq4IRx4mg/og9mp9y6Eik=
 github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee/go.mod h1:UXB47QOO7Vhv7YpXgWjZ9FT0XXsNI45/aBYf90ybIjo=
-github.com/lflxp/lflxp-static v1.0.0 h1:AhEYkEhFhDG0zXPTBm1gTQYoFb4mgLCpu4USGvXyQOs=
-github.com/lflxp/lflxp-static v1.0.0/go.mod h1:Uw72IogVJmmjBMr/75eY86DhJjUn/7XXtxc9er6G/io=
+github.com/lflxp/lflxp-static v1.0.1 h1:LFmroERk5DZGzb8iFzcVxWJsUkJSWoBmeT+2tQimZH4=
+github.com/lflxp/lflxp-static v1.0.1/go.mod h1:Uw72IogVJmmjBMr/75eY86DhJjUn/7XXtxc9er6G/io=
 github.com/lflxp/lflxp-tty v0.0.0-20201030085208-96cf85de2130 h1:o9x//dasJxaEPXBgbqJM36sOrMX51ccCRav5fN7SjNc=
 github.com/lflxp/lflxp-tty v0.0.0-20201030085208-96cf85de2130/go.mod h1:q5o+/FfglZzlRCgc7u6Ohz+cYiYG4VgKppD4Ojc4KAw=
 github.com/lflxp/sflowtool v0.0.0-20200320153314-630933f4918a/go.mod h1:eHScap6gPi9BndOq7P2dLGiZAcbzae2pnh77z3G+t9I=

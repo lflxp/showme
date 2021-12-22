@@ -119,7 +119,7 @@ func Cors() gin.HandlerFunc {
 	}
 }
 
-func staticServer(port string) {
+func staticServer(ctx context.Context, port string) {
 	r := gin.Default()
 	r.Use(Cors())
 	r.Use(gin.Recovery())
@@ -129,25 +129,16 @@ func staticServer(port string) {
 		Handler: r,
 	}
 	r.StaticFS("/", http.Dir(path))
-	signal.Notify(closeChan,
-		syscall.SIGINT,
-		syscall.SIGTERM,
-		syscall.SIGHUP,
-		os.Interrupt,
-		os.Kill,
-	)
 
-	go func() {
-		<-closeChan
+	go func(ctx context.Context) {
+		<-ctx.Done()
 		log.Println("退出文件服务器 ...")
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
 		if err := server.Shutdown(ctx); err != nil {
 			log.Fatal("Server Shutdown:", err)
 		}
 		log.Println("退出文件服务器 Server exiting")
-	}()
+	}(ctx)
 
 	log.Printf("开启Static Server 0.0.0.0:%s\n", port)
 	if err := server.ListenAndServe(); err != nil {
@@ -248,12 +239,15 @@ func serverGin() {
 		os.Kill,
 	)
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	go staticServer(ctx, staticPort)
+
 	go func() {
 		<-closeChan
 		log.Println("退出页面服务器 ...")
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
 		if err := server.Shutdown(ctx); err != nil {
 			log.Fatal("Server Shutdown:", err)
 		}
