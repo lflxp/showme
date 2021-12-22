@@ -23,7 +23,7 @@ require (
 	github.com/lflxp/lflxp-orzdba v0.0.0-20201102102701-b8902cead805
 	github.com/lflxp/lflxp-scan v0.0.0-20200323114511-9ac561b61f89
 	github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee
-	github.com/lflxp/lflxp-static v1.0.0
+	github.com/lflxp/lflxp-static v1.0.1
 	github.com/lflxp/lflxp-tty v0.0.0-20201030085208-96cf85de2130
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/shadowsocks/shadowsocks-go v0.0.0-20190614083952-6a03846ca9c0
