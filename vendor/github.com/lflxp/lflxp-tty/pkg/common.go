@@ -15,8 +15,8 @@ import (
 	"time"
 
 	"github.com/asdine/storm/v3"
+	log "github.com/go-eden/slf4go"
 	_ "github.com/mattn/go-sqlite3"
-	log "github.com/sirupsen/logrus"
 )
 
 var boltDB *storm.DB

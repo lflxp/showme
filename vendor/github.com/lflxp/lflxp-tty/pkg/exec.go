@@ -1,5 +1,17 @@
 package pkg
 
+import (
+	"fmt"
+
+	"github.com/google/gops/agent"
+)
+
+func init() {
+	if err := agent.Listen(agent.Options{}); err != nil {
+		fmt.Println(err)
+	}
+}
+
 type Lflxp interface {
 	Check() error
 	Execute() error

@@ -141,6 +141,7 @@ type structField struct {
 	defaultValue interface{}
 	extensions   map[string]interface{}
 	enums        []interface{}
+	enumVarNames []interface{}
 	readOnly     bool
 	unique       bool
 }
@@ -163,8 +164,8 @@ func (ps *tagBaseFieldParser) ComplementSchema(schema *spec.Schema) error {
 
 	structField := &structField{
 		schemaType: types[0],
-		formatType: ps.tag.Get("format"),
-		readOnly:   ps.tag.Get("readonly") == "true",
+		formatType: ps.tag.Get(formatTag),
+		readOnly:   ps.tag.Get(readOnlyTag) == "true",
 	}
 
 	if len(types) > 1 && (types[0] == ARRAY || types[0] == OBJECT) {
@@ -178,11 +179,11 @@ func (ps *tagBaseFieldParser) ComplementSchema(schema *spec.Schema) error {
 		structField.desc = strings.TrimSpace(ps.field.Comment.Text())
 	}
 
-	jsonTag := ps.tag.Get("json")
+	jsonTag := ps.tag.Get(jsonTag)
 	// json:"name,string" or json:",string"
 
-	exampleTag := ps.tag.Get("example")
-	if exampleTag != "" {
+	exampleTag, ok := ps.tag.Lookup(exampleTag)
+	if ok {
 		structField.exampleValue = exampleTag
 		if !strings.Contains(jsonTag, ",string") {
 			example, err := defineTypeOfExample(structField.schemaType, structField.arrayType, exampleTag)
@@ -193,17 +194,17 @@ func (ps *tagBaseFieldParser) ComplementSchema(schema *spec.Schema) error {
 		}
 	}
 
-	bindingTag := ps.tag.Get("binding")
+	bindingTag := ps.tag.Get(bindingTag)
 	if bindingTag != "" {
 		ps.parseValidTags(bindingTag, structField)
 	}
 
-	validateTag := ps.tag.Get("validate")
+	validateTag := ps.tag.Get(validateTag)
 	if validateTag != "" {
 		ps.parseValidTags(validateTag, structField)
 	}
 
-	extensionsTag := ps.tag.Get("extensions")
+	extensionsTag := ps.tag.Get(extensionsTag)
 	if extensionsTag != "" {
 		structField.extensions = map[string]interface{}{}
 		for _, val := range strings.Split(extensionsTag, ",") {
@@ -220,7 +221,7 @@ func (ps *tagBaseFieldParser) ComplementSchema(schema *spec.Schema) error {
 		}
 	}
 
-	enumsTag := ps.tag.Get("enums")
+	enumsTag := ps.tag.Get(enumsTag)
 	if enumsTag != "" {
 		enumType := structField.schemaType
 		if structField.schemaType == ARRAY {
@@ -236,8 +237,22 @@ func (ps *tagBaseFieldParser) ComplementSchema(schema *spec.Schema) error {
 			structField.enums = append(structField.enums, value)
 		}
 	}
-
-	defaultTag := ps.tag.Get("default")
+	varnamesTag := ps.tag.Get("x-enum-varnames")
+	if varnamesTag != "" {
+		if structField.extensions == nil {
+			structField.extensions = map[string]interface{}{}
+		}
+		varNames := strings.Split(varnamesTag, ",")
+		if len(varNames) != len(structField.enums) {
+			return fmt.Errorf("invalid count of x-enum-varnames. expected %d, got %d", len(structField.enums), len(varNames))
+		}
+		structField.enumVarNames = nil
+		for _, v := range varNames {
+			structField.enumVarNames = append(structField.enumVarNames, v)
+		}
+		structField.extensions["x-enum-varnames"] = structField.enumVarNames
+	}
+	defaultTag := ps.tag.Get(defaultTag)
 	if defaultTag != "" {
 		value, err := defineType(structField.schemaType, defaultTag)
 		if err != nil {
@@ -247,7 +262,7 @@ func (ps *tagBaseFieldParser) ComplementSchema(schema *spec.Schema) error {
 	}
 
 	if IsNumericType(structField.schemaType) || IsNumericType(structField.arrayType) {
-		maximum, err := getFloatTag(ps.tag, "maximum")
+		maximum, err := getFloatTag(ps.tag, maximumTag)
 		if err != nil {
 			return err
 		}
@@ -255,7 +270,7 @@ func (ps *tagBaseFieldParser) ComplementSchema(schema *spec.Schema) error {
 			structField.maximum = maximum
 		}
 
-		minimum, err := getFloatTag(ps.tag, "minimum")
+		minimum, err := getFloatTag(ps.tag, minimumTag)
 		if err != nil {
 			return err
 		}
@@ -263,7 +278,7 @@ func (ps *tagBaseFieldParser) ComplementSchema(schema *spec.Schema) error {
 			structField.minimum = minimum
 		}
 
-		multipleOf, err := getFloatTag(ps.tag, "multipleOf")
+		multipleOf, err := getFloatTag(ps.tag, multipleOfTag)
 		if err != nil {
 			return err
 		}
@@ -345,7 +360,6 @@ func (ps *tagBaseFieldParser) ComplementSchema(schema *spec.Schema) error {
 	eleSchema.MaxLength = structField.maxLength
 	eleSchema.MinLength = structField.minLength
 	eleSchema.Enum = structField.enums
-
 	return nil
 }
 
@@ -382,7 +396,7 @@ func (ps *tagBaseFieldParser) IsRequired() (bool, error) {
 		return false, nil
 	}
 
-	bindingTag := ps.tag.Get("binding")
+	bindingTag := ps.tag.Get(bindingTag)
 	if bindingTag != "" {
 		for _, val := range strings.Split(bindingTag, ",") {
 			if val == "required" {
@@ -391,7 +405,7 @@ func (ps *tagBaseFieldParser) IsRequired() (bool, error) {
 		}
 	}
 
-	validateTag := ps.tag.Get("validate")
+	validateTag := ps.tag.Get(validateTag)
 	if validateTag != "" {
 		for _, val := range strings.Split(validateTag, ",") {
 			if val == "required" {

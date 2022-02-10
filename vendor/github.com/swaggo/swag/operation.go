@@ -61,7 +61,13 @@ func NewOperation(parser *Parser, options ...func(*Operation)) *Operation {
 		parser:           parser,
 		RouterProperties: []RouteProperties{},
 		Operation: spec.Operation{
-			OperationProps: spec.OperationProps{},
+			OperationProps: spec.OperationProps{
+				Responses: &spec.Responses{
+					ResponsesProps: spec.ResponsesProps{
+						StatusCodeResponses: make(map[int]spec.Response),
+					},
+				},
+			},
 			VendorExtensible: spec.VendorExtensible{
 				Extensions: spec.Extensions{},
 			},
@@ -94,35 +100,35 @@ func (operation *Operation) ParseComment(comment string, astFile *ast.File) erro
 
 	var err error
 	switch lowerAttribute {
-	case "@description":
+	case descriptionAttr:
 		operation.ParseDescriptionComment(lineRemainder)
-	case "@description.markdown":
+	case descriptionMarkdownAttr:
 		commentInfo, err := getMarkdownForTag(lineRemainder, operation.parser.markdownFileDir)
 		if err != nil {
 			return err
 		}
 		operation.ParseDescriptionComment(string(commentInfo))
-	case "@summary":
+	case summaryAttr:
 		operation.Summary = lineRemainder
-	case "@id":
+	case idAttr:
 		operation.ID = lineRemainder
-	case "@tags":
+	case tagsAttr:
 		operation.ParseTagsComment(lineRemainder)
 	case acceptAttr:
 		err = operation.ParseAcceptComment(lineRemainder)
 	case produceAttr:
 		err = operation.ParseProduceComment(lineRemainder)
-	case "@param":
+	case paramAttr:
 		err = operation.ParseParamComment(lineRemainder, astFile)
-	case "@success", "@failure", "@response":
+	case successAttr, failureAttr, responseAttr:
 		err = operation.ParseResponseComment(lineRemainder, astFile)
-	case "@header":
+	case headerAttr:
 		err = operation.ParseResponseHeaderComment(lineRemainder, astFile)
-	case "@router":
+	case routerAttr:
 		err = operation.ParseRouterComment(lineRemainder)
-	case "@security":
+	case securityAttr:
 		err = operation.ParseSecurityComment(lineRemainder)
-	case "@deprecated":
+	case deprecatedAttr:
 		operation.Deprecate()
 	case xCodeSamplesAttr:
 		err = operation.ParseCodeSample(attribute, commentLine, lineRemainder)
@@ -349,13 +355,19 @@ func (operation *Operation) ParseParamComment(commentLine string, astFile *ast.F
 }
 
 const (
+	jsonTag             = "json"
+	bindingTag          = "binding"
 	defaultTag          = "default"
 	enumsTag            = "enums"
+	exampleTag          = "example"
 	formatTag           = "format"
+	validateTag         = "validate"
 	minimumTag          = "minimum"
 	maximumTag          = "maximum"
 	minLengthTag        = "minlength"
 	maxLengthTag        = "maxlength"
+	multipleOfTag       = "multipleOf"
+	readOnlyTag         = "readonly"
 	extensionsTag       = "extensions"
 	collectionFormatTag = "collectionFormat"
 )
@@ -379,6 +391,8 @@ var regexAttributes = map[string]*regexp.Regexp{
 	extensionsTag: regexp.MustCompile(`(?i)\s+extensions\(.*\)`),
 	// for collectionFormat(csv)
 	collectionFormatTag: regexp.MustCompile(`(?i)\s+collectionFormat\(.*\)`),
+	// example(0)
+	exampleTag: regexp.MustCompile(`(?i)\s+example\(.*\)`),
 }
 
 func (operation *Operation) parseAndExtractionParamAttribute(commentLine, objectType, schemaType string, param *spec.Parameter) error {
@@ -399,6 +413,8 @@ func (operation *Operation) parseAndExtractionParamAttribute(commentLine, object
 			err = setStringParam(param, attrKey, schemaType, attr, commentLine)
 		case formatTag:
 			param.Format = attr
+		case exampleTag:
+			err = setExample(param, schemaType, attr)
 		case extensionsTag:
 			_ = setExtensionParam(param, attr)
 		case collectionFormatTag:
@@ -511,6 +527,15 @@ func setDefault(param *spec.Parameter, schemaType string, value string) error {
 		return nil // Don't set a default value if it's not valid
 	}
 	param.Default = val
+	return nil
+}
+
+func setExample(param *spec.Parameter, schemaType string, value string) error {
+	val, err := defineType(schemaType, value)
+	if err != nil {
+		return nil // Don't set a example value if it's not valid
+	}
+	param.Example = val
 	return nil
 }
 
@@ -831,7 +856,7 @@ func (operation *Operation) ParseResponseComment(commentLine string, astFile *as
 		return err
 	}
 
-	responseDescription := strings.Trim(matches[4], "\"")
+	description := strings.Trim(matches[4], "\"")
 	schema, err := operation.parseAPIObjectSchema(strings.Trim(matches[2], "{}"), matches[3], astFile)
 	if err != nil {
 		return err
@@ -839,8 +864,7 @@ func (operation *Operation) ParseResponseComment(commentLine string, astFile *as
 
 	for _, codeStr := range strings.Split(matches[1], ",") {
 		if strings.EqualFold(codeStr, defaultTag) {
-			operation.DefaultResponse().Schema = schema
-			operation.DefaultResponse().Description = responseDescription
+			operation.DefaultResponse().WithSchema(schema).WithDescription(description)
 
 			continue
 		}
@@ -848,12 +872,12 @@ func (operation *Operation) ParseResponseComment(commentLine string, astFile *as
 		if err != nil {
 			return fmt.Errorf("can not parse response comment \"%s\"", commentLine)
 		}
-		resp := &spec.Response{
-			ResponseProps: spec.ResponseProps{Schema: schema, Description: responseDescription},
+
+		resp := spec.NewResponse().WithSchema(schema).WithDescription(description)
+		if description == "" {
+			resp.WithDescription(http.StatusText(code))
 		}
-		if resp.Description == "" {
-			resp.Description = http.StatusText(code)
-		}
+
 		operation.AddResponse(code, resp)
 	}
 
@@ -881,11 +905,6 @@ func (operation *Operation) ParseResponseHeaderComment(commentLine string, _ *as
 	header := newHeaderSpec(strings.Trim(matches[2], "{}"), strings.Trim(matches[4], "\""))
 
 	headerKey := matches[3]
-	if operation.Responses.Default != nil {
-		if operation.Responses.Default.Headers == nil {
-			operation.Responses.Default.Headers = make(map[string]spec.Header)
-		}
-	}
 
 	if strings.EqualFold(matches[1], "all") {
 		if operation.Responses.Default != nil {
@@ -918,9 +937,6 @@ func (operation *Operation) ParseResponseHeaderComment(commentLine string, _ *as
 		if operation.Responses.StatusCodeResponses != nil {
 			response, responseExist := operation.Responses.StatusCodeResponses[code]
 			if responseExist {
-				if response.Headers == nil {
-					response.Headers = make(map[string]spec.Header)
-				}
 				response.Headers[headerKey] = header
 
 				operation.Responses.StatusCodeResponses[code] = response
@@ -940,10 +956,10 @@ func (operation *Operation) ParseEmptyResponseComment(commentLine string) error 
 		return fmt.Errorf("can not parse response comment \"%s\"", commentLine)
 	}
 
-	responseDescription := strings.Trim(matches[2], "\"")
+	description := strings.Trim(matches[2], "\"")
 	for _, codeStr := range strings.Split(matches[1], ",") {
 		if strings.EqualFold(codeStr, defaultTag) {
-			operation.DefaultResponse().Description = responseDescription
+			operation.DefaultResponse().WithDescription(description)
 
 			continue
 		}
@@ -953,9 +969,7 @@ func (operation *Operation) ParseEmptyResponseComment(commentLine string) error 
 			return fmt.Errorf("can not parse response comment \"%s\"", commentLine)
 		}
 
-		var response spec.Response
-		response.Description = responseDescription
-		operation.AddResponse(code, &response)
+		operation.AddResponse(code, spec.NewResponse().WithDescription(description))
 	}
 
 	return nil
@@ -974,9 +988,7 @@ func (operation *Operation) ParseEmptyResponseOnly(commentLine string) error {
 			return fmt.Errorf("can not parse response comment \"%s\"", commentLine)
 		}
 
-		var response spec.Response
-		// response.Description = http.StatusText(code)
-		operation.AddResponse(code, &response)
+		operation.AddResponse(code, spec.NewResponse())
 	}
 
 	return nil
@@ -985,7 +997,11 @@ func (operation *Operation) ParseEmptyResponseOnly(commentLine string) error {
 // DefaultResponse return the default response member pointer.
 func (operation *Operation) DefaultResponse() *spec.Response {
 	if operation.Responses.Default == nil {
-		operation.Responses.Default = &spec.Response{}
+		operation.Responses.Default = &spec.Response{
+			ResponseProps: spec.ResponseProps{
+				Headers: make(map[string]spec.Header),
+			},
+		}
 	}
 
 	return operation.Responses.Default
@@ -993,14 +1009,9 @@ func (operation *Operation) DefaultResponse() *spec.Response {
 
 // AddResponse add a response for a code.
 func (operation *Operation) AddResponse(code int, response *spec.Response) {
-	if operation.Responses == nil {
-		operation.Responses = &spec.Responses{
-			ResponsesProps: spec.ResponsesProps{
-				StatusCodeResponses: make(map[int]spec.Response),
-			},
-		}
+	if response.Headers == nil {
+		response.Headers = make(map[string]spec.Header)
 	}
-
 	operation.Responses.StatusCodeResponses[code] = *response
 }
 

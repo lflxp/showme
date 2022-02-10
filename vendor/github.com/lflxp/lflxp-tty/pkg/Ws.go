@@ -15,8 +15,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 
+	log "github.com/go-eden/slf4go"
 	"github.com/gorilla/websocket"
-	log "github.com/sirupsen/logrus"
 )
 
 // 服务端内部处理对象
@@ -52,9 +52,9 @@ func (this *ClientContext) HandleClient() {
 		defer func() {
 			conns := atomic.AddInt64(this.Xtermjs.Connections, -1)
 			if this.Xtermjs.Options.MaxConnections != 0 {
-				log.WithField("Ws.go", "54").Infof("连接关闭: %s , 连接状态: %d/%d", this.Request.RemoteAddr, conns, this.Xtermjs.Options.MaxConnections)
+				log.Infof("连接关闭: %s , 连接状态: %d/%d", this.Request.RemoteAddr, conns, this.Xtermjs.Options.MaxConnections)
 			} else {
-				log.WithField("Ws.go", "56").Infof("连接关闭: %s, 连接总数: %d", this.Request.RemoteAddr, conns)
+				log.Infof("连接关闭: %s, 连接总数: %d", this.Request.RemoteAddr, conns)
 			}
 		}()
 
@@ -85,23 +85,23 @@ func (this *ClientContext) Send(quitChan chan bool) {
 	for {
 		select {
 		case <-quitChan:
-			log.WithField("Ws.go", "87").Info("Close Send Channel")
+			log.Info("Close Send Channel")
 			return
 		default:
 			// 读取命令执行结果并通过ws反馈给用户
 			size, err := this.Pty.Read(buf)
 			if err != nil {
-				log.WithField("Ws.go", "93").Warnf("Send[87] %s -> %s", this.Request.RemoteAddr, err.Error())
+				log.Warnf("Send[87] %s -> %s", this.Request.RemoteAddr, err.Error())
 				return
 			}
-			log.WithField("Ws.go", "96").Debugf("Send Size: %d\n", size)
+			log.Debugf("Send Size: %d\n", size)
 			// prometheus 监控
 			wsCounts.With(prometheus.Labels{"send": "count"}).Inc()
 			// 将所有返回结果包括UTF8编码的内容用base64进行编码，client解码再显示，避免了直接UTF8编码传输的报错
 			// Could not decode a text frame as UTF-8 的解决
 			safeMessage := base64.StdEncoding.EncodeToString([]byte(buf[:size]))
 			if err = this.write([]byte(safeMessage)); err != nil {
-				log.WithField("Ws.go", "101").Error(err.Error())
+				log.Error(err.Error())
 				return
 			}
 		}
@@ -111,13 +111,13 @@ func (this *ClientContext) Send(quitChan chan bool) {
 // xsrf验证
 // token = xsrf + request.remoteAddr
 func (this *ClientContext) ParseXsrf(info []byte) (string, string, bool) {
-	log.WithField("Ws.go", "111").Debugf("xsrf[111] before %s", string(info))
+	log.Debugf("xsrf[111] before %s", string(info))
 	if len(info) < 34 {
 		return "", "", false
 	}
 	token := fmt.Sprintf("%s%s", string(info[1:33]), strings.Split(this.Request.RemoteAddr, ":")[0])
 	if v, ok := this.Xtermjs.XsrfToken.Load(token); ok {
-		log.WithField("Ws.go", "117").Debugf("%s XsrfToken %s Created %s Message %s", this.Request.RemoteAddr, string(info[1:33]), v.(string), string(info[33:]))
+		log.Debugf("%s XsrfToken %s Created %s Message %s", this.Request.RemoteAddr, string(info[1:33]), v.(string), string(info[33:]))
 		return token, string(info[33:]), true
 	}
 	return token, string(info[33:]), false
@@ -130,22 +130,22 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 	for {
 		select {
 		case <-quitChan:
-			log.WithField("Ws.go", "130").Info("Close Recive Channel")
+			log.Info("Close Recive Channel")
 			return
 		default:
 			// 读取ws中的数据
 			_, message, err := this.WsConn.ReadMessage()
 			if err != nil {
-				log.WithField("Ws.go", "136").Warnf("Receive[112] %s", err.Error())
+				log.Warnf("Receive[112] %s", err.Error())
 				return
 			}
 
 			if len(message) == 0 {
-				log.WithField("Ws.go", "141").Error("An error mesaage length is 0")
+				log.Error("An error mesaage length is 0")
 				return
 			}
 
-			log.WithField("Ws.go", "145").Debugf("Receive[144] %s\n", string(message))
+			log.Debugf("Receive[144] %s\n", string(message))
 
 			var msg string
 			// Xsrf校验
@@ -155,7 +155,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 					cacheKey string
 				)
 				cacheKey, msg, status = this.ParseXsrf(message)
-				log.WithField("Ws.go", "155").Debugf("xsrf[155] after %s %s %v", cacheKey, msg, status)
+				log.Debugf("xsrf[155] after %s %s %v", cacheKey, msg, status)
 				if !status {
 					tmp := &Aduit{
 						Remoteaddr: this.Request.RemoteAddr,
@@ -166,7 +166,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 					}
 					err = tmp.Save()
 					if err != nil {
-						log.WithField("Ws.go", "166").Error("AddAduit error", err.Error())
+						log.Error("AddAduit error", err.Error())
 					}
 					this.write([]byte("\x1B[1;3;31mPermission Denied\x1B[0m\n"))
 					break
@@ -205,7 +205,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 			if this.Xtermjs.Options.Audit {
 				cm, err := DecodeBase64(msg)
 				if err != nil {
-					log.WithField("Ws.go", "205").Errorf("Recive[172] [%s] %s", msg, err.Error())
+					log.Errorf("Recive[172] [%s] %s", msg, err.Error())
 					break
 				}
 				tmp := &Aduit{
@@ -217,7 +217,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 				}
 				err = tmp.Save()
 				if err != nil {
-					log.WithField("Ws.go", "217").Error("AddAduit error", err.Error())
+					log.Error("AddAduit error", err.Error())
 				}
 			}
 
@@ -234,14 +234,14 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 				// base64解码
 				decode, err := DecodeBase64Bytes(msg)
 				if err != nil {
-					log.WithField("Ws.go", "233").Error("Recive[156] ", err.Error())
+					log.Error("Recive[156] ", err.Error())
 					break
 				}
-				log.WithField("Ws.go", "236").Debugf("Write info %s", string(decode))
+				log.Debugf("Write info %s", string(decode))
 				// 向pty中传入执行命令
 				_, err = this.Pty.Write(decode)
 				if err != nil {
-					log.WithField("Ws.go", "240").Error("Recive[163] ", err.Error())
+					log.Error("Recive[163] ", err.Error())
 					return
 				}
 			case Heartbeat:
@@ -253,20 +253,20 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 				// base64解码
 				decode, err := DecodeBase64(msg)
 				if err != nil {
-					log.WithField("Ws.go", "252").Errorf("Recive[175] %s", err.Error())
+					log.Errorf("Recive[175] %s", err.Error())
 					break
 				}
 
 				tmp := strings.Split(decode, ":")
 				rows, err := strconv.Atoi(tmp[0])
 				if err != nil {
-					log.WithField("Ws.go", "259").Errorf("Recive[182] %s", err.Error())
+					log.Errorf("Recive[182] %s", err.Error())
 					this.write([]byte(err.Error()))
 					break
 				}
 				cols, err := strconv.Atoi(tmp[1])
 				if err != nil {
-					log.WithField("Ws.go", "265").Errorf("Recive[188] %s", err.Error())
+					log.Errorf("Recive[188] %s", err.Error())
 					this.write([]byte(err.Error()))
 					break
 				}
@@ -289,7 +289,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 				)
 			default:
 				this.write([]byte(fmt.Sprintf("Unknow Message Type %s", string(message[0]))))
-				log.WithField("Ws.go", "288").Error("Unknow Message Type %v", message[0])
+				log.Error("Unknow Message Type %v", message[0])
 			}
 		}
 	}

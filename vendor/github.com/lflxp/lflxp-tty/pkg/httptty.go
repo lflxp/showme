@@ -13,11 +13,9 @@ import (
 
 	"github.com/chenjiandongx/ginprom"
 	"github.com/creack/pty"
-	assetfs "github.com/elazarl/go-bindata-assetfs"
-	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
+	log "github.com/go-eden/slf4go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	log "github.com/sirupsen/logrus"
 )
 
 var httpXterm *XtermJs
@@ -65,13 +63,9 @@ func RegisterTty(router *gin.Engine, data *Tty, isLocal bool) {
 		Cmds:        data.Cmds,
 	}
 
-	// 静态二进制文件
-	fs := assetfs.AssetFS{
-		Asset:    Asset,
-		AssetDir: AssetDir,
-	}
-
-	// router.StaticFS("/tty/static", &fs)
+	router.StaticFS("/adminfs", http.FS(Static))
+	tmp := template.Must(template.New("").ParseFS(Views, "views/*"))
+	router.SetHTMLTemplate(tmp)
 
 	if isLocal {
 		rootPath = "/"
@@ -86,38 +80,6 @@ func RegisterTty(router *gin.Engine, data *Tty, isLocal bool) {
 		apiGroup = router.Group(rootPath, gin.BasicAuth(gin.Accounts{data.Username: data.Password}))
 	}
 
-	// 添加html template
-	// 主页
-	// 从内存取出然后渲染加载
-	indexhtml := multitemplate.New()
-	httpXterm3, err := Asset("xterm3.html")
-	if err != nil {
-		log.WithField("tty.go", "198").Error(err.Error())
-		return
-	}
-
-	t, err := template.New("index").Parse(string(httpXterm3))
-	if err != nil {
-		log.Error(err.Error())
-		return
-	}
-
-	admin, err := Asset("admin.html")
-	if err != nil {
-		log.WithField("tty.go", "198").Error(err.Error())
-		return
-	}
-
-	ta, err := template.New("admin").Parse(string(admin))
-	if err != nil {
-		log.Error(err.Error())
-		return
-	}
-
-	indexhtml.Add("index", t)
-	indexhtml.Add("admin", ta)
-	router.HTMLRender = indexhtml
-
 	if data.IsAudit {
 		apiGroup.GET("/check", Check)
 		apiGroup.GET("/who", Who)
@@ -125,7 +87,6 @@ func RegisterTty(router *gin.Engine, data *Tty, isLocal bool) {
 	}
 	apiGroup.GET("/", Index)
 	apiGroup.GET("/ws", Ws)
-	apiGroup.StaticFS("/static", &fs)
 
 	// The Handler function provides a default handler to expose metrics
 	// via an HTTP server. "/metrics" is the usual endpoint for that.
@@ -205,24 +166,21 @@ func Admin(c *gin.Context) {
 		}
 	}()
 	var (
-		static  string
 		metrics string
 		who     string
 		check   string
 	)
 	if rootPath == "/" {
-		static = "/static"
 		metrics = "/metrics"
 		who = "/who"
 		check = "/check"
 	} else {
-		static = fmt.Sprintf("%s/static", rootPath)
 		metrics = fmt.Sprintf("%s/metrics", rootPath)
 		who = fmt.Sprintf("%s/who", rootPath)
 		check = fmt.Sprintf("%s/check", rootPath)
 	}
 	c.HTML(http.StatusOK, "admin", gin.H{
-		"StaticPath": static,
+		"StaticPath": "/adminfs/static",
 		"Metrics":    metrics,
 		"Who":        who,
 		"Check":      check,
@@ -253,9 +211,7 @@ func Ws(c *gin.Context) {
 	connects.Set(float64(conns))
 	if httpXterm.Options.MaxConnections != 0 {
 		if conns > httpXterm.Options.MaxConnections {
-			log.WithFields(log.Fields{
-				"tty.go": "147",
-			}).Printf("Max Connected: %d", httpXterm.Options.MaxConnections)
+			log.Infof("Max Connected: %d", httpXterm.Options.MaxConnections)
 			atomic.AddInt64(httpXterm.Connections, -1)
 			return
 		}
@@ -285,10 +241,10 @@ func Ws(c *gin.Context) {
 	}
 
 	if httpXterm.Options.MaxConnections != 0 {
-		log.WithField("tty.go", "169").Printf("Command is running for client %s with PID %d (args=%q), connections: %d/%d",
+		log.Infof("Command is running for client %s with PID %d (args=%q), connections: %d/%d",
 			c.Request.RemoteAddr, cmd.Process.Pid, httpXterm.Cmds, conns, httpXterm.Options.MaxConnections)
 	} else {
-		log.WithField("tty.go", "172").Printf("Command is running for client %s with PID %d (args=%q), connections: %d",
+		log.Infof("Command is running for client %s with PID %d (args=%q), connections: %d",
 			c.Request.RemoteAddr, cmd.Process.Pid, httpXterm.Cmds, conns)
 	}
 
@@ -340,22 +296,19 @@ func Index(c *gin.Context) {
 		httproto = "http"
 	}
 	newXsrf := GetRandomSalt()
-	log.WithField("tty.go", "212").Debugf("%s xsrftoken %s", c.Request.RemoteAddr, newXsrf)
+	log.Debugf("%s xsrftoken %s", c.Request.RemoteAddr, newXsrf)
 	if !httpXterm.Options.Xsrf {
 		httpXterm.XsrfToken.Store(fmt.Sprintf("%s%s", newXsrf, strings.Split(c.Request.RemoteAddr, ":")[0]), time.Now().String())
 	}
 
 	var (
-		path   string
 		wspath string
 		admin  string
 	)
 	if rootPath == "/" {
-		path = "/static"
 		wspath = "/ws"
 		admin = "/admin"
 	} else {
-		path = fmt.Sprintf("%s/static", rootPath)
 		wspath = fmt.Sprintf("%s/ws", rootPath)
 		admin = fmt.Sprintf("%s/admin", rootPath)
 	}
@@ -372,7 +325,7 @@ func Index(c *gin.Context) {
 		"Protocol":   protocol,
 		"Httproto":   httproto,
 		"isAduit":    httpXterm.Options.Audit,
-		"StaticPath": path,
+		"StaticPath": "/adminfs/static",
 		"WsPath":     wspath,
 		"Admin":      admin,
 	})
