@@ -13,9 +13,11 @@ var Commands = []prompt.Suggest{
 	{Text: "dashboard", Description: "computer configeration"},
 	{Text: "gocui", Description: "https://github.com/jroimartin/gocui"},
 	{Text: "monitor", Description: "monitoring Linux/Unix or MacOs status runtime"},
-	{Text: "scan", Description: "ip && port scaning online"},
+	{Text: "scan", Description: "IP端口扫描工具"},
 	{Text: "mysql", Description: "monitor mysql info"},
 	{Text: "help", Description: "List All Menu"},
+	{Text: "tty", Description: "web terminal"},
+	{Text: "sw", Description: "golang持续热更新工具"},
 }
 
 func GetHelp() []string {
