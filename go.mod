@@ -9,6 +9,7 @@ require (
 	github.com/c-bata/go-prompt v0.2.3
 	github.com/coreos/bbolt v1.3.2
 	github.com/cosmtrek/air v1.27.8
+	github.com/creack/pty v1.1.11
 	github.com/devopsxp/xp v0.0.0-20210120084237-346e7693b0f3
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-eden/slf4go v1.1.1
@@ -32,6 +33,7 @@ require (
 	github.com/spf13/viper v1.8.1
 	github.com/swaggo/swag v1.7.9
 	github.com/ugorji/go/codec v1.1.7
+	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 )
 
 require (
@@ -46,7 +48,6 @@ require (
 	github.com/briandowns/spinner v1.11.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/chenjiandongx/ginprom v0.0.0-20191227144730-e11ebf56bc05 // indirect
-	github.com/creack/pty v1.1.11 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/elastic/beats v7.6.1+incompatible // indirect
 	github.com/elastic/go-sysinfo v1.3.0 // indirect
