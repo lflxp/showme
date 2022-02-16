@@ -1,3 +1,4 @@
+//go:build !gopacket
 // +build !gopacket
 
 package executors
@@ -74,8 +75,31 @@ func ParseExecutors(in string) (func(), bool) {
 			}
 		}
 		status = true
+	} else if strings.Contains(in, "tty") {
+		result = func() {
+			err := utils.CommandPty(strings.Replace(in, "tty", "showme tty", -1))
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+		status = true
+	} else if strings.Contains(in, "sw") {
+		result = func() {
+			err := utils.CommandPty(strings.Replace(in, "sw", "showme watch", -1))
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+		status = true
 	} else {
-		fmt.Println(utils.Colorize(in, "red", "black", true, true), " not found executors")
+		// fmt.Println(utils.Colorize(in, "red", "black", true, true), "未发现该命令")
+		result = func() {
+			err := utils.CommandPty(in)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+		status = true
 	}
 	return result, status
 }
