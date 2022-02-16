@@ -94,6 +94,8 @@ func OptionsCompleters(args []string, long bool) []prompt.Suggest {
 		sug = suggests.MonitorOptions
 	case "mysql":
 		sug = suggests.MysqlOptions
+	case "tty":
+		sug = suggests.TtyOptions
 	default:
 		sug = optionHelp
 	}
