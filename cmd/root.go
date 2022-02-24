@@ -35,7 +35,7 @@ var islog bool
 var rootCmd = &cobra.Command{
 	Use:   "showme",
 	Short: "运维快速问题排查工具兼运维自动化工具",
-	Long: ```1. 排查工具包括：
+	Long: `1. 排查工具包括：
 	* IP扫描
 	* 端口扫描
 	* 性能实时监控
@@ -57,7 +57,7 @@ var rootCmd = &cobra.Command{
 	bindkey -s "^[\~" "showme^M"
 bindkey -s "^[1" "showme watch^M"
 bindkey -s "^[2" "showme static^M"
-bindkey -s "^[3" "showme tty -w^M"```,
+bindkey -s "^[3" "showme tty -w^M"`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
