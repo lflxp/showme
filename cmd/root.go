@@ -132,9 +132,12 @@ var rootCmd = &cobra.Command{
 	* 单文件、无依赖、快速、信息丰富多样化的console terminal
 	3.3 ZSH bindkey配置
 	bindkey -s "^[\~" "showme^M"
-bindkey -s "^[1" "showme watch^M"
-bindkey -s "^[2" "showme static^M"
-bindkey -s "^[3" "showme tty -w^M"`,
+	bindkey -s "^[1" "showme --height=40%^M"
+	bindkey -s "^[2" "showme cmd^M"
+	bindkey -s "^[3" "showme static^M"
+	bindkey -s "^[4" "showme tty -w^M"
+	bindkey -s "^[5" "showme watchw^M"
+	`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
