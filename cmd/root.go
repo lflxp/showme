@@ -20,7 +20,7 @@ import (
 	"time"
 
 	_ "github.com/devopsxp/xp/module"
-	fzf "github.com/lflxp/fzf/src"
+	fzf "github.com/junegunn/fzf/src"
 	"github.com/lflxp/showme/utils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -64,11 +64,7 @@ bindkey -s "^[3" "showme tty -w^M"`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
-		opts := fzf.ParseOptionsCobra()
-		// TODO: Parse Info
-		parseFzfArgs(opts)
-		fzf.PostProcessOptions(opts)
-		fzf.Run(opts, version, revision)
+		fzf.Run(fzf.ParseOptions(), version, revision)
 	},
 }
 
@@ -76,7 +72,7 @@ bindkey -s "^[3" "showme tty -w^M"`,
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		fmt.Println("Execute Error: ", err)
 		os.Exit(1)
 	}
 }
@@ -88,7 +84,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.showme.yaml)")
-	rootCmd.PersistentFlags().BoolVarP(&debugs, "debug", "d", false, "是否打印debug日志")
+	// rootCmd.PersistentFlags().BoolVarP(&debugs, "debug", "d", false, "是否打印debug日志")
 	rootCmd.PersistentFlags().BoolVarP(&islog, "log", "l", false, "是否文件输出")
 
 	// Cobra also supports local flags, which will only run
@@ -99,41 +95,65 @@ func init() {
 	rootCmd.Flags().BoolVarP(&extended, "extended", "x", false, "Extended-search mode (enabled by default; +x or --no-extended to disable)")
 	rootCmd.Flags().BoolVarP(&exact, "exact", "e", false, "Enable Exact-match")
 	rootCmd.Flags().StringVarP(&query, "query", "q", "", "Start the finder with the given query")
+	rootCmd.Flags().StringVar(&algo, "algo", "v2", "Start the finder with the given query")
 	rootCmd.Flags().StringVarP(&filter, "filter", "f", "", "Filter mode. Do not start interactive finder.")
+	rootCmd.Flags().StringVarP(&nth, "nth", "n", "", "Comma-separated list of field index expressions")
+	rootCmd.Flags().StringVarP(&delimiter, "delimiter", "d", "AWK-style", "Field delimiter regex (default: AWK-style)")
+	rootCmd.Flags().StringVar(&withnth, "with-nth", "", "Transform the presentation of each line using field index expressions")
 	rootCmd.Flags().BoolVar(&literal, "literal", false, "Do not normalize latin script letters before matching")
+	rootCmd.Flags().BoolVar(&nosort, "no-sort", false, "Do not sort the result")
+	rootCmd.Flags().BoolVarP(&insensitive, "insensitive", "i", false, "Do not normalize latin script letters before matching")
 	rootCmd.Flags().BoolVar(&phony, "phony", false, "Enable Exact-match")
+	rootCmd.Flags().StringVar(&tiebreak, "tiebreak", "length", "omma-separated list of sort criteria to apply 	when the scores are tied [length|begin|end|index] 	(default: length)")
+	rootCmd.Flags().BoolVar(&enabled, "enabled", false, "Do not perform search")
+	rootCmd.Flags().BoolVar(&disabled, "disabled", false, "Do not perform search")
 	rootCmd.Flags().IntVarP(&sort, "sort", "s", 0, "Do not sort the result")
 	rootCmd.Flags().BoolVar(&tac, "tac", false, "Reverse the order of the input")
 	rootCmd.Flags().IntVarP(&multi, "multi", "m", 0, "Enable multi-select with tab/shift-tab")
 	rootCmd.Flags().BoolVar(&ansi, "ansi", false, "Enable processing of ANSI color codes")
 	rootCmd.Flags().BoolVar(&mouse, "mouse", false, "Enable mouse")
+	rootCmd.Flags().BoolVar(&mouse, "no-mouse", false, "Disabled mouse")
 	rootCmd.Flags().BoolVar(&black, "black", false, "black")
 	rootCmd.Flags().BoolVar(&bold, "bold", false, "bold")
 	rootCmd.Flags().BoolVar(&cycle, "cycle", false, "cycle")
-	rootCmd.Flags().BoolVar(&keepright, "keepright", false, "keepright")
+	rootCmd.Flags().BoolVar(&keepright, "keep-right", false, "keepright")
 	rootCmd.Flags().BoolVar(&hscroll, "hscroll", false, "hscroll")
-	rootCmd.Flags().IntVar(&hscrolloff, "hscrolloff", 0, "hscrolloff")
-	rootCmd.Flags().IntVar(&scrolloff, "scrolloff", 0, "scrolloff")
-	rootCmd.Flags().BoolVar(&fileword, "fileword", false, "fileword")
-	rootCmd.Flags().StringVar(&jumplabels, "jumplabels", "", "Label characters for jump and jump-accept")
-	rootCmd.Flags().BoolVar(&select1, "select1", false, "select1")
-	rootCmd.Flags().BoolVar(&exit0, "exit0", false, "exit0")
-	rootCmd.Flags().BoolVar(&readzero, "readzero", false, "readzero")
-	rootCmd.Flags().BoolVar(&print0, "print0", false, "print0")
-	rootCmd.Flags().BoolVar(&printquery, "printquery", false, "printquery")
-	rootCmd.Flags().StringVar(&prompt, "prompt", "", "prompt")
-	rootCmd.Flags().StringVar(&pointer, "pointer", "", "pointer")
-	rootCmd.Flags().StringVar(&marker, "marker", "", "marker")
-	rootCmd.Flags().BoolVar(&sync, "sync", false, "sync")
-	rootCmd.Flags().IntVar(&headerlines, "headerlines", 0, "headerlines")
-	rootCmd.Flags().BoolVar(&headerfirst, "headerfirst", false, "headerfirst")
-	rootCmd.Flags().StringVar(&preview, "preview", "", "preview")
-	rootCmd.Flags().StringVar(&height, "height", "40%", "height")
-	rootCmd.Flags().IntVar(&minheight, "minheight", 0, "minheight")
+	rootCmd.Flags().BoolVar(&hscroll, "no-hscroll", false, "Disable horizontal scroll")
+	rootCmd.Flags().IntVar(&hscrolloff, "hscroll-off", 0, "hscrolloff")
+	rootCmd.Flags().IntVar(&scrolloff, "scroll-off", 0, "scrolloff")
+	rootCmd.Flags().BoolVar(&fileword, "filepath-word", false, "Make word-wise movements respect path separator")
+	rootCmd.Flags().StringVar(&jumplabels, "jump-labels", "", "Label characters for jump and jump-accept")
+	rootCmd.Flags().BoolVarP(&select1, "select-1", "1", false, "Automatically select the only match")
+	rootCmd.Flags().BoolVarP(&exit0, "exit-0", "0", false, "Exit immediately when there's no match")
+	rootCmd.Flags().BoolVar(&readzero, "read0", false, "Read input delimited by ASCII NUL characters")
+	rootCmd.Flags().BoolVar(&print0, "print0", false, "Print output delimited by ASCII NUL character")
+	rootCmd.Flags().StringVar(&prompt, "expect", "", "Comma-separated list of keys to complete fzf")
+	rootCmd.Flags().BoolVar(&printquery, "print-query", false, "Print query as the first line")
+	rootCmd.Flags().StringVar(&pointer, "pointer", "", "Pointer to the current line (default: '>'")
+	rootCmd.Flags().StringVar(&marker, "marker", "", "Multi-select marker (default: '>')")
+	rootCmd.Flags().BoolVar(&sync, "sync", false, "Synchronous search for multi-staged filtering")
+	rootCmd.Flags().StringVar(&preview, "preview", "", "Command to preview highlighted line ({})")
+	rootCmd.Flags().StringVar(&preview, "preview-window", "right:50%", "Preview window layout (default: right:50%)")
+	rootCmd.Flags().StringVar(&height, "height", "40%", "Display fzf window below the cursor with the give")
+	rootCmd.Flags().IntVar(&minheight, "min-height", 0, "Minimum height when --height is given in percent default: 10")
 	rootCmd.Flags().BoolVar(&unicode, "unicode", false, "unicode")
 	rootCmd.Flags().IntVar(&tabstop, "tabstop", 8, "Number of spaces for a tab character (default: 8)")
 	rootCmd.Flags().BoolVar(&clearonexit, "clear", false, "clearonexit")
 	rootCmd.Flags().BoolVar(&versions, "versions", false, "versions")
+	rootCmd.Flags().StringVar(&bind, "bind", "", "Custom key bindings. Refer to the man page.")
+	rootCmd.Flags().StringVar(&layout, "layout", "default", "Choose layout: [default|reverse|reverse-list]")
+	rootCmd.Flags().StringVar(&border, "border", "", "Draw border around the finder")
+	rootCmd.Flags().StringVar(&border, "margin", "rounded", "Screen margin (TRBL | TB,RL | T,RL,B | T,R,B,L)")
+	rootCmd.Flags().StringVar(&border, "padding", "", "Padding inside border (TRBL | TB,RL | T,RL,B | T,R,B,L)")
+	rootCmd.Flags().StringVar(&border, "info", "", "Finder info style [default|inline|hidden]")
+	rootCmd.Flags().StringVar(&border, "prompt", ">", "Input prompt (default: '> ')")
+	rootCmd.Flags().StringVar(&border, "header", "", "String to print as header")
+	rootCmd.Flags().IntVar(&headerlines, "header-lines", 0, "The first N lines of the input are treated as heade")
+	rootCmd.Flags().BoolVar(&headerfirst, "header-first", false, "Print header before the prompt line")
+	rootCmd.Flags().StringVar(&color, "color", "", "Base scheme (dark|light|16|bw) and/or custom colors")
+	rootCmd.Flags().BoolVar(&versions, "no-bold", false, "Do not use bold text")
+	rootCmd.Flags().StringVar(&color, "history", "", "History file")
+	rootCmd.Flags().StringVar(&color, "history-size", "1000", "Maximum number of history entries (default: 1000)")
 }
 
 // initConfig reads in config file and ENV variables if set.

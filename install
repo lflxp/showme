@@ -146,7 +146,7 @@ download() {
   fi
 
   local url
-  url=https://github.com/lflxp/fzf/releases/download/$version/${1}
+  url=https://github.com/junegunn/fzf/releases/download/$version/${1}
   set -o pipefail
   if ! (try_curl $url || try_wget $url); then
     set +o pipefail
@@ -193,12 +193,12 @@ if [ -n "$binary_error" ]; then
     echo "  - $binary_error !!!"
   fi
   if command -v go > /dev/null; then
-    echo -n "Building binary (go get -u github.com/lflxp/fzf) ... "
+    echo -n "Building binary (go get -u github.com/junegunn/fzf) ... "
     if [ -z "${GOPATH-}" ]; then
       export GOPATH="${TMPDIR:-/tmp}/fzf-gopath"
       mkdir -p "$GOPATH"
     fi
-    if go get -ldflags "-s -w -X main.version=$version -X main.revision=go-get" github.com/lflxp/fzf; then
+    if go get -ldflags "-s -w -X main.version=$version -X main.revision=go-get" github.com/junegunn/fzf; then
       echo "OK"
       cp "$GOPATH/bin/fzf" "$fzf_base/bin/"
     else
@@ -374,4 +374,4 @@ if [ $update_config -eq 1 ]; then
   echo 'Use uninstall script to remove fzf.'
   echo
 fi
-echo 'For more information, see: https://github.com/lflxp/fzf'
+echo 'For more information, see: https://github.com/junegunn/fzf'

@@ -1,4 +1,3 @@
-//go:build !windows
 // +build !windows
 
 package tui
@@ -10,7 +9,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/lflxp/fzf/src/util"
+	"github.com/junegunn/fzf/src/util"
 	"golang.org/x/term"
 )
 

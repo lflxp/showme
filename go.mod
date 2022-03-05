@@ -17,7 +17,7 @@ require (
 	github.com/google/gopacket v1.1.17
 	github.com/jroimartin/gocui v0.4.0
 	github.com/juju/errors v0.0.0-20200330140219-3fe23663418f
-	github.com/lflxp/fzf v0.29.1
+	github.com/junegunn/fzf v0.0.0-20220223063649-5f385d88e0a7
 	github.com/lflxp/goproxys v0.0.0-20200308164541-294d52d6ffa9
 	github.com/lflxp/lflxp-api v0.0.0-20200323063154-619ec5845ffa
 	github.com/lflxp/lflxp-monitor v0.0.0-20200324040342-939febaf252c

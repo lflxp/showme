@@ -11,7 +11,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/lflxp/fzf/src/util"
+	"github.com/junegunn/fzf/src/util"
 	"github.com/saracen/walker"
 )
 

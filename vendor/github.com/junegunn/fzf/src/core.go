@@ -30,7 +30,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/lflxp/fzf/src/util"
+	"github.com/junegunn/fzf/src/util"
 )
 
 /*

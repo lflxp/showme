@@ -450,6 +450,8 @@ github.com/juju/loggo v0.0.0-20190526231331-6e530bcce5d8/go.mod h1:vgyd7OREkbtVE
 github.com/juju/testing v0.0.0-20191001232224-ce9dec17d28b h1:Rrp0ByJXEjhREMPGTt3aWYjoIsUGCbt21ekbeJcTWv0=
 github.com/juju/testing v0.0.0-20191001232224-ce9dec17d28b/go.mod h1:63prj8cnj0tU0S9OHjGJn+b1h0ZghCndfnbQolrYTwA=
 github.com/julienschmidt/httprouter v1.2.0/go.mod h1:SYymIcj16QtmaHHD7aYtjjsJG7VTCxuUUipMqKk8s4w=
+github.com/junegunn/fzf v0.0.0-20220223063649-5f385d88e0a7 h1:Q0m5sDu8+HgSILRljqJGyC8OZ33q2aT7adXJTP7kd0A=
+github.com/junegunn/fzf v0.0.0-20220223063649-5f385d88e0a7/go.mod h1:Cs4tRSj71EPYwcAuLaMdrqfB3FfSh+0flE51PHDfomw=
 github.com/keybase/go-ps v0.0.0-20190827175125-91aafc93ba19/go.mod h1:hY+WOq6m2FpbvyrI93sMaypsttvaIL5nhVR92dTMUcQ=
 github.com/kisielk/errcheck v1.1.0/go.mod h1:EZBBE59ingxPouuu3KfxchcWSUPOHkagtvWXihfKN4Q=
 github.com/kisielk/errcheck v1.2.0/go.mod h1:/BMXB+zMLi60iA8Vv6Ksmxu/1UDYcXs4uQLJ+jE2L00=
@@ -473,8 +475,6 @@ github.com/kr/text v0.2.0/go.mod h1:eLer722TekiGuMkidMxC/pM04lWEeraHUUmBw8l2grE=
 github.com/leodido/go-urn v1.1.0/go.mod h1:+cyI34gQWZcE1eQU7NVgKkkzdXDQHr1dBMtdAPozLkw=
 github.com/leodido/go-urn v1.2.0 h1:hpXL4XnriNwQ/ABnpepYM/1vCLWNDfUNts8dX3xTG6Y=
 github.com/leodido/go-urn v1.2.0/go.mod h1:+8+nEpDfqqsY+g338gtMEUOtuK+4dEMhiQEgxpxOKII=
-github.com/lflxp/fzf v0.29.1 h1:ozHCHY1x/mOWrnN7u1avNzeTjJ6rDm6GSmmuseaepa4=
-github.com/lflxp/fzf v0.29.1/go.mod h1:HB+kzqzxTYLdPxoIVzylYUSG7tJwoMpuSIcWKXY7KhY=
 github.com/lflxp/goproxys v0.0.0-20200308164541-294d52d6ffa9 h1:Q4GrSSdFFkqlyqs33k3rp92T9vqLINZSomMaAxT+a98=
 github.com/lflxp/goproxys v0.0.0-20200308164541-294d52d6ffa9/go.mod h1:2m6b238ZvBIOmc664SWkTDogpXtwvmk9Nr34r1HTJug=
 github.com/lflxp/lflxp-api v0.0.0-20200323063154-619ec5845ffa h1:jTrt8X6K2J+1MeHh7EBpv4OC9yvt8DzCd6C0gH+hJwQ=

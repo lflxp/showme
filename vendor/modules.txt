@@ -297,6 +297,12 @@ github.com/juju/errors
 ## explicit
 # github.com/juju/testing v0.0.0-20191001232224-ce9dec17d28b
 ## explicit
+# github.com/junegunn/fzf v0.0.0-20220223063649-5f385d88e0a7
+## explicit; go 1.13
+github.com/junegunn/fzf/src
+github.com/junegunn/fzf/src/algo
+github.com/junegunn/fzf/src/tui
+github.com/junegunn/fzf/src/util
 # github.com/konsorten/go-windows-terminal-sequences v1.0.3
 ## explicit
 github.com/konsorten/go-windows-terminal-sequences
@@ -306,14 +312,6 @@ github.com/kr/fs
 # github.com/leodido/go-urn v1.2.0
 ## explicit; go 1.13
 github.com/leodido/go-urn
-# github.com/lflxp/fzf v0.29.1
-## explicit; go 1.13
-github.com/lflxp/fzf
-github.com/lflxp/fzf/src
-github.com/lflxp/fzf/src/algo
-github.com/lflxp/fzf/src/protector
-github.com/lflxp/fzf/src/tui
-github.com/lflxp/fzf/src/util
 # github.com/lflxp/goproxys v0.0.0-20200308164541-294d52d6ffa9
 ## explicit; go 1.12
 github.com/lflxp/goproxys/protocol
