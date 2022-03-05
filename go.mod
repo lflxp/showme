@@ -17,6 +17,7 @@ require (
 	github.com/google/gopacket v1.1.17
 	github.com/jroimartin/gocui v0.4.0
 	github.com/juju/errors v0.0.0-20200330140219-3fe23663418f
+	github.com/lflxp/fzf v0.29.1
 	github.com/lflxp/goproxys v0.0.0-20200308164541-294d52d6ffa9
 	github.com/lflxp/lflxp-api v0.0.0-20200323063154-619ec5845ffa
 	github.com/lflxp/lflxp-monitor v0.0.0-20200324040342-939febaf252c
@@ -56,6 +57,8 @@ require (
 	github.com/elazarl/go-bindata-assetfs v1.0.1 // indirect
 	github.com/fatih/color v1.10.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
+	github.com/gdamore/encoding v1.0.0 // indirect
+	github.com/gdamore/tcell v1.4.0 // indirect
 	github.com/gin-contrib/multitemplate v0.0.0-20200226145339-3e397ee01bc6 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-eden/common v0.1.14 // indirect
@@ -87,12 +90,14 @@ require (
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/lflxp/lflxp-kubectl v0.0.0-20200324075201-2c87c15ee42c // indirect
+	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattbaird/jsonpatch v0.0.0-20200820163806-098863c1fc24 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
-	github.com/mattn/go-isatty v0.0.12 // indirect
-	github.com/mattn/go-runewidth v0.0.9 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mattn/go-runewidth v0.0.13 // indirect
+	github.com/mattn/go-shellwords v1.0.12 // indirect
 	github.com/mattn/go-tty v0.0.0-20190407112021-83fae09cc007 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
@@ -108,7 +113,9 @@ require (
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.9.1 // indirect
 	github.com/prometheus/procfs v0.0.8 // indirect
+	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rs/zerolog v1.25.0 // indirect
+	github.com/saracen/walker v0.1.2 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/shiena/ansicolor v0.0.0-20151119151921-a422bbe96644 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
@@ -127,6 +134,7 @@ require (
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
 	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602 // indirect
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20220209214540-3681064d5158 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect

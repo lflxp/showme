@@ -20,7 +20,7 @@ import (
 	"time"
 
 	_ "github.com/devopsxp/xp/module"
-	"github.com/lflxp/showme/executors"
+	fzf "github.com/lflxp/fzf/src"
 	"github.com/lflxp/showme/utils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -30,6 +30,9 @@ import (
 var cfgFile string
 var debugs bool
 var islog bool
+
+var version string = "0.29.1"
+var revision string = "cobra-dev"
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -61,7 +64,11 @@ bindkey -s "^[3" "showme tty -w^M"`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
-		executors.AllInOne()
+		opts := fzf.ParseOptionsCobra()
+		// TODO: Parse Info
+		parseFzfArgs(opts)
+		fzf.PostProcessOptions(opts)
+		fzf.Run(opts, version, revision)
 	},
 }
 
@@ -87,6 +94,46 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	// =============================fzf========================
+	rootCmd.Flags().BoolVarP(&extended, "extended", "x", false, "Extended-search mode (enabled by default; +x or --no-extended to disable)")
+	rootCmd.Flags().BoolVarP(&exact, "exact", "e", false, "Enable Exact-match")
+	rootCmd.Flags().StringVarP(&query, "query", "q", "", "Start the finder with the given query")
+	rootCmd.Flags().StringVarP(&filter, "filter", "f", "", "Filter mode. Do not start interactive finder.")
+	rootCmd.Flags().BoolVar(&literal, "literal", false, "Do not normalize latin script letters before matching")
+	rootCmd.Flags().BoolVar(&phony, "phony", false, "Enable Exact-match")
+	rootCmd.Flags().IntVarP(&sort, "sort", "s", 0, "Do not sort the result")
+	rootCmd.Flags().BoolVar(&tac, "tac", false, "Reverse the order of the input")
+	rootCmd.Flags().IntVarP(&multi, "multi", "m", 0, "Enable multi-select with tab/shift-tab")
+	rootCmd.Flags().BoolVar(&ansi, "ansi", false, "Enable processing of ANSI color codes")
+	rootCmd.Flags().BoolVar(&mouse, "mouse", false, "Enable mouse")
+	rootCmd.Flags().BoolVar(&black, "black", false, "black")
+	rootCmd.Flags().BoolVar(&bold, "bold", false, "bold")
+	rootCmd.Flags().BoolVar(&cycle, "cycle", false, "cycle")
+	rootCmd.Flags().BoolVar(&keepright, "keepright", false, "keepright")
+	rootCmd.Flags().BoolVar(&hscroll, "hscroll", false, "hscroll")
+	rootCmd.Flags().IntVar(&hscrolloff, "hscrolloff", 0, "hscrolloff")
+	rootCmd.Flags().IntVar(&scrolloff, "scrolloff", 0, "scrolloff")
+	rootCmd.Flags().BoolVar(&fileword, "fileword", false, "fileword")
+	rootCmd.Flags().StringVar(&jumplabels, "jumplabels", "", "Label characters for jump and jump-accept")
+	rootCmd.Flags().BoolVar(&select1, "select1", false, "select1")
+	rootCmd.Flags().BoolVar(&exit0, "exit0", false, "exit0")
+	rootCmd.Flags().BoolVar(&readzero, "readzero", false, "readzero")
+	rootCmd.Flags().BoolVar(&print0, "print0", false, "print0")
+	rootCmd.Flags().BoolVar(&printquery, "printquery", false, "printquery")
+	rootCmd.Flags().StringVar(&prompt, "prompt", "", "prompt")
+	rootCmd.Flags().StringVar(&pointer, "pointer", "", "pointer")
+	rootCmd.Flags().StringVar(&marker, "marker", "", "marker")
+	rootCmd.Flags().BoolVar(&sync, "sync", false, "sync")
+	rootCmd.Flags().IntVar(&headerlines, "headerlines", 0, "headerlines")
+	rootCmd.Flags().BoolVar(&headerfirst, "headerfirst", false, "headerfirst")
+	rootCmd.Flags().StringVar(&preview, "preview", "", "preview")
+	rootCmd.Flags().StringVar(&height, "height", "40%", "height")
+	rootCmd.Flags().IntVar(&minheight, "minheight", 0, "minheight")
+	rootCmd.Flags().BoolVar(&unicode, "unicode", false, "unicode")
+	rootCmd.Flags().IntVar(&tabstop, "tabstop", 8, "Number of spaces for a tab character (default: 8)")
+	rootCmd.Flags().BoolVar(&clearonexit, "clear", false, "clearonexit")
+	rootCmd.Flags().BoolVar(&versions, "versions", false, "versions")
 }
 
 // initConfig reads in config file and ENV variables if set.
