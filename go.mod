@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	gitee.com/lflxp/proxy v0.0.0-20211028150814-d865977aee1d
+	gitee.com/lflxp/tcell/v2 v2.5.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/astaxie/beego v1.12.1
 	github.com/c-bata/go-prompt v0.2.3
@@ -17,7 +18,6 @@ require (
 	github.com/go-eden/slf4go v1.1.1
 	github.com/go-xorm/xorm v0.7.9
 	github.com/google/gopacket v1.1.17
-	github.com/jessevdk/go-flags v1.4.0
 	github.com/jroimartin/gocui v0.4.0
 	github.com/juju/errors v0.0.0-20200330140219-3fe23663418f
 	github.com/junegunn/fzf v0.0.0-20220223063649-5f385d88e0a7
@@ -29,7 +29,10 @@ require (
 	github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee
 	github.com/lflxp/lflxp-static v1.0.1
 	github.com/lflxp/lflxp-tty v0.0.0-20220210175959-a773452454c8
+	github.com/lithammer/fuzzysearch v1.1.3
+	github.com/mattn/go-runewidth v0.0.13
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
+	github.com/rivo/uniseg v0.2.0
 	github.com/shadowsocks/shadowsocks-go v0.0.0-20190614083952-6a03846ca9c0
 	github.com/shirou/gopsutil v3.20.10+incompatible
 	github.com/sirupsen/logrus v1.7.0
@@ -96,7 +99,6 @@ require (
 	github.com/mattbaird/jsonpatch v0.0.0-20200820163806-098863c1fc24 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
-	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mattn/go-shellwords v1.0.12 // indirect
 	github.com/mattn/go-tty v0.0.0-20190407112021-83fae09cc007 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
@@ -113,7 +115,6 @@ require (
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.9.1 // indirect
 	github.com/prometheus/procfs v0.0.8 // indirect
-	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rs/zerolog v1.25.0 // indirect
 	github.com/saracen/walker v0.1.2 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
@@ -135,7 +136,7 @@ require (
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220209214540-3681064d5158 // indirect
+	golang.org/x/sys v0.0.0-20220227234510-4e6760a101f9 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	golang.org/x/tools v0.1.9 // indirect

@@ -90,6 +90,35 @@ showme -h
 * Plugin Register
 * Mini CMDB Required
 
+## Gomartix
+
+黑客帝国字母雨
+
+## SEARCH
+
+全局模糊搜索
+
+```shell
+__test() {
+  local cmd="${FZF_TEST_COMMAND:-"list"}"
+  setopt localoptions pipefail no_aliases 2> /dev/null
+  eval "$cmd"
+  local ret=$?
+  echo
+  return $ret
+}
+
+# test
+fzf-test() {
+  LBUFFER="${LBUFFER}$(__test)"
+  local ret=$?
+  zle reset-prompt
+  return $ret
+}
+zle     -N   fzf-test
+bindkey '^[e' fzf-test
+```
+
 ## PROXY
 
 基于GOLANG的各种代理工具，处于测试阶段。
