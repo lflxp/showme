@@ -3,13 +3,13 @@ package module
 import (
 	"time"
 
-	. "github.com/devopsxp/xp/plugin"
+	"github.com/devopsxp/xp/plugin"
 	log "github.com/sirupsen/logrus"
 )
 
 // 对外接口
 type Alert interface {
-	Send(*Message)
+	Send(*plugin.Message)
 }
 
 // 对内实现
@@ -35,7 +35,7 @@ type hook struct {
 	start  time.Time // 计时器
 }
 
-func (h *hook) Send(msg *Message) {
+func (h *hook) Send(msg *plugin.Message) {
 	h.start = time.Now()
 	switch h.Type {
 	case "count":

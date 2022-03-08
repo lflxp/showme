@@ -70,7 +70,7 @@ github.com/creack/pty
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/devopsxp/xp v0.0.0-20210120084237-346e7693b0f3
+# github.com/devopsxp/xp v0.7.1
 ## explicit; go 1.15
 github.com/devopsxp/xp/module
 github.com/devopsxp/xp/pipeline
@@ -303,9 +303,6 @@ github.com/junegunn/fzf/src
 github.com/junegunn/fzf/src/algo
 github.com/junegunn/fzf/src/tui
 github.com/junegunn/fzf/src/util
-# github.com/konsorten/go-windows-terminal-sequences v1.0.3
-## explicit
-github.com/konsorten/go-windows-terminal-sequences
 # github.com/kr/fs v0.1.0
 ## explicit
 github.com/kr/fs
@@ -451,7 +448,7 @@ github.com/shirou/gopsutil/load
 github.com/shirou/gopsutil/mem
 github.com/shirou/gopsutil/net
 github.com/shirou/gopsutil/process
-# github.com/sirupsen/logrus v1.6.0
+# github.com/sirupsen/logrus v1.7.0
 ## explicit; go 1.13
 github.com/sirupsen/logrus
 # github.com/spf13/afero v1.6.0

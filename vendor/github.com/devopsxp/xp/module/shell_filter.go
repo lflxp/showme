@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"strings"
 
-	. "github.com/devopsxp/xp/plugin"
+	"github.com/devopsxp/xp/plugin"
 	"github.com/devopsxp/xp/roles"
 	"github.com/devopsxp/xp/utils"
 	uuid "github.com/satori/go.uuid"
@@ -16,17 +16,17 @@ import (
 
 func init() {
 	// 初始化shell filter插件映射关系表
-	AddFilter("shell", reflect.TypeOf(ShellFilter{}))
+	plugin.AddFilter("shell", reflect.TypeOf(ShellFilter{}))
 }
 
 // shell 命令运行filter插件
 type ShellFilter struct {
 	LifeCycle
-	status StatusPlugin
+	status plugin.StatusPlugin
 }
 
-func (s *ShellFilter) Process(msgs *Message) *Message {
-	if s.status != Started {
+func (s *ShellFilter) Process(msgs *plugin.Message) *plugin.Message {
+	if s.status != plugin.Started {
 		log.Warnln("Shell filter plugin is not running,filter nothing.")
 		return msgs
 	}
@@ -249,5 +249,5 @@ func (s *ShellFilter) Process(msgs *Message) *Message {
 
 func (s *ShellFilter) Init(data interface{}) {
 	s.name = "Shell Filter"
-	s.status = Started
+	s.status = plugin.Started
 }

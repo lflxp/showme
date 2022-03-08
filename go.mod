@@ -10,7 +10,7 @@ require (
 	github.com/coreos/bbolt v1.3.2
 	github.com/cosmtrek/air v1.27.8
 	github.com/creack/pty v1.1.11
-	github.com/devopsxp/xp v0.0.0-20210120084237-346e7693b0f3
+	github.com/devopsxp/xp v0.7.1
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-eden/slf4go v1.1.1
 	github.com/go-xorm/xorm v0.7.9
@@ -29,7 +29,7 @@ require (
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/shadowsocks/shadowsocks-go v0.0.0-20190614083952-6a03846ca9c0
 	github.com/shirou/gopsutil v3.20.10+incompatible
-	github.com/sirupsen/logrus v1.6.0
+	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.8.1
 	github.com/swaggo/swag v1.7.9
@@ -86,7 +86,6 @@ require (
 	github.com/json-iterator/go v1.1.11 // indirect
 	github.com/juju/loggo v0.0.0-20190526231331-6e530bcce5d8 // indirect
 	github.com/juju/testing v0.0.0-20191001232224-ce9dec17d28b // indirect
-	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/lflxp/lflxp-kubectl v0.0.0-20200324075201-2c87c15ee42c // indirect

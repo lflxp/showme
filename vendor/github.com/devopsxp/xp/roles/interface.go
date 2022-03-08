@@ -6,6 +6,7 @@ import (
 	"time"
 
 	. "github.com/devopsxp/xp/plugin"
+	"github.com/devopsxp/xp/utils"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -19,7 +20,7 @@ type RolePlugin interface {
 	Pre()
 
 	// 执行前
-	Before()
+	Before() error
 
 	// 执行中
 	// 返回是否执行信号
@@ -43,21 +44,22 @@ type Hook struct {
 
 // Role生命周期 公共父类
 type RoleLC struct {
-	name  string // 名称
-	types string
+	name  string `json:"name"` // 名称
+	types string `json:"types"`
 	// 通用字段
-	stage       string
-	remote_user string                 // 执行用户
-	remote_pwd  string                 // 执行用户密码（非必须）
-	remote_port int                    // ssh端口
-	vars        map[string]interface{} // 环境变量
-	host        string                 // 执行的目标机
-	starttime   time.Time              // 计算执行时间之开始时间
-	hook        *Hook
+	stage       string                 `json:"stage"`
+	remote_user string                 `json:"remote_user"` // 执行用户
+	remote_pwd  string                 `json:"remote_pwd"`  // 执行用户密码（非必须）
+	remote_port int                    `json:"remote_port"` // ssh端口
+	vars        map[string]interface{} `json:"vars"`        // 环境变量
+	host        string                 `json:"host"`        // 执行的目标机
+	starttime   time.Time              `json:"starttime"`   // 计算执行时间之开始时间
+	hook        *Hook                  `json:"hook"`
 	// 上下文
-	msg       *Message
-	logs      map[string]string // 命令执行日志
-	terminial bool              // ssh 是否交互式执行
+	msg       *Message          `json:"msg"`
+	logs      map[string]string `json:"logs"`      // 命令执行日志
+	terminial bool              `json:"terminial"` // ssh 是否交互式执行
+	args      *RoleArgs         `json:"args"`
 }
 
 // common 公共初始化函数
@@ -78,6 +80,7 @@ func (r *RoleLC) Common(args *RoleArgs) error {
 		}
 	}
 
+	r.args = args
 	r.hook = args.hook
 	r.logs = make(map[string]string)
 	// 上下文消息传递
@@ -133,10 +136,27 @@ func (r *RoleLC) Pre() {
 	r.starttime = time.Now()
 }
 
-// 执行前
-func (r *RoleLC) Before() {
+// 执行前的条件判断
+func (r *RoleLC) Before() error {
 	log.Debugf("Role module %s Before running.", r.name)
 	log.Infof("******************************************************** TASK [%s : %s] BY %s@%s \n", r.stage, r.name, r.remote_user, r.host)
+	// when条件判断 @key shell命令 @value 命令结果
+	if when, ok := r.args.currentConfig["when"]; ok {
+		// 如果when条件判断存在，则执行@key命令
+		whenData := when.(map[interface{}]interface{})
+		key := whenData["key"].(string)
+		value := whenData["value"].(string)
+
+		rs, err := utils.New(r.host, r.remote_user, r.remote_pwd, r.remote_port).Run(key)
+		if err != nil {
+			return errors.New(fmt.Sprintf("%s %s when 条件 [%s] 错误: %v", r.host, r.remote_user, key, err))
+		}
+
+		if rs != value {
+			return errors.New(fmt.Sprintf("%s %s when 条件 [%s|%s] %s 不满足: %v", r.host, r.remote_user, key, value, err))
+		}
+	}
+	return nil
 }
 
 // 执行环节

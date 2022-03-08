@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	. "github.com/devopsxp/xp/plugin"
+	"github.com/devopsxp/xp/plugin"
 	"github.com/devopsxp/xp/utils"
 	log "github.com/sirupsen/logrus"
 )
@@ -34,7 +34,7 @@ type Wechat struct {
 	Range       string `json:"range"`
 }
 
-func NewWechat(data map[interface{}]interface{}, msg *Message, vars map[string]interface{}) (*Wechat, error) {
+func NewWechat(data map[interface{}]interface{}, msg *plugin.Message, vars map[string]interface{}) (*Wechat, error) {
 	result := &Wechat{
 		Sid:     utils.GetRandomSalt(),
 		Msgtype: "markdown",

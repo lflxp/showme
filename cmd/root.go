@@ -291,6 +291,6 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	} else {
-		log.Errorf("Using config file error: %s\n", err.Error())
+		log.Debugf("Using config file error: %s\n", err.Error())
 	}
 }

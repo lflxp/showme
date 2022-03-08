@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	. "github.com/devopsxp/xp/plugin"
+	"github.com/devopsxp/xp/plugin"
 	"github.com/devopsxp/xp/utils"
 	log "github.com/sirupsen/logrus"
 )
@@ -17,25 +17,25 @@ import (
 // 4. 执行pipeline
 
 func init() {
-	AddInput("cli", reflect.TypeOf(CliInput{}))
+	plugin.AddInput("cli", reflect.TypeOf(CliInput{}))
 }
 
 type CliInput struct {
 	LifeCycle
-	status       StatusPlugin
+	status       plugin.StatusPlugin
 	connectcheck map[string]string
 	lock         sync.RWMutex
 	data         map[string]interface{}
 	faileds      int // 失败次数
 }
 
-func (c *CliInput) Receive() *Message {
-	if c.status != Started {
+func (c *CliInput) Receive() *plugin.Message {
+	if c.status != plugin.Started {
 		log.Warnln("LocalYaml input plugin is not running,input nothing.")
 		return nil
 	}
 
-	return Builder().WithInit(c.faileds).WithCheck(c.connectcheck).WithItemInterface(c.data).Build()
+	return plugin.Builder().WithInit(c.faileds).WithCheck(c.connectcheck).WithItemInterface(c.data).Build()
 }
 
 func (c *CliInput) SetConnectStatus(ip, status string) {
@@ -46,7 +46,7 @@ func (c *CliInput) SetConnectStatus(ip, status string) {
 
 func (c *CliInput) Start() {
 	c.faileds = 0
-	c.status = Started
+	c.status = plugin.Started
 	log.Debugln("LocalYamlInput plugin started.")
 
 	// Check all ipsl.yaml.

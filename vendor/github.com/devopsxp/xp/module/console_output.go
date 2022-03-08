@@ -4,23 +4,23 @@ import (
 	"reflect"
 
 	"github.com/devopsxp/xp/pkg/k8s"
-	. "github.com/devopsxp/xp/plugin"
+	"github.com/devopsxp/xp/plugin"
 	log "github.com/sirupsen/logrus"
 )
 
 func init() {
 	// 初始化output插件映射关系表
-	AddOutput("console", reflect.TypeOf(ConsoleOutput{}))
+	plugin.AddOutput("console", reflect.TypeOf(ConsoleOutput{}))
 }
 
 // Console output插件，将消息输出到控制台上
 type ConsoleOutput struct {
 	LifeCycle
-	status StatusPlugin
+	status plugin.StatusPlugin
 }
 
-func (c *ConsoleOutput) Send(msgs *Message) {
-	if c.status != Started {
+func (c *ConsoleOutput) Send(msgs *plugin.Message) {
+	if c.status != plugin.Started {
 		log.Warnln("Console output is not running, output nothing.")
 		return
 	}
@@ -95,5 +95,5 @@ func (c *ConsoleOutput) Send(msgs *Message) {
 
 func (c *ConsoleOutput) Init(data interface{}) {
 	c.name = "Console output"
-	c.status = Started
+	c.status = plugin.Started
 }

@@ -10,7 +10,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	. "github.com/devopsxp/xp/plugin"
+	"github.com/devopsxp/xp/plugin"
 	"github.com/devopsxp/xp/utils"
 	"gopkg.in/gomail.v2"
 )
@@ -28,7 +28,7 @@ type Email struct {
 	Range    string   `json:"range"` // 启动时间
 }
 
-func NewEmail(data map[interface{}]interface{}, msg *Message, vars map[string]interface{}) (*Email, error) {
+func NewEmail(data map[interface{}]interface{}, msg *plugin.Message, vars map[string]interface{}) (*Email, error) {
 	result := &Email{Range: "星期一,星期二,星期三,星期四,星期五,星期六,星期天|00:00-23:59", Sid: utils.GetRandomSalt()}
 	// 发送人
 	if user, ok := data["email_user"]; ok {

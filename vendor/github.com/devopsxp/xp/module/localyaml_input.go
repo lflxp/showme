@@ -6,14 +6,14 @@ import (
 	"sync"
 	"time"
 
-	. "github.com/devopsxp/xp/plugin"
+	"github.com/devopsxp/xp/plugin"
 	"github.com/devopsxp/xp/utils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 func init() {
-	AddInput("localyaml", reflect.TypeOf(LocalYamlInput{}))
+	plugin.AddInput("localyaml", reflect.TypeOf(LocalYamlInput{}))
 }
 
 // 解析复杂ip为单个ip
@@ -41,22 +41,22 @@ func (l *LocalYaml) Get() {
 
 type LocalYamlInput struct {
 	LifeCycle
-	status     StatusPlugin
+	status     plugin.StatusPlugin
 	yaml       LocalYaml
 	connecheck map[string]string
 	lock       sync.RWMutex
 	fails      int // ssh连接失败数
 }
 
-func (l *LocalYamlInput) Receive() *Message {
+func (l *LocalYamlInput) Receive() *plugin.Message {
 	l.yaml.Get()
 
-	if l.status != Started {
+	if l.status != plugin.Started {
 		log.Warnln("LocalYaml input plugin is not running,input nothing.")
 		return nil
 	}
 
-	return Builder().WithInit(l.fails).WithCheck(l.connecheck).WithItemInterface(l.yaml.data).Build()
+	return plugin.Builder().WithInit(l.fails).WithCheck(l.connecheck).WithItemInterface(l.yaml.data).Build()
 }
 
 func (l *LocalYamlInput) SetConnectStatus(ip, status string) {
@@ -67,7 +67,7 @@ func (l *LocalYamlInput) SetConnectStatus(ip, status string) {
 
 func (l *LocalYamlInput) Start() {
 	l.fails = 0
-	l.status = Started
+	l.status = plugin.Started
 	log.Debugln("LocalYamlInput plugin started.")
 
 	// Check all ips
