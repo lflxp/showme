@@ -351,7 +351,7 @@ func (t *TuiScreen) Gopsutil() error {
 		t.Files = append(t.Files, fmt.Sprintf("DISK PARTITIONS %d %v", i, c))
 		tmp, err := disk.Usage(c.Mountpoint)
 		if err != nil {
-			log.Errorf("disk.infos %s %s", c.Mountpoint, err.Error())
+			// log.Debug("disk.infos %s %s", c.Mountpoint, err.Error())
 		} else {
 			t.Files = append(t.Files, fmt.Sprintf("DISK USAGE %v", tmp))
 		}
