@@ -1,4 +1,5 @@
-// +build gopacket
+//go:build !gopacket
+// +build !gopacket
 
 package executors
 
@@ -10,15 +11,15 @@ import (
 	monitor "github.com/lflxp/lflxp-monitor/pkg"
 	mysql "github.com/lflxp/lflxp-orzdba/pkg"
 	scan "github.com/lflxp/lflxp-scan/pkg"
-	"github.com/lflxp/showme/completers"
-	"github.com/lflxp/showme/executors/dashboard"
-	"github.com/lflxp/showme/executors/gopacket"
-	"github.com/lflxp/showme/executors/helloworld"
-	"github.com/lflxp/showme/executors/layout"
+	"github.com/lflxp/showme/pkg/prompt/completers"
+	"github.com/lflxp/showme/pkg/prompt/executors/dashboard"
+	"github.com/lflxp/showme/pkg/prompt/executors/helloworld"
+	"github.com/lflxp/showme/pkg/prompt/executors/layout"
 	"github.com/lflxp/showme/utils"
 )
 
-/** 解析执行命令函数else if in == "kubectl" {
+/** 解析执行命令函数
+else if in == "kubectl" {
 		result = func() {
 			kubectl.ManualInit()
 		}
@@ -61,19 +62,6 @@ func ParseExecutors(in string) (func(), bool) {
 			completers.Help()
 		}
 		status = true
-	} else if strings.Contains(in, "gopacket") {
-		if strings.Contains(in, "gopacket in") {
-			result = func() {
-				gopacket.Run(in)
-			}
-		}
-		if strings.Contains(in, "gopacket screen") {
-			result = func() {
-				// gopacket.Gopacket(in)
-				gopacket.Screen(strings.Split(in, " ")[2])
-			}
-		}
-		status = true
 	} else if strings.Contains(in, "scan") {
 		result = func() {
 			scan.Scan(in)
@@ -87,8 +75,31 @@ func ParseExecutors(in string) (func(), bool) {
 			}
 		}
 		status = true
+	} else if strings.Contains(in, "tty") {
+		result = func() {
+			err := utils.CommandPty(strings.Replace(in, "tty", "showme tty", -1))
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+		status = true
+	} else if strings.Contains(in, "sw") {
+		result = func() {
+			err := utils.CommandPty(strings.Replace(in, "sw", "showme watch", -1))
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+		status = true
 	} else {
-		fmt.Println(utils.Colorize(in, "red", "black", true, true), " not found executors")
+		// fmt.Println(utils.Colorize(in, "red", "black", true, true), "未发现该命令")
+		result = func() {
+			err := utils.CommandPty(in)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+		status = true
 	}
 	return result, status
 }

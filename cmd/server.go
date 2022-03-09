@@ -15,7 +15,7 @@
 package cmd
 
 import (
-	"github.com/lflxp/showme/proxy/server"
+	"github.com/lflxp/showme/pkg/proxy/server"
 	ss "github.com/shadowsocks/shadowsocks-go/shadowsocks"
 	"github.com/spf13/cobra"
 )

@@ -5,7 +5,7 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/lflxp/showme/executors"
+	"github.com/lflxp/showme/pkg/prompt/executors"
 	"github.com/spf13/cobra"
 )
 

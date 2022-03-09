@@ -114,6 +114,26 @@ bindkey -M emacs '^R' fzf-history-widget
 bindkey -M vicmd '^R' fzf-history-widget
 bindkey -M viins '^R' fzf-history-widget
 
+# 自定义showme快捷键
+__test() {
+  local cmd="${FZF_TEST_COMMAND:-"showme search"}"
+  setopt localoptions pipefail no_aliases 2> /dev/null
+  eval "$cmd"
+  local ret=$?
+  echo
+  return $ret
+}
+
+# test
+fzf-test() {
+  LBUFFER="${LBUFFER}$(__test)"
+  local ret=$?
+  zle reset-prompt
+  return $ret
+}
+zle     -N   fzf-test
+bindkey '^[e' fzf-test
+
 } always {
   eval $__fzf_key_bindings_options
   'unset' '__fzf_key_bindings_options'

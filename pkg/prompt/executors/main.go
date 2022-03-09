@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	prompt "github.com/c-bata/go-prompt"
-	"github.com/lflxp/showme/completers"
+	"github.com/lflxp/showme/pkg/prompt/completers"
 )
 
 // 实时左标显示

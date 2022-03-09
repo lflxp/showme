@@ -9,6 +9,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var uninclude []string
+var show bool
+
 // searchCmd represents the search command
 var searchCmd = &cobra.Command{
 	Use:   "search",
@@ -23,9 +26,10 @@ var searchCmd = &cobra.Command{
 	7. todo: linux内核参数
 	8. todo: zsh、vim、go、rust配置等
 	9. todo: alias快捷键管理
-	10. todo: 命令管理`,
+	10. todo: 命令管理
+	11. todo: 排序，自动识别时间字段、数字字段 sort.SliceStable`,
 	Run: func(cmd *cobra.Command, args []string) {
-		search.Run()
+		search.Run(uninclude, show)
 	},
 }
 
@@ -41,4 +45,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// searchCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	searchCmd.Flags().StringSliceVarP(&uninclude, "uninclude", "e", []string{".git"}, "不扫描目录,默认: ['.git']")
+	searchCmd.Flags().BoolVarP(&show, "show", "s", false, "Show loading ui")
 }

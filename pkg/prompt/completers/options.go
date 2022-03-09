@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	prompt "github.com/c-bata/go-prompt"
-	"github.com/lflxp/showme/suggests"
+	"github.com/lflxp/showme/pkg/prompt/suggests"
 )
 
 var optionHelp = []prompt.Suggest{

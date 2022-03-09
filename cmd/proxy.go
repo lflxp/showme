@@ -17,7 +17,7 @@ package cmd
 import (
 	"log"
 
-	"github.com/lflxp/showme/proxy"
+	"github.com/lflxp/showme/pkg/proxy"
 	"github.com/spf13/cobra"
 )
 

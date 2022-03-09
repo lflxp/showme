@@ -15,6 +15,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"syscall"
@@ -284,4 +285,14 @@ func ParseIps(in string) ([]string, error) {
 		rs = append(rs, in)
 	}
 	return rs, nil
+}
+
+// 快速判断字符是否在字符数组中
+func In(target string, source []string) bool {
+	sort.Strings(source)
+	index := sort.SearchStrings(source, target)
+	if index < len(source) && source[index] == target {
+		return true
+	}
+	return false
 }

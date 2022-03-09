@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	prompt "github.com/c-bata/go-prompt"
-	"github.com/lflxp/showme/suggests"
+	"github.com/lflxp/showme/pkg/prompt/suggests"
 )
 
 // 解析函数 判断最新参数是否含有-字符

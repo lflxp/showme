@@ -1,22 +1,30 @@
 package search
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"os/signal"
 	"sort"
 	"strings"
 	"syscall"
+	"time"
 
 	"gitee.com/lflxp/tcell/v2"
+	"github.com/briandowns/spinner"
 	"github.com/creack/pty"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/mattn/go-runewidth"
 	"github.com/rivo/uniseg"
+	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/disk"
+	"github.com/shirou/gopsutil/host"
+	"github.com/shirou/gopsutil/mem"
+	"github.com/shirou/gopsutil/process"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/term"
 )
 
@@ -99,6 +107,8 @@ type TuiScreen struct {
 	queued     strings.Builder
 	offset     int // 偏移量 相对于顶部
 	fd         int
+	Unsearch   []string
+	finish     chan int // 扫描结束
 }
 
 func (t *TuiScreen) init() (err error) {
@@ -112,6 +122,7 @@ func (t *TuiScreen) init() (err error) {
 	err = t.screen.Init()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "init failed: %v\n", err)
+		return
 	}
 
 	if t.EnableMouse {
@@ -125,15 +136,13 @@ func (t *TuiScreen) init() (err error) {
 	t.screen.SetStyle(tcell.StyleDefault)
 	t.X = -1
 	t.Y = -1
+	if t.finish == nil {
+		t.finish = make(chan int)
+	}
+	t.Files = []string{}
 
 	t.boxStyle = tcell.StyleDefault.Foreground(tcell.ColorWhite).Background(tcell.ColorPurple)
 	t.Input = []rune{}
-	// err = t.GetFiles(".")
-	files, err := GetAllFiles(".")
-	if err != nil {
-		panic(err)
-		return
-	}
 
 	// t.ttyin = TtyIn()
 
@@ -147,22 +156,35 @@ func (t *TuiScreen) init() (err error) {
 	// t.csi("G")
 	// t.csi("K")
 
-	t.Files = files
-	t.SearchResult = files
-	t.Total = len(files)
-	t.MaxContent = 10
+	// t.SearchResult = t.Files
+	// t.Total = len(files)
+	// t.MaxContent = 10
 	t.CursorPos = 0
 	t.SearchResult = []string{}
 
 	// t.out = os.Stdin
 	t.fd = syscall.Stdout
 	t.width, t.height = t.screen.Size()
+	t.MaxContent = t.height - 4
 
 	return
 }
 
 func (r *TuiScreen) Fd() int {
 	return int(r.ttyin.Fd())
+}
+
+func ExecCommandString(cmd string) (string, error) {
+	pipeline := exec.Command("/bin/sh", "-c", cmd)
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	pipeline.Stdout = &out
+	pipeline.Stderr = &stderr
+	err := pipeline.Run()
+	if err != nil {
+		return stderr.String(), err
+	}
+	return out.String(), nil
 }
 
 func CommandPty(cmd string) error {
@@ -232,13 +254,219 @@ func (t *TuiScreen) GetFiles(dirPath string) error {
 	return nil
 }
 
+// 快速判断字符是否在字符数组中
+func In(target string, source []string) bool {
+	sort.Strings(source)
+	index := sort.SearchStrings(source, target)
+	if index < len(source) && source[index] == target {
+		return true
+	}
+	return false
+}
+
+func (t *TuiScreen) GetCommand() {
+	t.Files = append(t.Files, "CMD ps -ef|showme|awk '{print $2}'|xargs kill -9 ")
+	t.Files = append(t.Files, "CMD showme martix")
+	t.Files = append(t.Files, "CMD showme cmd")
+	t.Files = append(t.Files, "CMD showme static")
+	t.Files = append(t.Files, "CMD showme tty -w")
+	t.Files = append(t.Files, "CMD showme watch")
+	t.Files = append(t.Files, "CMD fzf --height=40% --preview 'cat {}'")
+}
+
+func (t *TuiScreen) Gopsutil() error {
+	// 获取环境变量
+	for _, x := range os.Environ() {
+		t.Files = append(t.Files, fmt.Sprintf("ENV %s", x))
+	}
+	// 获取主机名
+	hostname, err := os.Hostname()
+	if err != nil {
+		log.Errorln("os.Hostname", err.Error())
+		return err
+	}
+	t.Files = append(t.Files, fmt.Sprintf("HOST %s", hostname))
+	// 获取内存信息
+	v, err := mem.VirtualMemory()
+	if err != nil {
+		log.Errorln("mem.VirtualMemory", err.Error())
+		return err
+	}
+	t.Files = append(t.Files, fmt.Sprintf("MEM %v", v))
+	t.Files = append(t.Files, fmt.Sprintf("MEM Total: %v", v.Total))
+	t.Files = append(t.Files, fmt.Sprintf("MEM Available: %v", v.Available))
+	t.Files = append(t.Files, fmt.Sprintf("MEM UsedPercent: %v", v.UsedPercent))
+	t.Files = append(t.Files, fmt.Sprintf("MEM FREE: %v", v.Free))
+	t.Files = append(t.Files, fmt.Sprintf("MEM SwapTotal: %v", v.SwapTotal))
+	t.Files = append(t.Files, fmt.Sprintf("MEM SwapFree: %v", v.SwapFree))
+	// 获取CPU信息
+	physicalCnt, err := cpu.Counts(false)
+	if err != nil {
+		log.Errorln("cpu.Counts.false", err.Error())
+		return err
+	}
+	logicalCnt, err := cpu.Counts(true)
+	if err != nil {
+		log.Errorln("cpu.Counts", err.Error())
+		return err
+	}
+	t.Files = append(t.Files, fmt.Sprintf("CPU PHYSICAL %d", physicalCnt))
+	t.Files = append(t.Files, fmt.Sprintf("CPU LOGICAL %d", logicalCnt))
+
+	info, err := cpu.Info()
+	if err != nil {
+		log.Errorln("cpu.Info", err.Error())
+		return err
+	}
+	for i, c := range info {
+		t.Files = append(t.Files, fmt.Sprintf("CPU Num %d %v", i, c))
+	}
+
+	times, err := cpu.Times(true)
+	if err != nil {
+		log.Errorln("cpu.Times", err.Error())
+		return err
+	}
+	for i, c := range times {
+		t.Files = append(t.Files, fmt.Sprintf("CPU TIMES %d %v", i, c))
+	}
+
+	// 磁盘
+	mapStat, err := disk.IOCounters()
+	if err != nil {
+		log.Errorln("disk.IOCounters", err.Error())
+		return err
+	}
+
+	for name, stat := range mapStat {
+		t.Files = append(t.Files, fmt.Sprintf("DISK %s %v", name, stat))
+	}
+
+	infos, err := disk.Partitions(true)
+	if err != nil {
+		log.Errorln("disk.Partitions", err.Error())
+		return err
+	}
+	for i, c := range infos {
+		t.Files = append(t.Files, fmt.Sprintf("DISK PARTITIONS %d %v", i, c))
+		tmp, err := disk.Usage(c.Mountpoint)
+		if err != nil {
+			log.Errorf("disk.infos %s %s", c.Mountpoint, err.Error())
+		} else {
+			t.Files = append(t.Files, fmt.Sprintf("DISK USAGE %v", tmp))
+		}
+	}
+	// 主机信息
+	timestamp, err := host.BootTime()
+	if err != nil {
+		log.Errorln("host.BootTime()", err.Error())
+		return err
+	}
+	t.Files = append(t.Files, fmt.Sprintf("HOST BootTime %s Unix %v", time.Unix(int64(timestamp), 0).Local().Format("2006-01-02 15:04:05"), timestamp))
+
+	version, err := host.KernelVersion()
+	if err != nil {
+		log.Errorln("kernelVersion", err.Error())
+		return err
+	}
+	t.Files = append(t.Files, fmt.Sprintf("HOST VERSION %s", version))
+
+	platform, family, version, err := host.PlatformInformation()
+	if err != nil {
+		log.Errorln("PlatformInformation", err.Error())
+		return err
+	}
+	t.Files = append(t.Files, fmt.Sprintf("HOST PLATFORM %s", platform))
+	t.Files = append(t.Files, fmt.Sprintf("HOST FAMILY %s", family))
+	t.Files = append(t.Files, fmt.Sprintf("HOST VERSION %s", version))
+
+	users, err := host.Users()
+	if err != nil {
+		log.Errorln("host.Users", err.Error())
+		return err
+	}
+
+	// 终端用户
+	for i, u := range users {
+		t.Files = append(t.Files, fmt.Sprintf("USER TERMINIAL %d %v", i, u))
+	}
+
+	// 内存
+	swapMemory, err := mem.SwapMemory()
+	if err != nil {
+		log.Errorln("swapMemory", err.Error())
+		return err
+	}
+	t.Files = append(t.Files, fmt.Sprintf("MEM SWAP %v", swapMemory))
+
+	// 进程
+	processes, err := process.Processes()
+	if err != nil {
+		log.Errorln("process0", err.Error())
+		return err
+	}
+
+	var rootProcess *process.Process
+	for _, p := range processes {
+		if p.Pid == 0 {
+			rootProcess = p
+			break
+		}
+	}
+
+	if rootProcess != nil {
+		rootP, err := rootProcess.Children()
+		if err != nil {
+			log.Errorln("process", err.Error())
+			return err
+		}
+		for i, pp := range rootP {
+			t.Files = append(t.Files, fmt.Sprintf("PROCESS %d %v", i, pp))
+		}
+	}
+
+	// services, _ := winservices.ListServices()
+
+	// for _, service := range services {
+	// 	newservice, _ := winservices.NewService(service.Name)
+	// 	newservice.GetServiceDetail()
+	// 	fmt.Println("Name:", newservice.Name, "Binary Path:", newservice.Config.BinaryPathName, "State: ", newservice.Status.State)
+	// }
+
+	cmds, err := ExecCommandString("compgen -c")
+	if err != nil {
+		log.Errorln("compgen", err.Error())
+		return err
+	}
+	for _, c := range strings.Split(cmds, "\n") {
+		t.Files = append(t.Files, fmt.Sprintf("CMD %s", c))
+	}
+
+	// 历史命令
+	hcmds, err := ExecCommandString("cat ~/.zsh_history")
+	if err != nil {
+		log.Errorln("fc -rl 1", err.Error())
+		return err
+	}
+	// log.Error("hcmds", hcmds)
+	for _, c := range strings.Split(hcmds, "\n") {
+		if strings.Contains(c, ";") {
+			tp := strings.Split(c, ";")
+			t.Files = append(t.Files, fmt.Sprintf("HISTORY %s", strings.Join(tp[1:], ";")))
+		} else {
+			t.Files = append(t.Files, fmt.Sprintf("HISTORY %s", c))
+		}
+	}
+	return nil
+}
+
 // 递归获取当前目录所有文件
-func GetAllFiles(dirPth string) (files []string, err error) {
+func (t *TuiScreen) GetAllFiles(dirPth string, istop bool) error {
 	var dirs []string
 	// fmt.Printf("dirPath %s\n", dirPth)
 	dir, err := ioutil.ReadDir(dirPth)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	PthSep := string(os.PathSeparator)
@@ -246,11 +474,19 @@ func GetAllFiles(dirPth string) (files []string, err error) {
 
 	for _, fi := range dir {
 		if fi.IsDir() { // 目录, 递归遍历
-			if fi.Name() != ".git" {
+			if !In(fi.Name(), t.Unsearch) {
 				dirs = append(dirs, fi.Name())
 				// GetAllFiles(dirPth+PthSep+fi.Name(), suff)
 				// 获取文件夹
-				files = append(files, fi.Name())
+				if istop {
+					t.Files = append(t.Files, fmt.Sprintf("Dir %s", fi.Name()))
+				} else {
+					t.Files = append(t.Files, fmt.Sprintf("Dir %s%s%s", strings.Replace(dirPth, "./", "", 1), PthSep, fi.Name()))
+				}
+
+				t.SearchResult = t.Files
+				t.Total = len(t.Files)
+				// t.ShowResultFiles(true)
 			}
 		} else {
 			// 过滤指定格式
@@ -260,24 +496,31 @@ func GetAllFiles(dirPth string) (files []string, err error) {
 			//              files = append(files, fi.Name())
 			//      }
 			// }
-			files = append(files, fi.Name())
+			if istop {
+				t.Files = append(t.Files, fmt.Sprintf("File %s", fi.Name()))
+			} else {
+				t.Files = append(t.Files, fmt.Sprintf("File %s%s%s", strings.Replace(dirPth, "./", "", 1), PthSep, fi.Name()))
+			}
+			t.SearchResult = t.Files
+			t.Total = len(t.Files)
+			// t.ShowResultFiles(true)
 		}
 	}
 
 	// 读取子目录下文件
 	for _, table := range dirs {
 		// fmt.Printf("table is %s%s%s\n", dirPth, PthSep, table)
-		temp, err := GetAllFiles(fmt.Sprintf("%s%s%s", dirPth, PthSep, table))
+		err = t.GetAllFiles(fmt.Sprintf("%s%s%s", dirPth, PthSep, table), false)
 		if err != nil {
 			fmt.Println(err.Error())
-			return nil, err
+			return err
 		}
-		for _, temp1 := range temp {
-			files = append(files, fmt.Sprintf("%s%s%s", table, PthSep, temp1))
-		}
+		// for _, temp1 := range temp {
+		// 	t.Files = append(t.Files, fmt.Sprintf("%s%s%s", table, PthSep, temp1))
+		// }
 	}
 
-	return files, nil
+	return nil
 }
 
 func (t *TuiScreen) ShowAllFiles() {
@@ -310,7 +553,36 @@ func (t *TuiScreen) ShowResultFiles(up bool) {
 	}
 	// t.Clear()
 	t.screen.Clear()
+	// 判断当前关闭范围
+	// if t.CursorPos <= t.MaxContent-1 {
+	// 	// 如果搜索结果小于最大展示数
+	// 	if len(t.SearchResult) >= t.MaxContent {
+	// 		for i, x := range t.SearchResult {
+	// 			if i == t.CursorPos && i < t.MaxContent {
+	// 				t.printString(1, i+3, x, tcell.StyleDefault.Foreground(tcell.ColorWhite).Background(tcell.ColorDarkSlateGrey).Bold(true), true)
+	// 				t.offset = i
+	// 			} else if i < t.MaxContent && i != t.CursorPos {
+	// 				t.printString(1, i+3, x, tcell.StyleDefault, false)
+	// 			} else {
+	// 				break
+	// 			}
+	// 		}
+	// 	} else {
+	// 		for i, x := range t.SearchResult {
+	// 			if i == t.CursorPos && i < len(t.SearchResult) {
+	// 				t.printString(1, i+3, x, tcell.StyleDefault.Foreground(tcell.ColorWhite).Background(tcell.ColorDarkSlateGrey).Bold(true), true)
+	// 				t.offset = i
+	// 			} else if i < len(t.SearchResult) && i != t.CursorPos {
+	// 				t.printString(1, i+3, x, tcell.StyleDefault, false)
+	// 			} else {
+	// 				break
+	// 			}
+	// 		}
+	// 	}
 
+	// } else {
+	// t.Clear()
+	// t.screen.Sync()
 	// 判断光标偏移量
 	// var more int
 	if t.offset > 0 && up {
@@ -516,6 +788,10 @@ func (t *TuiScreen) Event() {
 	switch ev := ev.(type) {
 	case *tcell.EventResize:
 		t.Sync()
+		t.Clear()
+		t.width, t.height = t.screen.Size()
+		t.MaxContent = t.height - 4
+		t.ShowResultFiles(true)
 	case *tcell.EventKey:
 		switch ev.Key() {
 		case tcell.KeyEscape:
@@ -537,14 +813,55 @@ func (t *TuiScreen) Event() {
 				t.ShowResultFiles(true)
 			}
 		case tcell.KeyEnter:
-			// TODO: 过滤结果到console
-			fmt.Fprintf(os.Stdout, "%s", t.CurContent)
-			os.Exit(0)
+			tmp := strings.Split(t.CurContent, " ")
+			// 打印第二段
+			if tmp[0] == "CMD" {
+				err := CommandPty(strings.Join(tmp[1:], " "))
+				if err != nil {
+					panic(err)
+				}
+				t.Sync()
+				t.Clear()
+				t.ShowResultFiles(true)
+			} else if tmp[0] == "HISTORY" {
+				err := CommandPty(strings.Join(tmp[1:], " "))
+				if err != nil {
+					panic(err)
+				}
+				t.Sync()
+				t.Clear()
+				t.ShowResultFiles(true)
+			} else if tmp[0] == "File" {
+				err := CommandPty("vi " + strings.Join(tmp[1:], " "))
+				if err != nil {
+					panic(err)
+				}
+				t.Sync()
+				t.Clear()
+				t.ShowResultFiles(true)
+			} else if tmp[0] == "Dir" {
+				err := CommandPty("cd " + strings.Join(tmp[1:], " "))
+				if err != nil {
+					panic(err)
+				}
+				t.Sync()
+				t.Clear()
+				t.ShowResultFiles(true)
+			} else {
+				fmt.Fprintf(os.Stdout, "%s", strings.Join(tmp[1:], " "))
+				os.Exit(0)
+			}
 		case tcell.KeyDown:
 			if t.SearchNum-1 > t.CursorPos {
 				t.CursorPos = t.CursorPos + 1
 				t.ShowResultFiles(false)
 			}
+		case tcell.KeyCtrlW:
+			t.Input = []rune{}
+			t.ShowResultFiles(true)
+		case tcell.KeyCtrlA:
+			t.SetCursor(1, 1, "x")
+			t.ShowResultFiles(true)
 		case tcell.KeyCtrlL:
 			t.Sync()
 		case tcell.KeyCtrlK:
@@ -612,8 +929,8 @@ func (t *TuiScreen) Event() {
 				t.Input = append(t.Input, value)
 				t.screen.SetCell(2, 1, tcell.StyleDefault, t.Input...)
 				t.screen.SetCursorStyle(tcell.CursorStyleSteadyBar)
-			case 'C':
-				t.Clear()
+			// case 'C':
+			// 	t.Clear()
 			// case 'c':
 			//      t.Clear()
 			default:
@@ -746,24 +1063,64 @@ func drawBox(s tcell.Screen, x1, y1, x2, y2 int, style tcell.Style, text string)
 
 }
 
-func Run() {
+func Run(unsearch []string, show bool) {
+	var err error
 	x := &TuiScreen{
 		EnablePaste: true,
 		EnableMouse: false,
+		Unsearch:    unsearch,
+		finish:      make(chan int),
+		Files:       []string{},
 	}
 
 	x.init()
-	// for i := 1; i <= 13; i++ {
-	// 	// fmt.Printf("\n")
-	// 	// t.screen.SetContent(1, i, ' ', []rune("\n"), tcell.StyleDefault)
-	// 	fmt.Fprint(os.Stderr, "\n")
-	// 	fmt.Fprint(os.Stderr, "\x1b[G")
-	// }
-	// fmt.Fprint(os.Stderr, "\x1b[1000D")
-	// fmt.Fprint(os.Stderr, "\x1b[13A")
-	// fmt.Fprint(os.Stderr, "\x1b[G")
-	// fmt.Fprint(os.Stderr, "\x1b[K")
-	// fmt.Fprint(os.Stderr, "\x1b[s")
+
+	go func() {
+		x.GetCommand()
+		err = x.Gopsutil()
+		if err != nil {
+			panic(err)
+		}
+		err = x.GetAllFiles(".", true)
+		if err != nil {
+			panic(err)
+		}
+		x.finish <- 1
+	}()
+
+	var s *spinner.Spinner
+	if show {
+		s = spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
+		s.Start()
+		s.Prefix = ""
+		s.Suffix = " 扫描中..." // Start the spinner
+		s.UpdateCharSet(spinner.CharSets[39])
+		s.Reverse()
+	}
+
+	ticker := time.NewTicker(500 * time.Millisecond)
+	for {
+		select {
+		case <-ticker.C:
+			if show {
+				s.Suffix = fmt.Sprintf("扫描中: %d MaxContent %d @%s", x.Total, x.MaxContent, time.Now().Format("2006-01-02 15:04:05"))
+				s.Reverse()
+				s.Restart()
+			} else {
+				x.ShowResultFiles(true)
+			}
+
+		case <-x.finish:
+			goto Loop
+		}
+
+	}
+Loop:
+	if show {
+		s.Stop()
+	}
+
+	ticker.Stop()
 
 	// CommandPty("\x1b[10A")
 	x.SetCursor(1, 1, "x")

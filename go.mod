@@ -7,6 +7,7 @@ require (
 	gitee.com/lflxp/tcell/v2 v2.5.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/astaxie/beego v1.12.1
+	github.com/briandowns/spinner v1.11.1
 	github.com/c-bata/go-prompt v0.2.3
 	github.com/coreos/bbolt v1.3.2
 	github.com/cosmtrek/air v1.27.8
@@ -52,7 +53,6 @@ require (
 	github.com/aead/chacha20 v0.0.0-20180709150244-8b13a72661da // indirect
 	github.com/asdine/storm/v3 v3.1.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/briandowns/spinner v1.11.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/chenjiandongx/ginprom v0.0.0-20191227144730-e11ebf56bc05 // indirect
 	github.com/elastic/beats v7.6.1+incompatible // indirect

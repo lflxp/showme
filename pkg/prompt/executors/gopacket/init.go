@@ -1,10 +1,11 @@
+//go:build gopacket
 // +build gopacket
 
 package gopacket
 
 import (
 	"github.com/c-bata/go-prompt"
-	"github.com/lflxp/showme/completers"
+	"github.com/lflxp/showme/pkg/prompt/completers"
 )
 
 func init() {
