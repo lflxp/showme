@@ -5,8 +5,8 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/lflxp/showme/pkg/vcls"
 	"github.com/lflxp/showme/pkg/vcls/form"
+	"github.com/lflxp/showme/pkg/vcls/login"
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +21,7 @@ var guiCmd = &cobra.Command{
 	依赖包: https://gitee.com/lflxp/govcl/attach_files/992338/download/liblcl-2.2.0.zip`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if sample {
-			vcls.Run()
+			login.Run()
 		} else {
 			form.Run()
 		}
