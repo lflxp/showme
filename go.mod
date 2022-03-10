@@ -41,6 +41,7 @@ require (
 	github.com/spf13/viper v1.10.0
 	github.com/swaggo/swag v1.7.9
 	github.com/ugorji/go/codec v1.1.7
+	github.com/ying32/govcl v2.2.0+incompatible
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 )
 
@@ -128,6 +129,8 @@ require (
 	github.com/swaggo/gin-swagger v1.2.0 // indirect
 	github.com/tatsushid/go-fastping v0.0.0-20160109021039-d7bb493dee3e // indirect
 	github.com/unrolled/secure v1.0.7 // indirect
+	github.com/ying32/dylib v0.0.0-20220227124818-fdf9ea9fbc96 // indirect
+	github.com/ying32/liblclbinres v0.0.0-20220111074620-df670ba4baf4 // indirect
 	go.etcd.io/bbolt v1.3.4 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect

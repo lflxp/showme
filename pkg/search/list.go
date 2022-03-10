@@ -779,7 +779,7 @@ func (t *TuiScreen) Event() {
 	// fmt.Printf("\x1b[1000D")
 	// fmt.Printf("\x1b[%dA", int(t.height/2))
 	t.screen.Show()
-	style := tcell.StyleDefault
+	// style := tcell.StyleDefault
 
 	// Poll event
 	ev := t.screen.PollEvent()
@@ -897,38 +897,38 @@ func (t *TuiScreen) Event() {
 			t.CursorPos = 0
 			value := ev.Rune()
 			switch value {
-			case '0':
-				t.Clear()
-				t.Input = append(t.Input, value)
-				t.SetCursor(1, 1, "x")
-				t.screen.SetContent(2, 1, '0', nil, style)
-				t.screen.SetCursorStyle(tcell.CursorStyleDefault)
-			case '1':
-				t.Clear()
-				t.Input = append(t.Input, value)
-				t.SetCursor(1, 1, "x")
-				t.screen.SetContent(2, 1, '1', nil, style)
-				t.screen.SetCursorStyle(tcell.CursorStyleBlinkingBlock)
-			case '2':
-				t.Input = append(t.Input, value)
-				t.screen.SetCell(2, 1, tcell.StyleDefault, t.Input...)
-				t.screen.SetCursorStyle(tcell.CursorStyleSteadyBlock)
-			case '3':
-				t.Input = append(t.Input, value)
-				t.screen.SetCell(2, 1, tcell.StyleDefault, t.Input...)
-				t.screen.SetCursorStyle(tcell.CursorStyleBlinkingUnderline)
-			case '4':
-				t.Input = append(t.Input, value)
-				t.screen.SetCell(2, 1, tcell.StyleDefault, t.Input...)
-				t.screen.SetCursorStyle(tcell.CursorStyleSteadyUnderline)
-			case '5':
-				t.Input = append(t.Input, value)
-				t.screen.SetCell(2, 1, tcell.StyleDefault, t.Input...)
-				t.screen.SetCursorStyle(tcell.CursorStyleBlinkingBar)
-			case '6':
-				t.Input = append(t.Input, value)
-				t.screen.SetCell(2, 1, tcell.StyleDefault, t.Input...)
-				t.screen.SetCursorStyle(tcell.CursorStyleSteadyBar)
+			// case '0':
+			// 	t.Clear()
+			// 	t.Input = append(t.Input, value)
+			// 	t.SetCursor(1, 1, "x")
+			// 	t.screen.SetContent(2, 1, '0', nil, style)
+			// 	t.screen.SetCursorStyle(tcell.CursorStyleDefault)
+			// case '1':
+			// 	t.Clear()
+			// 	t.Input = append(t.Input, value)
+			// 	t.SetCursor(1, 1, "x")
+			// 	t.screen.SetContent(2, 1, '1', nil, style)
+			// 	t.screen.SetCursorStyle(tcell.CursorStyleBlinkingBlock)
+			// case '2':
+			// 	t.Input = append(t.Input, value)
+			// 	t.screen.SetCell(2, 1, tcell.StyleDefault, t.Input...)
+			// 	t.screen.SetCursorStyle(tcell.CursorStyleSteadyBlock)
+			// case '3':
+			// 	t.Input = append(t.Input, value)
+			// 	t.screen.SetCell(2, 1, tcell.StyleDefault, t.Input...)
+			// 	t.screen.SetCursorStyle(tcell.CursorStyleBlinkingUnderline)
+			// case '4':
+			// 	t.Input = append(t.Input, value)
+			// 	t.screen.SetCell(2, 1, tcell.StyleDefault, t.Input...)
+			// 	t.screen.SetCursorStyle(tcell.CursorStyleSteadyUnderline)
+			// case '5':
+			// 	t.Input = append(t.Input, value)
+			// 	t.screen.SetCell(2, 1, tcell.StyleDefault, t.Input...)
+			// 	t.screen.SetCursorStyle(tcell.CursorStyleBlinkingBar)
+			// case '6':
+			// 	t.Input = append(t.Input, value)
+			// 	t.screen.SetCell(2, 1, tcell.StyleDefault, t.Input...)
+			// 	t.screen.SetCursorStyle(tcell.CursorStyleSteadyBar)
 			// case 'C':
 			// 	t.Clear()
 			// case 'c':

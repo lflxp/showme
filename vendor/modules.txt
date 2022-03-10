@@ -540,6 +540,25 @@ github.com/ugorji/go/codec
 # github.com/unrolled/secure v1.0.7
 ## explicit; go 1.13
 github.com/unrolled/secure
+# github.com/ying32/dylib v0.0.0-20220227124818-fdf9ea9fbc96
+## explicit
+github.com/ying32/dylib
+# github.com/ying32/govcl v2.2.0+incompatible
+## explicit
+github.com/ying32/govcl/pkgs/libname
+github.com/ying32/govcl/pkgs/winappres
+github.com/ying32/govcl/vcl
+github.com/ying32/govcl/vcl/api
+github.com/ying32/govcl/vcl/api/memorydll
+github.com/ying32/govcl/vcl/api/memorydll/btmemorymodule
+github.com/ying32/govcl/vcl/locales
+github.com/ying32/govcl/vcl/locales/zh_CN
+github.com/ying32/govcl/vcl/rtl
+github.com/ying32/govcl/vcl/types
+github.com/ying32/govcl/vcl/win
+# github.com/ying32/liblclbinres v0.0.0-20220111074620-df670ba4baf4
+## explicit
+github.com/ying32/liblclbinres
 # go.etcd.io/bbolt v1.3.4
 ## explicit; go 1.12
 go.etcd.io/bbolt
