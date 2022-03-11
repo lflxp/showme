@@ -1,3 +1,5 @@
+//go:build govcl
+
 package vcls
 
 import (

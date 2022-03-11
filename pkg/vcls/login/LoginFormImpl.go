@@ -1,4 +1,4 @@
-// 在这里写你的事件
+//go:build govcl
 
 package login
 

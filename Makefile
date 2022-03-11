@@ -71,3 +71,7 @@ csr: key
 
 key: clean
 	openssl genrsa -out tls/server.key 2048
+
+tags:
+	@echo 只需要在go build指令后用-tags指定编译条件即可
+	go build -tags govcl
