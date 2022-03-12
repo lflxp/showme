@@ -27,6 +27,7 @@ import (
 
 // 加密base64
 func EncodeBase64(in string) string {
+	// return base64.URLEncoding.EncodeToString([]byte(in))
 	return base64.StdEncoding.EncodeToString([]byte(in))
 }
 

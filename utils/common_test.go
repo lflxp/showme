@@ -67,3 +67,43 @@ func Test_GetRandomString(t *testing.T) {
 		}
 	})
 }
+
+func Test_EncodeBase64(t *testing.T) {
+	cases := []struct {
+		Name       string
+		A, Execped string
+	}{
+		{"test1", "hello world", "aGVsbG8gd29ybGQK"},
+		{"test2", "helloworld", "aGVsbG93b3JsZAo="},
+	}
+
+	for _, x := range cases {
+		t.Run(x.Name, func(t *testing.T) {
+			if rs := EncodeBase64(x.A); rs != x.Execped {
+				t.Fatalf("%s EncodeBase64 expected %s ,but got %s", x.A, x.Execped, rs)
+			}
+		})
+	}
+}
+
+func Test_DecodeBase64(t *testing.T) {
+	cases := []struct {
+		Name       string
+		A, Execped string
+	}{
+		{"test1", "aGVsbG8gd29ybGQK", "hello world"},
+		{"test2", "aGVsbG93b3JsZAo=", "helloworld"},
+	}
+
+	for _, x := range cases {
+		t.Run(x.Name, func(t *testing.T) {
+			if rs, err := DecodeBase64(x.A); err != nil {
+				t.Fatal(err)
+			} else {
+				if rs != x.Execped {
+					t.Fatalf("%s EncodeBase64 expected %s ,but got %s", x.A, x.Execped, rs)
+				}
+			}
+		})
+	}
+}
