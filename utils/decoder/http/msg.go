@@ -176,7 +176,7 @@ func (m *HttpResp) StringHeader() string {
 	for k, v := range m.Headers {
 		headStr += k + ": " + v + "\r\n"
 	}
-	return fmt.Sprintf("%s %s %s\r\n%s\r\n", m.Version, m.StatusCode, m.StatusMsg, headStr)
+	return fmt.Sprintf("%s %d %s\r\n%s\r\n", m.Version, m.StatusCode, m.StatusMsg, headStr)
 }
 
 func (m *HttpResp) Match(filter *Filter) bool {

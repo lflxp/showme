@@ -73,8 +73,7 @@ func Test_EncodeBase64(t *testing.T) {
 		Name       string
 		A, Execped string
 	}{
-		{"test1", "hello world", "aGVsbG8gd29ybGQK"},
-		{"test2", "helloworld", "aGVsbG93b3JsZAo="},
+		{"test1", "hello world", "aGVsbG8gd29ybGQ="},
 	}
 
 	for _, x := range cases {
@@ -91,8 +90,7 @@ func Test_DecodeBase64(t *testing.T) {
 		Name       string
 		A, Execped string
 	}{
-		{"test1", "aGVsbG8gd29ybGQK", "hello world"},
-		{"test2", "aGVsbG93b3JsZAo=", "helloworld"},
+		{"test1", "aGVsbG8gd29ybGQ=", "hello world"},
 	}
 
 	for _, x := range cases {
@@ -105,5 +103,99 @@ func Test_DecodeBase64(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func Test_DecodeBase64Bytes(t *testing.T) {
+	cases := []struct {
+		Name    string
+		A       string
+		Execped []byte
+	}{
+		{"test1", "aGVsbG8gd29ybGQ=", []byte("hello world")},
+	}
+
+	for _, x := range cases {
+		t.Run(x.Name, func(t *testing.T) {
+			if rs, err := DecodeBase64Bytes(x.A); err != nil {
+				t.Fatal(err)
+			} else {
+				if string(rs) != string(x.Execped) {
+					t.Fatalf("%s EncodeBase64 expected %s ,but got %s", x.A, x.Execped, rs)
+				}
+			}
+		})
+	}
+}
+
+func Test_Jiami(t *testing.T) {
+	t.Run("jiami", func(t *testing.T) {
+		if ans := Jiami("what'sthis"); ans != "2421cda15581e8ef59789b6cf59fb775" {
+			t.Fatalf("%s expectd %s,but gout %s", "what'sthis", "aaa", ans)
+		}
+	})
+}
+
+func Test_MD5(t *testing.T) {
+	t.Run("MD5", func(t *testing.T) {
+		if ans := MD5("what'sthis"); ans != "2421cda15581e8ef59789b6cf59fb775" {
+			t.Fatalf("%s expectd %s,but gout %s", "what'sthis", "aaa", ans)
+		}
+	})
+}
+
+// func Test_GetCurrentDirectory(t *testing.T) {
+// 	if cur := GetCurrentDirectory(); cur != "" {
+// 		t.Fatalf("current path is %s,but got %s", ".", cur)
+// 	}
+// }
+
+func Test_IsPathExists(t *testing.T) {
+	cases := []struct {
+		Name     string
+		Path     string
+		Expected bool
+	}{
+		{"exist1", "/tmp", true},
+		{"exist2", "/usr", true},
+		{"noexist", "/abc", false},
+	}
+
+	for _, x := range cases {
+		t.Run(x.Name, func(t *testing.T) {
+			if ans := IsPathExists(x.Path); ans != x.Expected {
+				t.Fatalf("%s expected %v,but got %v", x.Path, x.Expected, ans)
+			}
+		})
+	}
+}
+
+func Test_GetIps(t *testing.T) {
+	rs := GetIps()
+	target := "192.168.0.113"
+	t.Log("rs", rs)
+	if ans := In(target, rs); !ans {
+		t.Fatalf("expected %s in %v,but got %v", target, true, ans)
+	}
+}
+
+func Test_ParseIps(t *testing.T) {
+	target := "127.0.0.1-3"
+	expected := []string{
+		"127.0.0.1",
+		"127.0.0.2",
+		"127.0.0.3",
+	}
+
+	if rs, err := ParseIps(target); err != nil {
+		t.Fatal(err)
+	} else if len(rs) != 3 {
+		t.Fatalf("length of data expected 3,but got %d", len(rs))
+	} else {
+		for i, x := range rs {
+			if expected[i] != x {
+				t.Errorf("index %d expected %s ,but got %s", i, expected[i], x)
+			}
+		}
 	}
 }
