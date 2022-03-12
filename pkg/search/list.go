@@ -1076,6 +1076,7 @@ func Run(unsearch []string, show bool) {
 	x.init()
 
 	go func() {
+		x.HttpCode()
 		x.GetCommand()
 		err = x.Gopsutil()
 		if err != nil {
