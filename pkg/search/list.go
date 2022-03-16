@@ -1080,11 +1080,11 @@ func Run(unsearch []string, show bool) {
 		x.GetCommand()
 		err = x.Gopsutil()
 		if err != nil {
-			panic(err)
+			log.Error(err)
 		}
 		err = x.GetAllFiles(".", true)
 		if err != nil {
-			panic(err)
+			log.Error(err)
 		}
 		x.finish <- 1
 	}()
