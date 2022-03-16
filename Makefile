@@ -75,3 +75,6 @@ key: clean
 tags:
 	@echo 只需要在go build指令后用-tags指定编译条件即可
 	go build -tags govcl
+
+test:
+	go test -v -cover ./utils/...
