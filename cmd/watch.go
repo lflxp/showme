@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,6 +30,8 @@ var (
 	cfgPath     string
 	debugMode   bool
 	showVersion bool
+	// cmdArgs     map[string]runner.TomlInfo
+	// runArgs     []string
 )
 
 // watchCmd represents the watch command
@@ -42,7 +44,7 @@ var watchCmd = &cobra.Command{
   __    _   ___  
  / /\  | | | |_) 
 /_/--\ |_| |_| \_ %s, built with Go %s
-`, "v1.27.8", "1.17")
+`, "v1.40.4", "1.19")
 
 		if showVersion {
 			return
@@ -56,6 +58,14 @@ var watchCmd = &cobra.Command{
 		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 		var err error
+		// cfg, err := runner.InitConfig(cfgPath)
+		// if err != nil {
+		// 	log.Fatal(err)
+		// 	return
+		// }
+
+		// cfg.WithArgs(cmdArgs)
+		// r, err := runner.NewEngineWithConfig(cfg, debugMode)
 		r, err := runner.NewEngine(cfgPath, debugMode)
 		if err != nil {
 			log.Fatal(err)

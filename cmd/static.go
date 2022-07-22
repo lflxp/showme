@@ -16,17 +16,20 @@ package cmd
 
 import (
 	"github.com/lflxp/lflxp-static/pkg"
+	staticsync "github.com/lflxp/lflxp-static/pkg/sync"
 	"github.com/spf13/cobra"
 )
 
 var (
-	portHttpStatic string
-	pathHttpStatic string
-	isVideo        bool
-	raw            bool
-	staticPort     string
-	pagesize       int
-	types          string
+	portHttpStatic                string
+	pathHttpStatic                string
+	isVideo                       bool
+	raw                           bool
+	staticPort                    string
+	pagesize                      int
+	types                         string
+	debug2                        bool
+	src, dest, clean, cleanString string
 )
 
 // staticCmd represents the static command
@@ -35,22 +38,37 @@ var staticCmd = &cobra.Command{
 	Short: "本地静态文件服务器",
 	Long:  `通过本地http服务进行简单的文件传输和文件展示`,
 	Run: func(cmd *cobra.Command, args []string) {
-		api := pkg.Apis{
-			Port:       portHttpStatic,
-			Path:       pathHttpStatic,
-			Types:      types,
-			IsVideo:    isVideo,
-			PageSize:   pagesize,
-			Raw:        raw,
-			StaticPort: staticPort,
-		}
+		if src != "" && dest != "" {
+			err := staticsync.LocalDirSync(src, dest, debug2)
+			if err != nil {
+				panic(err)
+			}
+		} else if clean != "" && cleanString != "" {
+			err := staticsync.Clean(clean, cleanString)
+			if err != nil {
+				panic(err)
+			}
+		} else {
+			api := pkg.Apis{
+				Port:       portHttpStatic,
+				Path:       pathHttpStatic,
+				Types:      types,
+				IsVideo:    isVideo,
+				PageSize:   pagesize,
+				Raw:        raw,
+				StaticPort: staticPort,
+			}
 
-		err := api.Check()
-		if err != nil {
-			panic(err)
-		}
+			err := api.Check()
+			if err != nil {
+				panic(err)
+			}
 
-		api.Execute()
+			err = api.Execute()
+			if err != nil {
+				panic(err)
+			}
+		}
 	},
 }
 
@@ -72,5 +90,10 @@ func init() {
 	staticCmd.Flags().StringVarP(&pathHttpStatic, "path", "f", "./", "加载目录")
 	staticCmd.Flags().BoolVarP(&isVideo, "video", "v", false, "是否切换为视频模式")
 	staticCmd.Flags().BoolVarP(&raw, "raw", "r", false, "是否切换为无html页面状态")
+	staticCmd.Flags().BoolVarP(&debug2, "debug", "d", false, "是否开启断点续传debug日志")
 	staticCmd.Flags().IntVarP(&pagesize, "pagesize", "c", 20, "每页显示视频数")
+	staticCmd.Flags().StringVarP(&src, "src", "S", "", "复制文件原文件或文件夹")
+	staticCmd.Flags().StringVarP(&dest, "dest", "D", "", "复制文件目标文件或文件夹")
+	staticCmd.Flags().StringVarP(&clean, "clean", "C", "", "删除文件或文件夹,如：/tmp")
+	staticCmd.Flags().StringVarP(&cleanString, "contains", "T", "", "删除文件名包含的内容，如：.temp")
 }

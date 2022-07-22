@@ -1,6 +1,10 @@
 # routine
 
-[中文版](README_zh.md)
+[![Build Status](https://travis-ci.com/go-eden/routine.svg?branch=main)](https://travis-ci.com/github/go-eden/routine)
+[![codecov](https://codecov.io/gh/go-eden/routine/branch/main/graph/badge.svg?token=R4GC2IuGoh)](https://codecov.io/gh/go-eden/routine)
+[![Go doc](https://img.shields.io/badge/go.dev-reference-brightgreen?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/go-eden/routine)
+
+> [中文版](README_zh.md)
 
 `routine` encapsulates and provides some easy-to-use, high-performance `goroutine` context access interfaces, which can
 help you access coroutine context information more elegantly, but you may also open Pandora's Box.
@@ -31,7 +35,7 @@ go get github.com/go-eden/routine
 
 ## Use `goid`
 
-The following code simply demonstrates the use of `routine.Goid()` and `routine.AllGoids()`:
+The following code simply demonstrates the use of `routine.Goid()`:
 
 ```go
 package main
@@ -47,23 +51,19 @@ func main() {
 		time.Sleep(time.Second)
 	}()
 	goid := routine.Goid()
-	goids := routine.AllGoids()
 	fmt.Printf("curr goid: %d\n", goid)
-	fmt.Printf("all goids: %v\n", goids)
 }
 ```
 
-In this example, the `main` function starts a new coroutine, so `Goid()` returns the main coroutine `1`,
-and `AllGoids()` returns the main coroutine and coroutine `18`:
+In this example, the `main` function starts a new coroutine, so `Goid()` returns the main coroutine `1`:
 
 ```text
 curr goid: 1
-all goids: [1 18]
 ```
 
 ## Use `LocalStorage`
 
-The following code simply demonstrates the creation, setting, acquisition, and cross-coroutine propagation
+The following code simply demonstrates `NewLocalStorage()`, `Set()`, `Get()`, and cross-coroutine propagation
 of `LocalStorage`:
 
 ```go
@@ -120,25 +120,6 @@ functions and implementation methods.
 
 Get the `goid` of the current `goroutine`.
 
-Under normal circumstances, `Goid()` first tries to get it directly through `go_tls`. This operation is extremely fast,
-and the time-consuming is usually only one-fifth of `rand.Int()`.
-
-If an error such as version incompatibility occurs, `Goid()` will try to parse it from the `runtime.Stack` information.
-At this time, the performance will suffer exponential loss, which is about a thousand times slower, but the function can
-be guaranteed to be normal Available.
-
-## `AllGoids() (ids []int64)`
-
-Get the `goid` of all active `goroutine` of the current process.
-
-In `go 1.15` and older versions, `AllGoids()` will try to parse and get all the coroutine information from
-the `runtime.Stack` information, but this operation is very inefficient and it is not recommended to use it in
-high-frequency logic. .
-
-In versions after `go 1.16`, `AllGoids()` will directly read the global coroutine pool information of `runtime`
-through `native`, which has greatly improved performance, but considering the production environment There may be tens
-of thousands or millions of coroutines, so it is still not recommended to use it at high frequencies.
-
 ## `NewLocalStorage()`:
 
 Create a new instance of `LocalStorage`, its design idea is very similar to the usage of `ThreadLocal` in other
@@ -167,19 +148,17 @@ Represents the context variable of the coroutine, and the supported functions in
 + `Set(v interface{}) interface{}`: Set the value of the context variable of the current coroutine, and return the old
   value that has been set before.
 + `Del() (v interface{})`: Delete the context variable value of the current coroutine and return the deleted old value.
-+ `Clear()`: Thoroughly clean up the old value of this context variable saved in all coroutines.
+
+**Tip: The internal implementation of `Get/Set/Del` adopts a lock-free design. In most cases, its performance should be
+very stable and efficient.**
 
 # Garbage Collection
 
-The `routine` library internally maintains the global `storages`, which stores all the variable values of all
-coroutines, and performs data unique mapping based on the `goid` and `LocalStorage` of `goroutine` when reading and
-writing.
+In the `v1` version, `routine` will setup a backgrount timer to scan all go-routines intervally, and find the exited routine to clean the related `LocalStorage` data.
 
-In the entire life cycle of a process, there may be countless creation and destruction of coroutines, so it is necessary
-to actively clean up the context data cached by the `dead` coroutine in the global `storages`. This work is performed by
-a global timer in the `routine` library, which will, when necessary, Scan and clean up the relevant information of
-the `dead` coroutine at regular intervals to avoid potential memory leaks.
-
+In the `v2` version, `routine` will register a `finalizer` to listen the lifecycle of `runtime.g`. 
+After the coroutine exits, when garbage collection running, the `finalizer` mechanism of `runtime` will actively remove the useless `LocalStorage` `Data clean up,
+So as to avoid memory leaks.
 # License
 
 MIT

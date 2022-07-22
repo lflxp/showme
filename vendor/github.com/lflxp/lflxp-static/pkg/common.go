@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -69,4 +70,14 @@ func GetIPs() (ips []string) {
 		}
 	}
 	return ips
+}
+
+// 快速判断字符是否在字符数组中
+func In(target string, source []string) bool {
+	sort.Strings(source)
+	index := sort.SearchStrings(source, target)
+	if index < len(source) && source[index] == target {
+		return true
+	}
+	return false
 }
