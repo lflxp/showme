@@ -192,3 +192,10 @@ daemonsets.extensions                                         networkpolicies.ex
 deployments.apps                                              networkpolicies.networking.k8s.io                             redisfailovers.storage.spotahome.com                          volumeattachments.storage.k8s.io
 deployments.extensions                                        nodes                                                         replicasets.apps                                              
 ```
+
+# go 1.18 hotfix
+
+```
+go get -u golang.org/x/sys
+go get -u github.com/go-eden/routine
+```
