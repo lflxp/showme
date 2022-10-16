@@ -26,7 +26,10 @@ func Upload(c *gin.Context) {
 	for _, file := range files {
 
 		// 上传文件到指定的路径
-		c.SaveUploadedFile(file, fmt.Sprintf("./%s", file.Filename))
+		if err := c.SaveUploadedFile(file, fmt.Sprintf("./%s", file.Filename)); err != nil {
+			c.String(http.StatusBadRequest, fmt.Sprintf("upload err: %s", err.Error()))
+			return
+		}
 	}
 	c.String(http.StatusOK, fmt.Sprintf("%d files uploaded!", len(files)))
 }
@@ -224,6 +227,11 @@ func serverGin() {
 		if isvideo {
 			router.GET("/video", Video)
 		}
+
+		// 404
+		router.NoRoute(func(c *gin.Context) {
+			c.String(http.StatusNotFound, "404 NOT FOUND")
+		})
 	}
 
 	server := &http.Server{

@@ -372,9 +372,10 @@ github.com/lflxp/lflxp-scan/pkg
 # github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee
 ## explicit; go 1.13
 github.com/lflxp/lflxp-sflowtool/pkg
-# github.com/lflxp/lflxp-static v1.0.1
+# github.com/lflxp/lflxp-static v1.0.2
 ## explicit; go 1.16
 github.com/lflxp/lflxp-static/pkg
+github.com/lflxp/lflxp-static/pkg/sync
 # github.com/lflxp/lflxp-tty v0.0.0-20220210175959-a773452454c8
 ## explicit; go 1.17
 github.com/lflxp/lflxp-tty/pkg

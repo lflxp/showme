@@ -28,7 +28,7 @@ require (
 	github.com/lflxp/lflxp-orzdba v0.0.0-20201102102701-b8902cead805
 	github.com/lflxp/lflxp-scan v0.0.0-20200323114511-9ac561b61f89
 	github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee
-	github.com/lflxp/lflxp-static v1.0.1
+	github.com/lflxp/lflxp-static v1.0.2
 	github.com/lflxp/lflxp-tty v0.0.0-20220210175959-a773452454c8
 	github.com/lithammer/fuzzysearch v1.1.3
 	github.com/mattn/go-runewidth v0.0.13
