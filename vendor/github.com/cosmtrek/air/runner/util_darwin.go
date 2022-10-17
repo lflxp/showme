@@ -14,48 +14,39 @@ func (e *Engine) killCmd(cmd *exec.Cmd) (pid int, err error) {
 	if e.config.Build.SendInterrupt {
 		// Sending a signal to make it clear to the process that it is time to turn off
 		if err = syscall.Kill(-pid, syscall.SIGINT); err != nil {
-			e.mainDebug("trying to send signal failed %v", err)
 			return
 		}
-		time.Sleep(e.config.Build.KillDelay * time.Millisecond)
+		time.Sleep(e.config.Build.KillDelay)
 	}
-	err = killByPid(pid)
-	if err != nil {
-		return pid, err
-	}
+	// https://stackoverflow.com/questions/22470193/why-wont-go-kill-a-child-process-correctly
+	err = syscall.Kill(-pid, syscall.SIGKILL)
 	// Wait releases any resources associated with the Process.
-	_, err = cmd.Process.Wait()
-	if err != nil {
-		return pid, err
-	}
-
-	e.mainDebug("killed process pid %d successed", pid)
-	return pid, nil
+	_, _ = cmd.Process.Wait()
+	return pid, err
 }
 
-func (e *Engine) startCmd(cmd string) (*exec.Cmd, io.WriteCloser, io.ReadCloser, io.ReadCloser, error) {
+func (e *Engine) startCmd(cmd string) (*exec.Cmd, io.ReadCloser, io.ReadCloser, error) {
 	c := exec.Command("/bin/sh", "-c", cmd)
+	// because using pty cannot have same pgid
+	c.SysProcAttr = &syscall.SysProcAttr{
+		Setpgid: true,
+	}
 
 	stderr, err := c.StderrPipe()
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, err
 	}
 	stdout, err := c.StdoutPipe()
 	if err != nil {
-		return nil, nil, nil, nil, err
-	}
-	stdin, err := c.StdinPipe()
-	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
-	c.Stdin = os.Stdin
 
 	err = c.Start()
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, err
 	}
-	return c, stdin, stdout, stderr, nil
+	return c, stdout, stderr, nil
 }
