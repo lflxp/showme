@@ -2,6 +2,7 @@ package tty
 
 import (
 	"bufio"
+	"errors"
 	"os"
 	"syscall"
 )
@@ -12,7 +13,7 @@ type TTY struct {
 	out *os.File
 }
 
-func open() (*TTY, error) {
+func open(path string) (*TTY, error) {
 	tty := new(TTY)
 
 	in, err := os.Open("/dev/cons")
@@ -52,6 +53,11 @@ func (tty *TTY) close() (err error) {
 
 func (tty *TTY) size() (int, int, error) {
 	return 80, 24, nil
+}
+
+func (tty *TTY) sizePixel() (int, int, int, int, error) {
+	x, y, _ := tty.size()
+	return x, y, -1, -1, errors.New("no implemented method for querying size in pixels on Plan 9")
 }
 
 func (tty *TTY) input() *os.File {

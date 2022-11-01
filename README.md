@@ -14,6 +14,8 @@ showme -h
 
 # Module
 
+* 【TODO】k8s 【Kubenetes Dashboard】
+
 * [【DONE】tty 【WEB TERMINIAL】](https://github.com/lflxp/lflxp-tty/blob/master/README.md)
 
 ![](./img/tty.png)

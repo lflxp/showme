@@ -36,6 +36,9 @@ swag:
 run: main.go
 	go run main.go static ${n}
 
+released: 
+    # @echo goreleaser release
+
 # tty功能测试
 tty: 
 	go run main.go tty -w -m 1 -d -a -u admin -p admin bash 

@@ -26,10 +26,17 @@ const (
 	STRING = "string"
 	// FUNC represent a function value.
 	FUNC = "func"
+	// ERROR represent a error value.
+	ERROR = "error"
+	// INTERFACE represent a interface value.
+	INTERFACE = "interface{}"
 	// ANY represent a any value.
 	ANY = "any"
 	// NIL represent a empty value.
 	NIL = "nil"
+
+	// IgnoreNameOverridePrefix Prepend to model to avoid renaming based on comment.
+	IgnoreNameOverridePrefix = '$'
 )
 
 // CheckSchemaType checks if typeName is not a name of primitive type.
@@ -59,6 +66,11 @@ func IsPrimitiveType(typeName string) bool {
 	}
 
 	return false
+}
+
+// IsInterfaceLike determines whether the swagger type name is an go named interface type like error type.
+func IsInterfaceLike(typeName string) bool {
+	return typeName == ERROR || typeName == ANY
 }
 
 // IsNumericType determines whether the swagger type name is a numeric type.
@@ -123,7 +135,7 @@ func TransToValidCollectionFormat(format string) string {
 
 // TypeDocName get alias from comment '// @name ', otherwise the original type name to display in doc.
 func TypeDocName(pkgName string, spec *ast.TypeSpec) string {
-	if spec != nil {
+	if spec != nil && !ignoreNameOverride(pkgName) {
 		if spec.Comment != nil {
 			for _, comment := range spec.Comment.List {
 				texts := strings.Split(strings.TrimSpace(strings.TrimLeft(comment.Text, "/")), " ")
@@ -132,9 +144,42 @@ func TypeDocName(pkgName string, spec *ast.TypeSpec) string {
 				}
 			}
 		}
+
 		if spec.Name != nil {
 			return fullTypeName(strings.Split(pkgName, ".")[0], spec.Name.Name)
 		}
+	}
+
+	if ignoreNameOverride(pkgName) {
+		return pkgName[1:]
+	}
+
+	return pkgName
+}
+
+func ignoreNameOverride(name string) bool {
+	return len(name) != 0 && name[0] == IgnoreNameOverridePrefix
+}
+
+// TypeDocNameFuncScoped get alias from comment '// @name ', otherwise the original type name to display in doc.
+func TypeDocNameFuncScoped(pkgName string, spec *ast.TypeSpec, fnName string) string {
+	if spec != nil && !ignoreNameOverride(pkgName) {
+		if spec.Comment != nil {
+			for _, comment := range spec.Comment.List {
+				texts := strings.Split(strings.TrimSpace(strings.TrimLeft(comment.Text, "/")), " ")
+				if len(texts) > 1 && strings.ToLower(texts[0]) == "@name" {
+					return texts[1]
+				}
+			}
+		}
+
+		if spec.Name != nil {
+			return fullTypeNameFunctionScoped(strings.Split(pkgName, ".")[0], fnName, spec.Name.Name)
+		}
+	}
+
+	if ignoreNameOverride(pkgName) {
+		return pkgName[1:]
 	}
 
 	return pkgName
@@ -167,6 +212,7 @@ func BuildCustomSchema(types []string) (*spec.Schema, error) {
 		if len(types) == 1 {
 			return nil, errors.New("need array item type after array")
 		}
+
 		schema, err := BuildCustomSchema(types[1:])
 		if err != nil {
 			return nil, err
@@ -177,6 +223,7 @@ func BuildCustomSchema(types []string) (*spec.Schema, error) {
 		if len(types) == 1 {
 			return PrimitiveSchema(types[0]), nil
 		}
+
 		schema, err := BuildCustomSchema(types[1:])
 		if err != nil {
 			return nil, err

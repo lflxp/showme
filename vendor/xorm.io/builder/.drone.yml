@@ -1,31 +1,11 @@
 ---
 kind: pipeline
-name: go1.10
+name: testing
 
-workspace:
-  base: /go
-  path: src/xorm.io/builder
-
-steps:
-- name: test
-  pull: default
-  image: golang:1.10
-  commands:
-  - go get -u golang.org/x/lint/golint
-  - go get -u github.com/stretchr/testify/assert
-  - go get -u github.com/go-xorm/sqlfiddle
-  - golint ./...
-  - go vet
-  - go test -v -race -coverprofile=coverage.txt -covermode=atomic
-  when:
-    event:
-    - push
-    - tag
-    - pull_request
-
----
-kind: pipeline
-name: go1.11
+trigger:
+  ref:
+  - refs/heads/master
+  - refs/pull/*/head
 
 steps:
 - name: test
@@ -37,54 +17,5 @@ steps:
   - go vet
   - go test -v -race -coverprofile=coverage.txt -covermode=atomic
   environment:
-    GOPROXY: https://goproxy.cn
+    GOPROXY: https://goproxy.io
     GO111MODULE: "on"
-  when:
-    event:
-    - push
-    - tag
-    - pull_request
-
----
-kind: pipeline
-name: go1.12
-
-steps:
-- name: test
-  pull: default
-  image: golang:1.12
-  commands:
-  - go get -u golang.org/x/lint/golint
-  - golint ./...
-  - go vet
-  - go test -v -race -coverprofile=coverage.txt -covermode=atomic
-  environment:
-    GOPROXY: https://goproxy.cn
-    GO111MODULE: "on"
-  when:
-    event:
-    - push
-    - tag
-    - pull_request
-
----
-kind: pipeline
-name: go1.13
-
-steps:
-- name: test
-  pull: default
-  image: golang:1.13
-  commands:
-  - go get -u golang.org/x/lint/golint
-  - golint ./...
-  - go vet
-  - go test -v -race -coverprofile=coverage.txt -covermode=atomic
-  environment:
-    GOPROXY: https://goproxy.cn
-    GO111MODULE: "on"
-  when:
-    event:
-    - push
-    - tag
-    - pull_request

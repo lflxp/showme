@@ -21,6 +21,11 @@ func (this *Apis) Check() error {
 }
 
 func (this *Apis) Execute() error {
+	err := this.Check()
+	if err != nil {
+		return err
+	}
+
 	Api(this)
 	return nil
 }
