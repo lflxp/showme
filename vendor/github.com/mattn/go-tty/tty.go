@@ -7,7 +7,11 @@ import (
 )
 
 func Open() (*TTY, error) {
-	return open()
+	return open("/dev/tty")
+}
+
+func OpenDevice(path string) (*TTY, error) {
+	return open(path)
 }
 
 func (tty *TTY) Raw() (func() error, error) {
@@ -36,6 +40,10 @@ func (tty *TTY) Close() error {
 
 func (tty *TTY) Size() (int, int, error) {
 	return tty.size()
+}
+
+func (tty *TTY) SizePixel() (int, int, int, int, error) {
+	return tty.sizePixel()
 }
 
 func (tty *TTY) Input() *os.File {
@@ -115,6 +123,6 @@ type WINSIZE struct {
 	H int
 }
 
-func (tty *TTY) SIGWINCH() chan WINSIZE {
+func (tty *TTY) SIGWINCH() <-chan WINSIZE {
 	return tty.sigwinch()
 }

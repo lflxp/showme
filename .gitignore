@@ -21,3 +21,4 @@ showme.*
 *.tar.gz
 tls/
 tmp/
+dist/

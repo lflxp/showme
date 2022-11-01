@@ -13,7 +13,7 @@ import (
 
 var logger = zerolog.Logger{}
 
-const bind = "127.0.0.1:6000"
+const bind = "127.0.0.1:6001"
 
 func init() {
 	output := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}

@@ -2,7 +2,10 @@ package pkg
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
@@ -63,9 +66,39 @@ func ServeGin(data *Tty) {
 		ginpprof.Wrapper(router)
 	}
 
-	server := &http.Server{
-		Addr:    fmt.Sprintf("%s:%s", data.Host, data.Port),
-		Handler: router,
+	var server *http.Server
+
+	if httpXterm.Options.EnableTLS {
+		// if !IsPathExists(httpXterm.Options.CrtPath) || !IsPathExists(httpXterm.Options.KeyPath) {
+// 			err := GenerateRSAKey(1024)
+// 			if err != nil {
+// 				panic(err)
+// 			}
+// 		}
+
+		pool := x509.NewCertPool()
+		caCeretPath := httpXterm.Options.CrtPath
+
+		caCrt, err := ioutil.ReadFile(caCeretPath)
+		if err != nil {
+			panic(err)
+		}
+
+		pool.AppendCertsFromPEM(caCrt)
+
+		server = &http.Server{
+			Addr:    fmt.Sprintf("%s:%s", data.Host, data.Port),
+			Handler: router,
+			TLSConfig: &tls.Config{
+				ClientCAs:  pool,
+				ClientAuth: tls.RequestClientCert,
+			},
+		}
+	} else {
+		server = &http.Server{
+			Addr:    fmt.Sprintf("%s:%s", data.Host, data.Port),
+			Handler: router,
+		}
 	}
 
 	quit := make(chan os.Signal)
