@@ -49,6 +49,7 @@ require (
 	github.com/ugorji/go/codec v1.2.7
 	github.com/ying32/govcl v2.2.0+incompatible
 	golang.org/x/term v0.1.0
+	k8s.io/client-go v0.25.3
 )
 
 require (
@@ -174,7 +175,6 @@ require (
 	howett.net/plist v0.0.0-20181124034731-591f970eefbb // indirect
 	k8s.io/api v0.25.3 // indirect
 	k8s.io/apimachinery v0.25.3 // indirect
-	k8s.io/client-go v0.25.3 // indirect
 	k8s.io/klog/v2 v2.70.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20220803162953-67bda5d908f1 // indirect
 	k8s.io/utils v0.0.0-20220728103510-ee6ede2d64ed // indirect

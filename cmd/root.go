@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
 	_ "github.com/devopsxp/xp/module"
@@ -25,6 +26,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"k8s.io/client-go/util/homedir"
 )
 
 var cfgFile string
@@ -137,6 +139,28 @@ var rootCmd = &cobra.Command{
 	bindkey -s "^[3" "showme static^M"
 	bindkey -s "^[4" "showme tty -w^M"
 	bindkey -s "^[5" "showme watchw^M"
+4. ~/.showme.yaml example
+#######DEMO ######
+---
+account:
+    admin:
+        claim: '[{"id":1,"auth":"admin","type":"nav","value":"dashboard"}]'
+        password: admin
+admin: true
+app:
+    - test
+global:
+    Name: demo 
+    Pkg: demo
+host: 0.0.0.0
+log:
+    level: debug
+meili:
+    apikey: masterKey
+    enable: false
+    host: http://127.0.0.1:7700
+port: 8000
+snakemapper: admin_
 	`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
@@ -274,15 +298,46 @@ func initConfig() {
 		viper.SetConfigFile(cfgFile)
 	} else {
 		// 获取项目的执行路径
-		home, err := os.Getwd()
-		if err != nil {
-			panic(err)
+		// home, err := os.Getwd()
+		home := homedir.HomeDir()
+		target := filepath.Join(home, ".showme.yaml")
+		if !utils.IsPathExists(target) {
+			file, err := os.OpenFile(target, os.O_CREATE|os.O_WRONLY, 0666)
+			if err != nil {
+				panic(err)
+			}
+			defer file.Close()
+
+			_, err = file.WriteString(`account:
+    admin:
+        claim: '[{"id":1,"auth":"admin","type":"nav","value":"dashboard"}]'
+        password: admin
+admin: true
+app:
+    - test
+global:
+    Name: demo 
+    Pkg: demo
+host: 0.0.0.0
+log:
+    level: debug
+meili:
+    apikey: masterKey
+    enable: false
+    host: http://127.0.0.1:7700
+port: 8000
+snakemapper: admin_
+`)
+			if err != nil {
+				panic(err)
+			}
+
 		}
 
 		// Search config in home directory with name ".devopsxp" (without extension).
-		viper.AddConfigPath(home)       // 设置读取文件的路径
-		viper.SetConfigName("devopsxp") // 设置读取的文件名
-		viper.SetConfigType("yaml")     // 设置文件的类型
+		viper.AddConfigPath(home)      // 设置读取文件的路径
+		viper.SetConfigName(".showme") // 设置读取的文件名
+		viper.SetConfigType("yaml")    // 设置文件的类型
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
