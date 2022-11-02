@@ -19,6 +19,6 @@ showme.*
 *.out
 .vscode/
 *.tar.gz
-tls/
+#tls/
 tmp/
 dist/
