@@ -2,6 +2,7 @@
 *.swp
 showme
 showme.*
+!showme.gif
 *.db
 *.log
 
