@@ -12,6 +12,10 @@ make install
 showme -h
 ```
 
+# Example
+
+![](./showme.gif)
+
 # Module
 
 * 【TODO】k8s 【Kubenetes Dashboard】

@@ -320,7 +320,7 @@ global:
     Pkg: demo
 host: 0.0.0.0
 log:
-    level: debug
+    level: info 
 meili:
     apikey: masterKey
     enable: false
