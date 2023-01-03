@@ -180,6 +180,10 @@ https://blog.csdn.net/lengyuezuixue/article/details/79664409
 - tty 添加install自动部署systemctl服务的功能
 - 对接Mini CMDB
 
+# 贡献
+
+若要基于本项目进行开发，需要先建立cobra cli命令选项`cobra add ${YOUR_CLI} -p rootCmd`
+
 # k8s resource list
 
 ```
