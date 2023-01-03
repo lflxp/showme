@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	log "github.com/go-eden/slf4go"
+	"github.com/lflxp/tools/orm/sqlite"
 )
 
 var registered []map[string]string
@@ -111,13 +112,13 @@ func Register(data ...interface{}) error {
 	}
 
 	// 注册Model
-	err := NewOrm().Sync2(data...)
+	err := sqlite.NewOrm().Sync2(data...)
 	if err != nil {
 		log.Error(err)
 		return err
 	}
 
-	log.Debug("完成模型注册")
+	// log.Debug("完成模型注册")
 	registered = tmp
 	return nil
 }

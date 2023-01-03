@@ -24,6 +24,7 @@ var (
 	clients         dynamic.Interface
 	clientset       *kubernetes.Clientset
 	discoveryclient *discovery.DiscoveryClient
+	restConfig      *rest.Config
 )
 
 func InitClientDiscovery() *discovery.DiscoveryClient {
@@ -54,14 +55,15 @@ func doInitDiscovery() (*discovery.DiscoveryClient, error) {
 	}
 	flag.Parse()
 
+	var err error
 	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	restConfig, err = clientcmd.BuildConfigFromFlags("", *kubeconfig)
 	if err != nil {
 		return nil, err
 	}
 
 	// create the clientset
-	discoveryclient, err := discovery.NewDiscoveryClientForConfig(config)
+	discoveryclient, err := discovery.NewDiscoveryClientForConfig(restConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -69,12 +71,13 @@ func doInitDiscovery() (*discovery.DiscoveryClient, error) {
 }
 
 func doInitDiscoveryInner() (*discovery.DiscoveryClient, error) {
-	config, err := rest.InClusterConfig()
+	var err error
+	restConfig, err = rest.InClusterConfig()
 	if err != nil {
 		return nil, err
 	}
 
-	clientset, err := discovery.NewDiscoveryClientForConfig(config)
+	clientset, err := discovery.NewDiscoveryClientForConfig(restConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -121,12 +124,13 @@ func InitClientDynamic() (dynamic.Interface, error) {
 
 // 集群内client-go
 func doInitInner() (*kubernetes.Clientset, error) {
-	config, err := rest.InClusterConfig()
+	var err error
+	restConfig, err = rest.InClusterConfig()
 	if err != nil {
 		return nil, err
 	}
 
-	clientset, err := kubernetes.NewForConfig(config)
+	clientset, err := kubernetes.NewForConfig(restConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -135,12 +139,13 @@ func doInitInner() (*kubernetes.Clientset, error) {
 }
 
 func doInitInnerDynamic() (dynamic.Interface, error) {
-	config, err := rest.InClusterConfig()
+	var err error
+	restConfig, err = rest.InClusterConfig()
 	if err != nil {
 		return nil, err
 	}
 
-	clientset, err := dynamic.NewForConfig(config)
+	clientset, err := dynamic.NewForConfig(restConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -157,14 +162,15 @@ func doInit() (*kubernetes.Clientset, error) {
 	}
 	flag.Parse()
 
+	var err error
 	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	restConfig, err = clientcmd.BuildConfigFromFlags("", *kubeconfig)
 	if err != nil {
 		return nil, err
 	}
 
 	// create the clientset
-	clientset, err := kubernetes.NewForConfig(config)
+	clientset, err := kubernetes.NewForConfig(restConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -180,14 +186,15 @@ func DoInitDynamic() (dynamic.Interface, error) {
 	}
 	flag.Parse()
 
+	var err error
 	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	restConfig, err = clientcmd.BuildConfigFromFlags("", *kubeconfig)
 	if err != nil {
 		return nil, err
 	}
 
 	// create the clientset
-	clientset, err := dynamic.NewForConfig(config)
+	clientset, err := dynamic.NewForConfig(restConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -200,18 +207,27 @@ func InitRestClient() (*rest.Config, error, *corev1client.CoreV1Client) {
 		clientcmd.NewDefaultClientConfigLoadingRules(),
 		&clientcmd.ConfigOverrides{},
 	)
+
+	var err error
 	// Get a rest.Config from the kubeconfig file.  This will be passed into all
 	// the client objects we create.
-	restconfig, err := kubeconfig.ClientConfig()
+	restConfig, err = kubeconfig.ClientConfig()
 	if err != nil {
 		panic(err)
 	}
 	// Create a Kubernetes core/v1 client.
-	coreclient, err := corev1client.NewForConfig(restconfig)
+	coreclient, err := corev1client.NewForConfig(restConfig)
 	if err != nil {
 		panic(err)
 	}
-	return restconfig, err, coreclient
+	return restConfig, err, coreclient
+}
+
+func RestConfig() *rest.Config {
+	if restConfig == nil {
+		InitClientDynamic()
+	}
+	return restConfig
 }
 
 var gvr = schema.GroupVersionResource{

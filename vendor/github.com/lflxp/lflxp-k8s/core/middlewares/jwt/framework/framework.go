@@ -10,7 +10,6 @@ import (
 
 	"github.com/lflxp/lflxp-k8s/core/middlewares/jwt/model"
 	"github.com/lflxp/lflxp-k8s/core/middlewares/jwt/services"
-	"github.com/lflxp/lflxp-k8s/core/middlewares/template"
 
 	"github.com/lflxp/tools/httpclient"
 	"github.com/lflxp/tools/utils"
@@ -20,6 +19,7 @@ import (
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	log "github.com/go-eden/slf4go"
+	"github.com/lflxp/tools/orm/sqlite"
 	"github.com/spf13/viper"
 )
 
@@ -35,7 +35,7 @@ var (
 
 func init() {
 	identityKey = viper.GetString("token.jwtIdentityKey")
-	log.Debugf("初始化jwtIdentityKey %s", identityKey)
+	// log.Debugf("初始化jwtIdentityKey %s", identityKey)
 }
 
 func GetMiddleware() *jwt.GinJWTMiddleware {
@@ -50,7 +50,7 @@ func VerifyAuth(username, password string) (bool, error) {
 	// 优先查询数据库
 	var user = model.User{Username: username}
 	// 忽略[]claims与string 解析
-	has, _ := template.NewOrm().Get(&user)
+	has, _ := sqlite.NewOrm().Get(&user)
 
 	if has {
 		log.Debugf("Found User %s Login", username)

@@ -7,12 +7,12 @@ import (
 
 	"github.com/lflxp/lflxp-k8s/core/middlewares/template"
 
-	log "github.com/go-eden/slf4go"
+	"github.com/lflxp/tools/orm/sqlite"
 )
 
 func init() {
 	template.Register(new(Demotest))
-	log.Debug("注册Demo test")
+	// log.Debug("注册Demo test")
 }
 
 type Demotest struct {
@@ -58,22 +58,22 @@ func (d *Demotest) GetByString(key string) (string, error) {
 
 func getByUUID(uuid string) (*Demotest, bool, error) {
 	data := new(Demotest)
-	has, err := template.NewOrm().Where("uuid = ?", uuid).Get(data)
+	has, err := sqlite.NewOrm().Where("uuid = ?", uuid).Get(data)
 	return data, has, err
 }
 
 func Add(data *Demotest) (int64, error) {
-	affected, err := template.NewOrm().Insert(data)
+	affected, err := sqlite.NewOrm().Insert(data)
 	return affected, err
 }
 
 func Del(id string) (int64, error) {
 	data := new(Demotest)
-	affected, err := template.NewOrm().ID(id).Delete(data)
+	affected, err := sqlite.NewOrm().ID(id).Delete(data)
 	return affected, err
 }
 
 func Update(id string, data *Demotest) (int64, error) {
-	affected, err := template.NewOrm().Table(new(Demotest)).ID(id).Update(data)
+	affected, err := sqlite.NewOrm().Table(new(Demotest)).ID(id).Update(data)
 	return affected, err
 }

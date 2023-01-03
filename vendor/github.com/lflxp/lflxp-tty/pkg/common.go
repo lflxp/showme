@@ -16,7 +16,6 @@ import (
 
 	"github.com/asdine/storm/v3"
 	log "github.com/go-eden/slf4go"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 var boltDB *storm.DB
@@ -110,7 +109,7 @@ func GetRandomSalt() string {
 	return GetRandomString(32)
 }
 
-//生成随机字符串
+// 生成随机字符串
 func GetRandomString(len int) string {
 	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	bytes := []byte(str)

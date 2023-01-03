@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 
 	"github.com/lflxp/lflxp-k8s/core/model/test"
+	"github.com/lflxp/tools/orm/sqlite"
 
 	"github.com/lflxp/lflxp-k8s/core/middlewares/jwt/framework"
 	"github.com/lflxp/lflxp-k8s/core/middlewares/jwt/services"
@@ -29,7 +30,7 @@ func test_process(c *gin.Context) {
 	if c.Request.Method == "GET" {
 		if typed == "index" {
 			tmp := make([]test.Demotest, 0)
-			err := template.NewOrm().Limit(10, 0).Find(&tmp)
+			err := sqlite.NewOrm().Limit(10, 0).Find(&tmp)
 			if err != nil {
 				c.String(400, err.Error())
 			} else {
@@ -42,7 +43,7 @@ func test_process(c *gin.Context) {
 		} else if typed == "show" {
 			id := c.Query("id")
 			var tmp test.Demotest
-			has, err := template.NewOrm().Where("id = ?", id).Get(&tmp)
+			has, err := sqlite.NewOrm().Where("id = ?", id).Get(&tmp)
 			if err != nil {
 				c.String(400, err.Error())
 			} else {

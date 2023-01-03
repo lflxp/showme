@@ -8,6 +8,7 @@ import (
 	"github.com/lflxp/lflxp-k8s/core/middlewares/template"
 
 	log "github.com/go-eden/slf4go"
+	"github.com/lflxp/tools/orm/sqlite"
 )
 
 func init() {
@@ -15,7 +16,7 @@ func init() {
 	template.Register(new(Vpn), new(Machine), new(Cdn), new(More), new(User), new(Claims), new(Groups), new(Userauth), new(History))
 
 	user := User{Username: "admin"}
-	has, err := template.NewOrm().Get(&user)
+	has, err := sqlite.NewOrm().Get(&user)
 	if err != nil {
 		log.Error(err)
 	}
@@ -27,11 +28,11 @@ func init() {
 			Value: "dashboard",
 		}
 
-		template.NewOrm().Insert(&claims)
+		sqlite.NewOrm().Insert(&claims)
 
 		log.Info("init admin user")
 		sql := "insert into user('username','password','claims_id') values ('admin','admin','1');"
-		n, err := template.NewOrm().Query(sql)
+		n, err := sqlite.NewOrm().Query(sql)
 		if err != nil {
 			log.Errorf("init admin user err %s", err.Error())
 		}
@@ -145,7 +146,7 @@ func InsertHistory(beans ...interface{}) (int64, error) {
 		}
 
 	}()
-	return template.NewOrm().Insert(beans...)
+	return sqlite.NewOrm().Insert(beans...)
 }
 
 type History struct {
@@ -159,22 +160,22 @@ type History struct {
 
 func getByUUIDHistory(uuid string) (*History, bool, error) {
 	data := new(History)
-	has, err := template.NewOrm().Where("uuid = ?", uuid).Get(data)
+	has, err := sqlite.NewOrm().Where("uuid = ?", uuid).Get(data)
 	return data, has, err
 }
 
 func AddHistory(data *History) (int64, error) {
-	affected, err := template.NewOrm().Insert(data)
+	affected, err := sqlite.NewOrm().Insert(data)
 	return affected, err
 }
 
 func DelHistory(id string) (int64, error) {
 	data := new(History)
-	affected, err := template.NewOrm().ID(id).Delete(data)
+	affected, err := sqlite.NewOrm().ID(id).Delete(data)
 	return affected, err
 }
 
 func UpdateHistory(id string, data *History) (int64, error) {
-	affected, err := template.NewOrm().Table(new(History)).ID(id).Update(data)
+	affected, err := sqlite.NewOrm().Table(new(History)).ID(id).Update(data)
 	return affected, err
 }

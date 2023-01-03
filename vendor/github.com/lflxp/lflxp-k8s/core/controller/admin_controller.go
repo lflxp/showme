@@ -16,6 +16,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	log "github.com/go-eden/slf4go"
+	"github.com/lflxp/tools/orm/sqlite"
 )
 
 func RegisterAdmin(router *gin.Engine) {
@@ -41,7 +42,7 @@ func process(c *gin.Context) {
 	if c.Request.Method == "GET" {
 		if typed == "index" {
 			Hs := make([]admin.History, 0)
-			err := template.NewOrm().Desc("id").Limit(10, 0).Find(&Hs)
+			err := sqlite.NewOrm().Desc("id").Limit(10, 0).Find(&Hs)
 			if err != nil {
 				c.JSON(400, err)
 			} else {
@@ -108,7 +109,7 @@ func process(c *gin.Context) {
 		} else if typed == "test1" {
 			// fmt.Println(models.Registered)
 			Hs := make([]admin.History, 0)
-			err := template.NewOrm().Desc("id").Limit(10, 0).Find(&Hs)
+			err := sqlite.NewOrm().Desc("id").Limit(10, 0).Find(&Hs)
 			if err != nil {
 				panic(err)
 			}
@@ -140,7 +141,7 @@ func process(c *gin.Context) {
 			if name != "" && id != "" {
 				//查询sql
 				check_sql := fmt.Sprintf("select * from %s where id=%s", name, id)
-				result, err := template.NewOrm().Query(check_sql)
+				result, err := sqlite.NewOrm().Query(check_sql)
 				if err != nil {
 					c.String(400, err.Error())
 					return
@@ -176,11 +177,11 @@ func process(c *gin.Context) {
 				}
 			}
 			log.Error(sql)
-			result, err := template.NewOrm().Query(sql)
+			result, err := sqlite.NewOrm().Query(sql)
 			if err != nil {
 				log.Error(err.Error())
 			}
-			total, err := template.NewOrm().Table(strings.ToLower(name)).Count()
+			total, err := sqlite.NewOrm().Table(strings.ToLower(name)).Count()
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -214,7 +215,7 @@ func process(c *gin.Context) {
 			name := c.Query("name")
 			log.Error(ids, name)
 			sql := fmt.Sprintf("delete from %s where id in (%s)", name, ids)
-			_, err := template.NewOrm().Query(sql)
+			_, err := sqlite.NewOrm().Query(sql)
 			if err != nil {
 				c.String(400, err.Error())
 				return
@@ -254,7 +255,7 @@ func process(c *gin.Context) {
 
 			sql := fmt.Sprintf("insert into %s(%s) values (%s)", name, strings.Join(col, ","), strings.Join(value, ","))
 			log.Debug(sql)
-			_, err = template.NewOrm().Query(sql)
+			_, err = sqlite.NewOrm().Query(sql)
 			if err != nil {
 				c.String(400, err.Error())
 				return
@@ -318,7 +319,7 @@ func process(c *gin.Context) {
 				}
 				sql := fmt.Sprintf("update %s set %s where id=%s", name, strings.Join(set_string, ","), id)
 				// core.Debug(sql)
-				_, err = template.NewOrm().Query(sql)
+				_, err = sqlite.NewOrm().Query(sql)
 				if err != nil {
 					log.Error("sql error", err.Error())
 					c.String(400, err.Error())

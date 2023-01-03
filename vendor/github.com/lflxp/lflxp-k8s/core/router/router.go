@@ -62,4 +62,5 @@ func PreGinServe(r *gin.Engine) {
 	controller.RegisterAdmin(r)
 	controller.Registertest(r)
 	apiserver.RegisterApiserver(r)
+	apiserver.RegisterApiserverWS(r)
 }

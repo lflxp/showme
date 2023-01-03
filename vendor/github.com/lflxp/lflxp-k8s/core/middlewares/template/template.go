@@ -9,6 +9,7 @@ import (
 	"time"
 
 	log "github.com/go-eden/slf4go"
+	"github.com/lflxp/tools/orm/sqlite"
 )
 
 var FuncMap template.FuncMap = map[string]interface{}{
@@ -268,7 +269,7 @@ jQuery(function($){
 			// log.Error("tmp_o2o", tmp[3])
 			sql := fmt.Sprintf("select * from %s", tmp_o2o[0])
 			// log.Error(sql)
-			resultSql, err := orm.Query(sql)
+			resultSql, err := sqlite.NewOrm().Query(sql)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -290,7 +291,7 @@ jQuery(function($){
 			// log.Error("tmp_o2o", tmp[3])
 			sql := fmt.Sprintf("select * from %s", tmp_o2o[0])
 			// log.Error(sql)
-			resultSql, err := orm.Query(sql)
+			resultSql, err := sqlite.NewOrm().Query(sql)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -448,7 +449,7 @@ jQuery(function($){
 			// log.Error("tmp_o2o", tmp[3])
 			sql := fmt.Sprintf("select * from %s", tmp_o2o[0])
 			// log.Error(sql)
-			resultSql, err := orm.Query(sql)
+			resultSql, err := sqlite.NewOrm().Query(sql)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -475,7 +476,7 @@ jQuery(function($){
 			// log.Error("tmp_o2o", tmp[3])
 			sql := fmt.Sprintf("select * from %s", tmp_o2o[0])
 			// log.Error(sql)
-			resultSql, err := orm.Query(sql)
+			resultSql, err := sqlite.NewOrm().Query(sql)
 			if err != nil {
 				log.Error(err.Error())
 			}
