@@ -53,17 +53,20 @@ func writer(ws *websocket.Conn, data *model.CoreV1) {
 			buf := make([]byte, upgrader.ReadBufferSize)
 			numBytes, err := stream.Read(buf)
 			if numBytes == 0 {
+				log.Debug("received 0 bytes")
 				continue
 			}
 			if err == io.EOF {
+				log.Debug("EOF received")
 				break
 			}
 			if err != nil {
+				log.Error(err)
 				return
 			}
 			// message := string(buf[:numBytes])
-			// log.Debug(message)
-			if err := ws.WriteMessage(websocket.TextMessage, buf[:numBytes]); err != nil {
+			// log.Debug("==========", numBytes, message)
+			if err := ws.WriteMessage(websocket.BinaryMessage, buf[:numBytes]); err != nil {
 				log.Error(err.Error())
 				return
 			}

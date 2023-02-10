@@ -8,9 +8,14 @@
 <script src="//cdn.bootcss.com/jquery/2.1.4/jquery.js"></script>
 </head>
 <body>
-    <textarea id="logoutput" rows="30" placeholder="日志输出" style="background:#000; color:#FFF" >...</textarea>
+    <textarea id="logoutput" rows="30" placeholder="日志输出" style="background:#000; color:#FFF" ></textarea>
 </body>
 <script>
+    function binaryData(ev) {
+        var data = new TextDecoder("utf-8").decode(new Uint8Array(ev.data))
+        return data
+    }
+
     $(document).ready(function() {
         var data = document.getElementById("logoutput");
     
@@ -37,16 +42,18 @@
 
         // 指定websocket路径
         var ws = new WebSocket('ws://{{.Host}}/ws/logs/backend/{{.Namespace}}/{{.Pod}}/{{.Container}}');
+        ws.binaryType = 'arraybuffer';
 
         ws.onmessage = function(event) {
+            console.log(event,binaryData(event))
             // 接收服务端的实时日志并添加到HTML页面中
-            data.innerHTML += event.data;
+            data.innerHTML += binaryData(event);
             // 滚动条滚动到最低部
             var d = data.scrollHeight;
             data.scrollTop = d;
         };
         ws.onclose = function(evt) {
-            data.innerHTML = 'Connection closed';
+            data.innerHTML += 'Connection closed';
         }
     });
 </script>

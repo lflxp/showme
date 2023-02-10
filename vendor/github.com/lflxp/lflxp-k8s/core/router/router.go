@@ -5,6 +5,7 @@ import (
 	"github.com/lflxp/lflxp-k8s/core/middlewares"
 	"github.com/lflxp/lflxp-k8s/core/pages"
 	"github.com/lflxp/lflxp-k8s/pkg/apiserver"
+	"github.com/lflxp/lflxp-k8s/pkg/vela/appshop"
 
 	"github.com/lflxp/lflxp-k8s/asset"
 	"github.com/lflxp/lflxp-k8s/pkg/auth"
@@ -63,4 +64,5 @@ func PreGinServe(r *gin.Engine) {
 	controller.Registertest(r)
 	apiserver.RegisterApiserver(r)
 	apiserver.RegisterApiserverWS(r)
+	appshop.RegisterShop(r)
 }

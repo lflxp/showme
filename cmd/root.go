@@ -61,29 +61,7 @@ var rootCmd = &cobra.Command{
 	bindkey -s "^[3" "showme static^M"
 	bindkey -s "^[4" "showme tty -w^M"
 	bindkey -s "^[5" "showme watchw^M"
-4. ~/.showme.yaml example
-#######DEMO ######
----
-account:
-    admin:
-        claim: '[{"id":1,"auth":"admin","type":"nav","value":"dashboard"}]'
-        password: admin
-admin: true
-app:
-    - test
-global:
-    Name: demo 
-    Pkg: demo
-host: 0.0.0.0
-log:
-    level: debug
-meili:
-    apikey: masterKey
-    enable: false
-    host: http://127.0.0.1:7700
-port: 8000
-snakemapper: admin_
-	`,
+4. ~/.showme.yaml example`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) {

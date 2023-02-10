@@ -66,7 +66,8 @@ func TokenFilter() gin.HandlerFunc {
 			user, err := js.ParseJWTToken(c)
 			if err != nil {
 				if strings.Contains(err.Error(), "named cookie not present") {
-					c.Redirect(http.StatusFound, "/d2admin/#/login?url="+c.Request.RequestURI)
+					// c.Redirect(http.StatusFound, "/d2admin/#/login?url="+c.Request.RequestURI)
+					httpclient.SendErrorMessage(c, http.StatusUnauthorized, "token invalid", "/d2admin/#/login?url="+c.Request.RequestURI)
 					return
 				}
 				c.AbortWithStatusJSON(http.StatusUnauthorized, httpclient.Result{
@@ -85,6 +86,8 @@ func TokenFilter() gin.HandlerFunc {
 			c.Request.Header.Set("name", user.Name)
 			c.Request.Header.Set("userid", user.UserId)
 			c.Request.Header.Set("email", user.Email)
+			c.Request.Header.Set("token", user.Token)
+			c.Request.Header.Set("refreshtoken", user.RefreshToken)
 		} else {
 			c.Next()
 		}
@@ -110,8 +113,8 @@ func isWhilteUrl(c *gin.Context) bool {
 		`^/admin/auth/login`,
 		`^/api/login`,
 		`^/apis/*`,
-		`^/api/*`, // for debug only
-		`^/ws/*`,
+		// `^/api/*`, // for debug only
+		// `^/ws/*`,
 		`^/node_modules/*`,
 	}
 

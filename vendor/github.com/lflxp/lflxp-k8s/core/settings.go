@@ -17,6 +17,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	log "github.com/go-eden/slf4go"
+	"github.com/skratchdot/open-golang/open"
 	"github.com/spf13/viper"
 )
 
@@ -81,10 +82,20 @@ func Run(ishttps bool) {
 		}
 	}()
 
-	for _, ip := range utils.GetIPs() {
-		log.Infof("Listening and serving HTTPS on http://%s:%s", ip, port)
+	var openUrl string
+	for index, ip := range utils.GetIPs() {
+		if ishttps {
+			log.Infof("Listening and serving HTTPS on https://%s:%s", ip, port)
+		} else {
+			log.Infof("Listening and serving HTTPS on http://%s:%s", ip, port)
+		}
+
+		if index == 0 {
+			openUrl = fmt.Sprintf("%s:%s", ip, port)
+		}
 	}
 	if ishttps {
+		open.Start(fmt.Sprintf("https://%s", openUrl))
 		if err := server.ListenAndServeTLS("ca.crt", "ca.key"); err != nil {
 			if err == http.ErrServerClosed {
 				log.Warn("Server closed under request")
@@ -93,6 +104,7 @@ func Run(ishttps bool) {
 			}
 		}
 	} else {
+		open.Start(fmt.Sprintf("http://%s", openUrl))
 		if err := server.ListenAndServe(); err != nil {
 			if err == http.ErrServerClosed {
 				log.Warn("Server closed under request")

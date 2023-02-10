@@ -51,6 +51,7 @@ showme -h
 * [【TO BE FIX】k8s 管理工具](https://github.com/lflxp/lflxp-kubectl/blob/master/README.md)
 
 ![s1.png](./img/s1.png)
+![k8s.png](./img/k8s.png)
 
 * [bolt 快速RESTFUL API](https://github.com/lflxp/lflxp-api/blob/master/README.md)
 

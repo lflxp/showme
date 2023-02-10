@@ -296,14 +296,14 @@ github.com/go-logr/logr
 ## explicit; go 1.12
 github.com/go-ole/go-ole
 github.com/go-ole/go-ole/oleutil
-# github.com/go-openapi/jsonpointer v0.19.5
+# github.com/go-openapi/jsonpointer v0.19.6
 ## explicit; go 1.13
 github.com/go-openapi/jsonpointer
-# github.com/go-openapi/jsonreference v0.20.0
+# github.com/go-openapi/jsonreference v0.20.2
 ## explicit; go 1.13
 github.com/go-openapi/jsonreference
 github.com/go-openapi/jsonreference/internal
-# github.com/go-openapi/spec v0.20.7
+# github.com/go-openapi/spec v0.20.8
 ## explicit; go 1.13
 github.com/go-openapi/spec
 # github.com/go-openapi/swag v0.22.3
@@ -454,7 +454,7 @@ github.com/lflxp/goproxys/protocol
 ## explicit; go 1.13
 github.com/lflxp/lflxp-api/pkg
 github.com/lflxp/lflxp-api/pkg/docs
-# github.com/lflxp/lflxp-k8s v0.0.3
+# github.com/lflxp/lflxp-k8s v0.1.0
 ## explicit; go 1.19
 github.com/lflxp/lflxp-k8s/asset
 github.com/lflxp/lflxp-k8s/core
@@ -473,6 +473,7 @@ github.com/lflxp/lflxp-k8s/pkg/apiserver/model
 github.com/lflxp/lflxp-k8s/pkg/apiserver/ws/logs
 github.com/lflxp/lflxp-k8s/pkg/apiserver/ws/ssh
 github.com/lflxp/lflxp-k8s/pkg/auth
+github.com/lflxp/lflxp-k8s/pkg/vela/appshop
 github.com/lflxp/lflxp-k8s/tls
 github.com/lflxp/lflxp-k8s/utils
 # github.com/lflxp/lflxp-kubectl v0.0.0-20200324075201-2c87c15ee42c
@@ -490,7 +491,7 @@ github.com/lflxp/lflxp-scan/pkg
 # github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee
 ## explicit; go 1.13
 github.com/lflxp/lflxp-sflowtool/pkg
-# github.com/lflxp/lflxp-static v1.0.2
+# github.com/lflxp/lflxp-static v1.0.3
 ## explicit; go 1.16
 github.com/lflxp/lflxp-static/pkg
 github.com/lflxp/lflxp-static/pkg/sync
@@ -637,6 +638,9 @@ github.com/shirou/gopsutil/process
 # github.com/sirupsen/logrus v1.9.0
 ## explicit; go 1.13
 github.com/sirupsen/logrus
+# github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
+## explicit
+github.com/skratchdot/open-golang/open
 # github.com/spf13/afero v1.8.2
 ## explicit; go 1.13
 github.com/spf13/afero
@@ -673,7 +677,7 @@ github.com/swaggo/files
 # github.com/swaggo/gin-swagger v1.5.3
 ## explicit; go 1.15
 github.com/swaggo/gin-swagger
-# github.com/swaggo/swag v1.8.9
+# github.com/swaggo/swag v1.8.10
 ## explicit; go 1.18
 github.com/swaggo/swag
 # github.com/syndtr/goleveldb v1.0.0
@@ -767,7 +771,7 @@ golang.org/x/crypto/ssh/terminal
 # golang.org/x/mod v0.7.0
 ## explicit; go 1.17
 golang.org/x/mod/semver
-# golang.org/x/net v0.3.0
+# golang.org/x/net v0.5.0
 ## explicit; go 1.17
 golang.org/x/net/bpf
 golang.org/x/net/context
@@ -793,7 +797,7 @@ golang.org/x/oauth2/internal
 # golang.org/x/sync v0.1.0
 ## explicit
 golang.org/x/sync/errgroup
-# golang.org/x/sys v0.3.0
+# golang.org/x/sys v0.4.0
 ## explicit; go 1.17
 golang.org/x/sys/cpu
 golang.org/x/sys/execabs
@@ -803,10 +807,10 @@ golang.org/x/sys/unix
 golang.org/x/sys/windows
 golang.org/x/sys/windows/registry
 golang.org/x/sys/windows/svc/eventlog
-# golang.org/x/term v0.3.0
+# golang.org/x/term v0.4.0
 ## explicit; go 1.17
 golang.org/x/term
-# golang.org/x/text v0.5.0
+# golang.org/x/text v0.6.0
 ## explicit; go 1.17
 golang.org/x/text/encoding
 golang.org/x/text/encoding/charmap
@@ -828,7 +832,7 @@ golang.org/x/text/unicode/norm
 # golang.org/x/time v0.0.0-20220609170525-579cf78fd858
 ## explicit
 golang.org/x/time/rate
-# golang.org/x/tools v0.4.0
+# golang.org/x/tools v0.5.0
 ## explicit; go 1.18
 golang.org/x/tools/go/ast/astutil
 golang.org/x/tools/go/buildutil

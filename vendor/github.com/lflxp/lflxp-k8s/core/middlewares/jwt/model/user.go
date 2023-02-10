@@ -20,6 +20,8 @@ type User struct {
 	RoleReal     string `json:"roleReal"`
 	IsGlobal     string `json:"isGlobal"`
 	DisplayName  string `json:"displayName"` // 用户显示名称
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
 }
 
 // Resp 登录后返回resp结构体

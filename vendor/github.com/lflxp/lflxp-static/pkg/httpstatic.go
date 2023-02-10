@@ -1,9 +1,12 @@
 package pkg
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/skratchdot/open-golang/open"
 )
 
 var (
@@ -40,7 +43,11 @@ func HttpStaticServeForCorba(data *Apis) {
 	staticPort = data.StaticPort
 
 	ips := GetIPs()
-	for _, ip := range ips {
+	var openUrl string
+	for index, ip := range ips {
+		if index == 0 {
+			openUrl = fmt.Sprintf("http://%s:%s", ip, port)
+		}
 		log.Printf("前端访问地址: http://%s:%s", ip, port)
 		log.Printf("文件访问地址: http://%s:%s", ip, staticPort)
 	}
@@ -48,5 +55,6 @@ func HttpStaticServeForCorba(data *Apis) {
 	log.Printf("当前目录: %s", dir)
 	log.Println("curl -X POST http://127.0.0.1:9090/upload -F \"file=@/Users/lxp/123.mp4\" -H \"Content-Type:multipart/form-data\"")
 
+	open.Start(openUrl)
 	serverGin()
 }

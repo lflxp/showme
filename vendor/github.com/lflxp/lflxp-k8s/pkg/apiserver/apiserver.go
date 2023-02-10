@@ -46,11 +46,20 @@ func get_namespaces(c *gin.Context) {
 func gvr_all(c *gin.Context) {
 	cli := clientgo.InitClientDiscovery()
 	apigroup, apiresourceListSlice, err := cli.ServerGroupsAndResources()
-	httpclient.SendSuccessMessage(c, 200, gin.H{
-		"apigroup":             apigroup,
-		"apiresourceListSlice": apiresourceListSlice,
-		"error":                err,
-	})
+	if err != nil {
+		httpclient.SendSuccessMessage(c, 200, gin.H{
+			"apigroup":             apigroup,
+			"apiresourceListSlice": apiresourceListSlice,
+			"error":                err.Error(),
+		})
+	} else {
+		httpclient.SendSuccessMessage(c, 200, gin.H{
+			"apigroup":             apigroup,
+			"apiresourceListSlice": apiresourceListSlice,
+			"error":                nil,
+		})
+	}
+
 }
 
 // @Summary  本地登录接口
