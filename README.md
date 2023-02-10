@@ -18,7 +18,9 @@ showme -h
 
 # Module
 
-* 【TODO】k8s 【Kubenetes Dashboard】
+* 【Doing】k8s 【Kubenetes Dashboard】
+
+![k8s.png](./img/k8s.png)
 
 * [【DONE】tty 【WEB TERMINIAL】](https://github.com/lflxp/lflxp-tty/blob/master/README.md)
 
@@ -51,7 +53,6 @@ showme -h
 * [【TO BE FIX】k8s 管理工具](https://github.com/lflxp/lflxp-kubectl/blob/master/README.md)
 
 ![s1.png](./img/s1.png)
-![k8s.png](./img/k8s.png)
 
 * [bolt 快速RESTFUL API](https://github.com/lflxp/lflxp-api/blob/master/README.md)
 
