@@ -12,7 +12,9 @@ import (
 	"github.com/guonaihong/gout/debug"
 	"github.com/guonaihong/gout/decode"
 	"github.com/guonaihong/gout/encode"
-	api "github.com/guonaihong/gout/interface"
+	"github.com/guonaihong/gout/enjson"
+	"github.com/guonaihong/gout/middler"
+	"github.com/guonaihong/gout/middleware/rsp/autodecodebody"
 	"github.com/guonaihong/gout/setting"
 	"golang.org/x/net/proxy"
 )
@@ -35,44 +37,44 @@ type DataFlow struct {
 }
 
 // GET send HTTP GET method
-func (df *DataFlow) GET(url string) *DataFlow {
-	df.Req = reqDef(get, cleanPaths(url), df.out)
+func (df *DataFlow) GET(url string, urlStruct ...interface{}) *DataFlow {
+	df.Req = reqDef(get, cleanPaths(url), df.out, urlStruct...)
 	return df
 }
 
 // POST send HTTP POST method
-func (df *DataFlow) POST(url string) *DataFlow {
-	df.Req = reqDef(post, cleanPaths(url), df.out)
+func (df *DataFlow) POST(url string, urlStruct ...interface{}) *DataFlow {
+	df.Req = reqDef(post, cleanPaths(url), df.out, urlStruct...)
 	return df
 }
 
 // PUT send HTTP PUT method
-func (df *DataFlow) PUT(url string) *DataFlow {
-	df.Req = reqDef(put, cleanPaths(url), df.out)
+func (df *DataFlow) PUT(url string, urlStruct ...interface{}) *DataFlow {
+	df.Req = reqDef(put, cleanPaths(url), df.out, urlStruct...)
 	return df
 }
 
 // DELETE send HTTP DELETE method
-func (df *DataFlow) DELETE(url string) *DataFlow {
-	df.Req = reqDef(delete2, cleanPaths(url), df.out)
+func (df *DataFlow) DELETE(url string, urlStruct ...interface{}) *DataFlow {
+	df.Req = reqDef(delete2, cleanPaths(url), df.out, urlStruct...)
 	return df
 }
 
 // PATCH send HTTP PATCH method
-func (df *DataFlow) PATCH(url string) *DataFlow {
-	df.Req = reqDef(patch, cleanPaths(url), df.out)
+func (df *DataFlow) PATCH(url string, urlStruct ...interface{}) *DataFlow {
+	df.Req = reqDef(patch, cleanPaths(url), df.out, urlStruct...)
 	return df
 }
 
 // HEAD send HTTP HEAD method
-func (df *DataFlow) HEAD(url string) *DataFlow {
-	df.Req = reqDef(head, cleanPaths(url), df.out)
+func (df *DataFlow) HEAD(url string, urlStruct ...interface{}) *DataFlow {
+	df.Req = reqDef(head, cleanPaths(url), df.out, urlStruct...)
 	return df
 }
 
 // OPTIONS send HTTP OPTIONS method
-func (df *DataFlow) OPTIONS(url string) *DataFlow {
-	df.Req = reqDef(options, cleanPaths(url), df.out)
+func (df *DataFlow) OPTIONS(url string, urlStruct ...interface{}) *DataFlow {
+	df.Req = reqDef(options, cleanPaths(url), df.out, urlStruct...)
 	return df
 }
 
@@ -127,13 +129,13 @@ func (df *DataFlow) SetMethod(method string) *DataFlow {
 }
 
 // SetURL set url
-func (df *DataFlow) SetURL(url string) *DataFlow {
+func (df *DataFlow) SetURL(url string, urlStruct ...interface{}) *DataFlow {
 	if df.Err != nil {
 		return df
 	}
 
-	if df.Req.url == "" && df.Req.req == nil && df.Req.method == "" {
-		df.Req = reqDef("", cleanPaths(url), df.out)
+	if df.Req.url == "" && df.Req.req == nil {
+		df.Req = reqDef(df.method, cleanPaths(url), df.out, urlStruct...)
 		return df
 	}
 
@@ -181,7 +183,16 @@ func (df *DataFlow) SetHeader(obj ...interface{}) *DataFlow {
 // SetJSON send json to the http body, Support raw json(string, []byte)/struct/map types
 func (df *DataFlow) SetJSON(obj interface{}) *DataFlow {
 	df.ReqBodyType = "json"
-	df.Req.bodyEncoder = encode.NewJSONEncode(obj)
+	df.EscapeHTML = true
+	df.Req.bodyEncoder = enjson.NewJSONEncode(obj, true)
+	return df
+}
+
+// SetJSON send json to the http body, Support raw json(string, []byte)/struct/map types
+// 与SetJSON的区一区别就是不转义HTML里面的标签
+func (df *DataFlow) SetJSONNotEscape(obj interface{}) *DataFlow {
+	df.ReqBodyType = "json"
+	df.Req.bodyEncoder = enjson.NewJSONEncode(obj, false)
 	return df
 }
 
@@ -378,7 +389,7 @@ func (df *DataFlow) SetBasicAuth(username, password string) *DataFlow {
 }
 
 // Request middleware
-func (df *DataFlow) RequestUse(reqModify ...api.RequestMiddler) *DataFlow {
+func (df *DataFlow) RequestUse(reqModify ...middler.RequestMiddler) *DataFlow {
 	if len(reqModify) > 0 {
 		df.reqModify = append(df.reqModify, reqModify...)
 	}
@@ -386,7 +397,7 @@ func (df *DataFlow) RequestUse(reqModify ...api.RequestMiddler) *DataFlow {
 }
 
 // Response middleware
-func (df *DataFlow) ResponseUse(responseModify ...api.ResponseMiddler) *DataFlow {
+func (df *DataFlow) ResponseUse(responseModify ...middler.ResponseMiddler) *DataFlow {
 	if len(responseModify) > 0 {
 		df.responseModify = append(df.responseModify, responseModify...)
 	}
@@ -418,6 +429,12 @@ func (df *DataFlow) Debug(d ...interface{}) *DataFlow {
 func (df *DataFlow) NoAutoContentType() *DataFlow {
 	df.Req.NoAutoContentType = true
 	return df
+}
+
+// https://github.com/guonaihong/gout/issues/343
+// content-encoding会指定response body的压缩方法，支持常用的压缩，gzip, deflate, br等
+func (df *DataFlow) AutoDecodeBody() *DataFlow {
+	return df.ResponseUse(middler.WithResponseMiddlerFunc(autodecodebody.AutoDecodeBody))
 }
 
 func (df *DataFlow) IsDebug() bool {

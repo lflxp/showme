@@ -10,12 +10,14 @@ import (
 	"net/url"
 	"reflect"
 	"strings"
+	"text/template"
 
 	"github.com/guonaihong/gout/core"
 	"github.com/guonaihong/gout/debug"
 	"github.com/guonaihong/gout/decode"
 	"github.com/guonaihong/gout/encode"
-	api "github.com/guonaihong/gout/interface"
+	"github.com/guonaihong/gout/encoder"
+	"github.com/guonaihong/gout/middler"
 	"github.com/guonaihong/gout/setting"
 )
 
@@ -31,7 +33,7 @@ type Req struct {
 	wwwForm []interface{}
 
 	// http body
-	bodyEncoder encode.Encoder
+	bodyEncoder encoder.Encoder
 	bodyDecoder []decode.Decoder
 
 	// http header
@@ -54,9 +56,9 @@ type Req struct {
 	c   context.Context
 	Err error
 
-	reqModify []api.RequestMiddler
+	reqModify []middler.RequestMiddler
 
-	responseModify []api.ResponseMiddler
+	responseModify []middler.ResponseMiddler
 
 	req *http.Request
 
@@ -582,17 +584,17 @@ func modifyURL(url string) string {
 	return fmt.Sprintf("http://%s", url)
 }
 
-func reqDef(method string, url string, g *Gout) Req {
+func reqDef(method string, url string, g *Gout, urlStruct ...interface{}) Req {
+	if len(urlStruct) > 0 {
+		var out strings.Builder
+		tpl := template.Must(template.New(url).Parse(url))
+		tpl.Execute(&out, urlStruct[0])
+		url = out.String()
+	}
+
 	r := Req{method: method, url: modifyURL(url), g: g}
-	//后面收敛GlobalSetting, 计划删除这个变量
-	//先这么写, 控制影响的范围
+
 	r.Setting = GlobalSetting
-	/*
-		r.Setting.NotIgnoreEmpty = GlobalSetting.NotIgnoreEmpty
-		r.Setting.Timeout = GlobalSetting.Timeout
-		r.Setting.Index = GlobalSetting.Index
-		r.TimeoutIndex = GlobalSetting.TimeoutIndex
-	*/
 
 	return r
 }

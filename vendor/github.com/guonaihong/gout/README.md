@@ -32,6 +32,7 @@ gout 是go写的http 客户端，为提高工作效率而开发
 * 支持响应中间件ResponseUse
 * 支持设置chunked数据格式发送
 * 支持body, header的数据校验
+* 支持通过build tag自由选择不同的json序列化方式(可选jsoniter,go_json,sonic等)
 * 等等更多
 
 ## 演示
@@ -46,6 +47,7 @@ gout 是go写的http 客户端，为提高工作效率而开发
 - [quick start](#quick-start)
 - [API Examples](#api-examples)
     - [GET POST PUT DELETE PATH HEAD OPTIONS](#get-post-put-delete-path-head-options)
+	- [GET POST PUT DELETE PATH HEAD OPTIONS template](#get-post-put-delete-path-head-options-template)
     - [Query Parameters](#Query-Parameters)
     - [http header](#http-header)
 		- [Set request header](#set-request-header)
@@ -58,8 +60,9 @@ gout 是go写的http 客户端，为提高工作效率而开发
             - [Set the data to the http request body](#Set-the-data-to-the-http-request-body)
             - [Parse the response body into a variable](#Parse-the-response-body-into-a-variable)
         - [json](#json)
-            - [Serialize json to request body](#Serialize-json-to-request-body)
-            - [Parsed http response body in json format](#Parsed-http-response-body-in-json-format)
+            - [Serialize json to request body](#serialize-json-to-request-body)
+            - [Parsed http response body in json format](#parsed-http-response-body-in-json-format)
+			- [Do not escape html characters](#do-not-escape-html-characters)
         - [yaml](#yaml)
         - [xml](#xml)
         - [form-data](#form-data)
@@ -68,6 +71,7 @@ gout 是go写的http 客户端，为提高工作效率而开发
         - [callback](#callback)
 		- [get *http.Response](#get-response)
 		- [multiple binding functions](#multiple-binding-functions)
+		- [Auto decode body](#auto-decode-body)
 	- [Set request timeout](#Set-request-timeout)
     - [proxy](#proxy)
 	- [socks5](#socks5)
@@ -125,6 +129,27 @@ go get github.com/guonaihong/gout
  # 第一次运行需要加GOPROXY下载模块，模块已安装的直接 go run 01-color-json.go 即可
  env GOPROXY=https://goproxy.cn go run 01-color-json.go
  ```
+
+### build tag
+Gout默认使用语言内置的`encoding/json`包。但是如果你想使用其他的json包，可以通过`build tag`来修改。
+
+[jsoniter](https://github.com/json-iterator/go)
+
+```sh
+go build -tags=jsoniter .
+```
+
+[go-json](https://github.com/goccy/go-json)
+
+```sh
+go build -tags=go_json .
+```
+
+[sonic](https://github.com/bytedance/sonic)
+
+```sh
+$ go build -tags="sonic avx" .
+```
 
  # quick start
  ```go
@@ -235,6 +260,44 @@ func main() {
 
 	// 发送OPTIONS
 	gout.OPTIONS(url).Do()
+}
+
+```
+## GET POST PUT DELETE PATH HEAD OPTIONS template
+```go
+package main
+
+import (
+	"github.com/guonaihong/gout"
+)
+
+type testURLTemplateCase struct {
+	Host   string
+}
+
+func main() {
+
+	url := "https://{{.Host}}"
+	// 发送GET方法
+	gout.GET(url, testURLTemplateCase{Host:"www.qq.com"}).Do()
+
+	// 发送POST方法
+	gout.POST(url, testURLTemplateCase{Host:"www.github.com"}).Do()
+
+	// 发送PUT方法
+	gout.PUT(url, testURLTemplateCase{Host:"www.baidu.com"}).Do()
+
+	// 发送DELETE方法
+	gout.DELETE(url, testURLTemplateCase{Host:"www.google.com"}).Do()
+
+	// 发送PATH方法
+	gout.PATCH(url, testURLTemplateCase{Host:"www.google.com"}).Do()
+
+	// 发送HEAD方法
+	gout.HEAD(url, testURLTemplateCase{Host:"www.google.com"}).Do()
+
+	// 发送OPTIONS
+	gout.OPTIONS(url, testURLTemplateCase{Host:"www.google.com"}).Do()
 }
 
 ```
@@ -569,7 +632,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/guonaihong/gout"
-	middler "github.com/guonaihong/gout/interface"
+	"github.com/guonaihong/gout/middler"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -861,6 +924,26 @@ func main() {
 }
 
 ``` 
+#### do not escape html characters
+* SetJSONNotEscape 和SetJSON唯一的区别就是不转义HTML字符
+```go
+err := gout.POST(ts.URL).
+			Debug(true).
+			SetJSONNotEscape(gout.H{"url": "http://www.com?a=b&c=d"}).
+			Do()
+
+//> POST / HTTP/1.1
+//> Content-Type: application/json
+//>
+
+//{
+//    "url": "http://www.com?a=b&c=d"
+//}
+
+//< HTTP/1.1 200 OK
+//< Date: Sun, 18 Dec 2022 14:05:21 GMT
+//< Content-Length: 0
+```
 ### yaml
 * SetYAML() 设置请求http body为yaml
 * BindYAML() 解析响应http body里面的yaml到结构体里面
@@ -1124,7 +1207,7 @@ func main() {
 
 ```
 ### multiple binding functions
-支持绑定多个对象
+支持绑定多个对象, BindXXX函数可以多次调用。例子里面是BindJSON和BindBody
 ```go
 var responseStruct struct {
 	Name string `json:"name"`
@@ -1147,6 +1230,17 @@ func main() {
 	log.Println(responseStr)
 }
 
+```
+### Auto decode body
+响应头里面指明压缩格式，使用AutoDecodeBody接口可以自动解压。
+```go
+//Content-Encoding: gzip
+//Content-Encoding: deflate
+//Content-Encoding: br
+//gzip由标准库原生支持，不需要使用AutoDecodeBody接口，后两种由gout支持.
+func main() {
+	gout.GET(url).AutoDecodeBody().BindBody(&s).Do()
+}
 ```
 ## Set request timeout
 setimeout是request级别的超时方案。相比http.Client级别，更灵活。

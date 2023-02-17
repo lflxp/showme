@@ -22,6 +22,10 @@ showme -h
 
 ![k8s.png](./img/k8s.png)
 
+* 【Doing】轻量音乐播放器 【本地网易云音乐】
+
+![music.png](./img/music.png)
+
 * [【DONE】tty 【WEB TERMINIAL】](https://github.com/lflxp/lflxp-tty/blob/master/README.md)
 
 ![](./img/tty.png)
