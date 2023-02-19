@@ -84,6 +84,9 @@ github.com/astaxie/beego/utils
 # github.com/beorn7/perks v1.0.1
 ## explicit; go 1.11
 github.com/beorn7/perks/quantile
+# github.com/bogem/id3v2/v2 v2.1.4
+## explicit; go 1.13
+github.com/bogem/id3v2/v2
 # github.com/briandowns/spinner v1.19.0
 ## explicit; go 1.14
 github.com/briandowns/spinner
@@ -521,13 +524,21 @@ github.com/lflxp/lflxp-kubectl/models
 # github.com/lflxp/lflxp-monitor v0.0.0-20200324050329-f8ca7247688f
 ## explicit; go 1.13
 github.com/lflxp/lflxp-monitor/pkg
-# github.com/lflxp/lflxp-music v0.0.3
+# github.com/lflxp/lflxp-music v0.0.4
 ## explicit; go 1.19
 github.com/lflxp/lflxp-music/core
 github.com/lflxp/lflxp-music/core/asset
+github.com/lflxp/lflxp-music/core/controller
 github.com/lflxp/lflxp-music/core/middlewares
+github.com/lflxp/lflxp-music/core/middlewares/jwt/framework
 github.com/lflxp/lflxp-music/core/middlewares/jwt/model
 github.com/lflxp/lflxp-music/core/middlewares/jwt/services
+github.com/lflxp/lflxp-music/core/middlewares/template
+github.com/lflxp/lflxp-music/core/model/admin
+github.com/lflxp/lflxp-music/core/model/music
+github.com/lflxp/lflxp-music/core/pages
+github.com/lflxp/lflxp-music/core/pkg/auth
+github.com/lflxp/lflxp-music/core/pkg/music
 github.com/lflxp/lflxp-music/core/pkg/proxy
 github.com/lflxp/lflxp-music/core/router
 github.com/lflxp/lflxp-music/core/tls
@@ -895,9 +906,11 @@ golang.org/x/text/encoding/japanese
 golang.org/x/text/encoding/korean
 golang.org/x/text/encoding/simplifiedchinese
 golang.org/x/text/encoding/traditionalchinese
+golang.org/x/text/encoding/unicode
 golang.org/x/text/internal/language
 golang.org/x/text/internal/language/compact
 golang.org/x/text/internal/tag
+golang.org/x/text/internal/utf8internal
 golang.org/x/text/language
 golang.org/x/text/runes
 golang.org/x/text/secure/bidirule

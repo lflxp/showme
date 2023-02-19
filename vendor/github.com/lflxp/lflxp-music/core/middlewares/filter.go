@@ -21,8 +21,9 @@ func TokenFilter() gin.HandlerFunc {
 			user, err := js.ParseJWTToken(c)
 			if err != nil {
 				if strings.Contains(err.Error(), "named cookie not present") {
-					// c.Redirect(http.StatusFound, "/d2admin/#/login?url="+c.Request.RequestURI)
-					httpclient.SendErrorMessage(c, http.StatusUnauthorized, "token invalid", "/music/#/login?url="+c.Request.RequestURI)
+					c.Redirect(http.StatusFound, "/login?url="+c.Request.RequestURI)
+					c.Abort()
+					// httpclient.SendErrorMessage(c, http.StatusUnauthorized, "token invalid", "/music/#/login?url="+c.Request.RequestURI)
 					return
 				}
 				c.AbortWithStatusJSON(http.StatusUnauthorized, httpclient.Result{
@@ -56,12 +57,20 @@ func isWhilteUrl(c *gin.Context) bool {
 	url := []string{
 		`^/$`,
 		`^/swagger/*`,
-		`^/api/*`,
-		`^/admin/*`,
+		// `^/api/*`,
+		`^/admin/login`,
+		`^/adminfs/*`,
 		`^/music/*`,
 		`^/playlist/*`,
 		`/favicon.ico`,
 		`^/lyric/*`,
+		`^/song/*`,
+		`^/search/*`,
+		`^/comment/*`,
+		`^/personalized/*`,
+		`^/toplist/*`,
+		`^/login/*`,
+		`^/auth/*`,
 	}
 
 	for _, x := range url {

@@ -78,7 +78,7 @@ func GetRandomSalt() string {
 	return GetRandomString(32)
 }
 
-//生成随机字符串
+// 生成随机字符串
 func GetRandomString(len int) string {
 	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	bytes := []byte(str)
@@ -162,4 +162,34 @@ func GetIPs() (ips []string) {
 		}
 	}
 	return ips
+}
+
+// IsDir
+// @Description: 文件夹是否存在
+// @param path
+// @return bool
+func IsDir(path string) bool {
+	s, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return s.IsDir()
+}
+
+// IsExistAndCreateDir 创建文件夹
+// path 文件夹存放地址
+// @return bool 是否成功执行
+// @return err 异常
+func IsExistAndCreateDir(path string) (bool, error) {
+	// 判断文件夹是否存在
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		// 创建文件夹，注意这里给的权限时777，可以将这个参数提取出来作为参数传入。
+		if err := os.Mkdir(path, os.ModePerm); err != nil {
+			return false, err
+		} else {
+			return true, nil
+		}
+	} else {
+		return true, err
+	}
 }

@@ -1,5 +1,13 @@
 package model
 
+import (
+	"github.com/lflxp/tools/orm/sqlite"
+)
+
+func init() {
+	sqlite.NewOrm().Sync2(new(User))
+}
+
 // 用户表
 type User struct {
 	Id           int64  `json:"id" xorm:"id pk not null autoincr" name:"id"`
@@ -10,18 +18,18 @@ type User struct {
 	Email        string `json:"email" xorm:"email" name:"email" verbose_name:"电子邮件" list:"true" search:"true"`
 	IsVaild      string `json:"isVaild" xorm:"isvaild" name:"isvaild" verbose_name:"有效" list:"true" search:"false" colType:"radio" radio:"有效|1,无效|0"`
 	Status       string `json:"status" xorm:"status" name:"status" verbose_name:"状态" list:"true" search:"false" colType:"radio" radio:"有效|1,无效|0"`
-	IsAdmin      string `json:"isAdmin" xorm:"isadmin" name:"isadmin" verbose_name:"超级用户状态" list:"true" search:"false" colType:"radio" radio:"是|1,不是|0"`
+	IsAdmin      string `json:"isadmin" xorm:"isadmin" name:"isadmin" verbose_name:"超级用户状态" list:"true" search:"false" colType:"radio" radio:"是|1,不是|0"`
 	Token        string `json:"token" xorm:"token" name:"token" verbose_name:"rancher token"`
-	Tenant       string `json:"tenant"`
-	AuthProvider string `json:"authProvider"`
-	UserId       string `json:"userId"`
-	Role         string `json:"role"`
-	RoleLevel    string `json:"roleLevel"`
-	RoleReal     string `json:"roleReal"`
-	IsGlobal     string `json:"isGlobal"`
-	DisplayName  string `json:"displayName"` // 用户显示名称
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
+	Tenant       string `xorm:"tenant" json:"tenant" name:"tenant"`
+	AuthProvider string `xorm:"authProvider" json:"authProvider" name:"authProvider"`
+	UserId       string `xorm:"userId" json:"userId" name:"userId"`
+	Role         string `xorm:"role" json:"role" name:"role"`
+	RoleLevel    string `xorm:"roleLevel" json:"roleLevel" name:"roleLevel"`
+	RoleReal     string `xorm:"roleReal" json:"roleReal" name:"roleReal"`
+	IsGlobal     string `xorm:"isGlobal" json:"isGlobal" name:"isGlobal"`
+	DisplayName  string `xorm:"displayName" json:"displayName" name:"displayName"` // 用户显示名称
+	AccessToken  string `xorm:"accessToken" json:"accessToken" name:"accessToken"`
+	RefreshToken string `xorm:"refreshToken" json:"refreshToken" name:"refreshToken"`
 }
 
 // Resp 登录后返回resp结构体

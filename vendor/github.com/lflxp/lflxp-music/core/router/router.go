@@ -1,7 +1,11 @@
 package router
 
 import (
+	"github.com/lflxp/lflxp-music/core/controller"
 	"github.com/lflxp/lflxp-music/core/middlewares"
+	"github.com/lflxp/lflxp-music/core/pages"
+	"github.com/lflxp/lflxp-music/core/pkg/auth"
+	"github.com/lflxp/lflxp-music/core/pkg/music"
 	"github.com/lflxp/lflxp-music/core/pkg/proxy"
 
 	"github.com/lflxp/lflxp-music/core/asset"
@@ -15,7 +19,7 @@ import (
 func PreGinServe(r *gin.Engine) {
 	log.Info("注册Gin路由")
 
-	// r.Use(middlewares.TokenFilter())
+	r.Use(middlewares.TokenFilter())
 	r.Use(gin.Logger())
 
 	r.Use(middlewares.Cors())
@@ -40,9 +44,12 @@ func PreGinServe(r *gin.Engine) {
 	middlewares.RegisterSwaggerMiddleware(r)
 
 	// 登陆
-	// auth.RegisterAuth(r)
+	auth.RegisterAuth(r)
 	// auth.RegisterShop(r)
 
+	pages.RegisterTemplate(r)
+	controller.RegisterAdmin(r)
 	asset.RegisterAsset(r)
 	proxy.ProxyRegister(r)
+	music.RegisterMusic(r)
 }

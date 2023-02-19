@@ -31,7 +31,7 @@ require (
 	github.com/lflxp/lflxp-api v0.0.0-20200323094405-0d69797bee92
 	github.com/lflxp/lflxp-k8s v0.1.0
 	github.com/lflxp/lflxp-monitor v0.0.0-20200324050329-f8ca7247688f
-	github.com/lflxp/lflxp-music v0.0.3
+	github.com/lflxp/lflxp-music v0.0.4
 	github.com/lflxp/lflxp-orzdba v0.0.0-20201102102701-b8902cead805
 	github.com/lflxp/lflxp-scan v0.0.0-20200323114511-9ac561b61f89
 	github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee
@@ -61,6 +61,7 @@ require (
 	github.com/appleboy/gin-jwt/v2 v2.9.1 // indirect
 	github.com/asdine/storm/v3 v3.2.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
+	github.com/bogem/id3v2/v2 v2.1.4 // indirect
 	github.com/bytedance/sonic v1.7.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/chenjiandongx/ginprom v0.0.0-20210617023641-6c809602c38a // indirect

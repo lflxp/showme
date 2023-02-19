@@ -10,9 +10,6 @@ import (
 //go:embed music
 var music embed.FS
 
-//go:embed favicon.ico
-var favicon embed.FS
-
 func RegisterAsset(router *gin.Engine) {
 	router.GET("/music/*any", func(c *gin.Context) {
 		// staticServer := wrapHandler(http.FS(dashboard))
@@ -21,5 +18,5 @@ func RegisterAsset(router *gin.Engine) {
 		staticServer.ServeHTTP(c.Writer, c.Request)
 	})
 
-	router.StaticFS("/favicon.ico", http.FS(favicon))
+	// router.StaticFS("/favicon.ico", http.FS(favicon))
 }
