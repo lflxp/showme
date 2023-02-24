@@ -18,12 +18,13 @@ func init() {
 }
 
 const (
-	REPO_LIST       = "/music/history/list"
-	REPO_ADD        = "/music/history/add"
-	REPO_DELETE     = "/music/history/delete"
-	REPO_UPLOAD     = "/music/local/upload"
-	REPO_LOCAL_LIST = "/music/local/list"
-	REPO_STATIC     = "/static"
+	REPO_LIST           = "/music/history/list"
+	REPO_ADD            = "/music/history/add"
+	REPO_DELETE         = "/music/history/delete"
+	REPO_UPLOAD         = "/music/local/upload"
+	REPO_LOCAL_LIST     = "/music/local/list"
+	REPO_LOCAL_DOWNLOAD = "/music/local/download"
+	REPO_STATIC         = "/static"
 )
 
 func RegisterMusic(router *gin.Engine) {
@@ -36,6 +37,7 @@ func RegisterMusic(router *gin.Engine) {
 		shopGroup.DELETE(REPO_DELETE, repo_delete)
 		shopGroup.POST(REPO_UPLOAD, Upload)
 		shopGroup.GET(REPO_LOCAL_LIST, music_local_list)
+		shopGroup.POST(REPO_LOCAL_DOWNLOAD, download)
 	}
 }
 

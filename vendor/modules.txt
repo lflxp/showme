@@ -524,7 +524,7 @@ github.com/lflxp/lflxp-kubectl/models
 # github.com/lflxp/lflxp-monitor v0.0.0-20200324050329-f8ca7247688f
 ## explicit; go 1.13
 github.com/lflxp/lflxp-monitor/pkg
-# github.com/lflxp/lflxp-music v0.0.4
+# github.com/lflxp/lflxp-music v0.0.6
 ## explicit; go 1.19
 github.com/lflxp/lflxp-music/core
 github.com/lflxp/lflxp-music/core/asset

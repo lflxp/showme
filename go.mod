@@ -31,7 +31,7 @@ require (
 	github.com/lflxp/lflxp-api v0.0.0-20200323094405-0d69797bee92
 	github.com/lflxp/lflxp-k8s v0.1.0
 	github.com/lflxp/lflxp-monitor v0.0.0-20200324050329-f8ca7247688f
-	github.com/lflxp/lflxp-music v0.0.4
+	github.com/lflxp/lflxp-music v0.0.6
 	github.com/lflxp/lflxp-orzdba v0.0.0-20201102102701-b8902cead805
 	github.com/lflxp/lflxp-scan v0.0.0-20200323114511-9ac561b61f89
 	github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee

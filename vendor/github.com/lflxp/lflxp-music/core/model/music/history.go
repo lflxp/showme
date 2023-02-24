@@ -1,8 +1,18 @@
 package music
 
 import (
+	"errors"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
+
+	"github.com/bogem/id3v2/v2"
+	log "github.com/go-eden/slf4go"
 	"github.com/lflxp/lflxp-music/core/middlewares/template"
 	"github.com/lflxp/tools/orm/sqlite"
+	"k8s.io/client-go/util/homedir"
 )
 
 func init() {
@@ -22,6 +32,48 @@ type Musichistory struct {
 
 func (m *Musichistory) Post() (int64, error) {
 	return sqlite.NewOrm().Insert(m)
+}
+
+// download
+func (m *Musichistory) Download() (error, bool) {
+	path := fmt.Sprintf("%s/%s.mp3", filepath.Join(homedir.HomeDir(), fmt.Sprintf(".music/%s", m.User)), m.Name)
+	_, err := os.Lstat(path)
+	if !os.IsNotExist(err) {
+		// 返回false表示没有进行下载
+		return errors.New("文件已存在"), false
+	}
+
+	res, err := http.Get(m.Url)
+	if err != nil {
+		log.Error(err)
+		return err, false
+	}
+
+	f, err := os.Create(path)
+	if err != nil {
+		log.Error(err)
+		return err, false
+	}
+
+	_, err = io.Copy(f, res.Body)
+	if err != nil {
+		log.Error(err)
+		return err, false
+	} else {
+		// 写入信息
+		tag, err := id3v2.Open(path, id3v2.Options{Parse: true})
+		if err != nil {
+			log.Fatal("Error while opening mp3 file: ", err)
+		}
+		defer tag.Close()
+		tag.SetTitle(m.Name)
+		tag.SetAlbum(m.Album)
+		tag.SetArtist(m.Singer)
+		// tag.SetGenre(m.Image)
+		// tag.SetYear(fmt.Sprintf("%.2f", m.Duration))
+	}
+
+	return nil, true
 }
 
 type PostData struct {

@@ -683,8 +683,8 @@ github.com/lflxp/lflxp-kubectl v0.0.0-20200324075201-2c87c15ee42c h1:tBrC4KJBs+C
 github.com/lflxp/lflxp-kubectl v0.0.0-20200324075201-2c87c15ee42c/go.mod h1:Vh8hP+RRpn6xQAAQEBf8DX/1NH/scvCKu0AoLpvvEwE=
 github.com/lflxp/lflxp-monitor v0.0.0-20200324050329-f8ca7247688f h1:HrIg8n/x11e3jSNAJu69VYAPqA+rltyzwDI2TQHuW0o=
 github.com/lflxp/lflxp-monitor v0.0.0-20200324050329-f8ca7247688f/go.mod h1:/4+5HQrRFjfR2iqoGz53D9jVmakvSyYJy3Za804iZbw=
-github.com/lflxp/lflxp-music v0.0.4 h1:mTzrbQbi478i4XhnZXcV27NQS9hAv5YPu/TungwezXo=
-github.com/lflxp/lflxp-music v0.0.4/go.mod h1:0CbJWq7442IroYvCIuZbspOVMiH8x2j0FsPEuuJ4KiY=
+github.com/lflxp/lflxp-music v0.0.6 h1:2r2pn03bQWADkyVonk5H85KTJR615iDdac5FnaX4sAc=
+github.com/lflxp/lflxp-music v0.0.6/go.mod h1:0CbJWq7442IroYvCIuZbspOVMiH8x2j0FsPEuuJ4KiY=
 github.com/lflxp/lflxp-orzdba v0.0.0-20201102102701-b8902cead805 h1:VGXgUEGySq0OuYELsxH8l3WE2fPTQubWz3C1HpNLWgk=
 github.com/lflxp/lflxp-orzdba v0.0.0-20201102102701-b8902cead805/go.mod h1:Q+jA8X7iBU0WzXoGNU8yPZphdZOEzVCekke5R6244+8=
 github.com/lflxp/lflxp-scan v0.0.0-20200323114511-9ac561b61f89 h1:xvG9ZOf3HuNPzqfKwqIdNRDHGGO6ydezvX3ztIVOJ34=

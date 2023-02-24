@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/bogem/id3v2/v2"
@@ -21,6 +22,23 @@ func init() {
 	home := homedir.HomeDir()
 	if _, err := utils.IsExistAndCreateDir(filepath.Join(home, ".music")); err != nil {
 		panic(err)
+	}
+}
+
+// 下载mp3文件
+func download(c *gin.Context) {
+	var data music.PostData
+	if err := c.BindJSON(&data); err != nil {
+		httpclient.SendErrorMessage(c, http.StatusBadRequest, "not found", err.Error())
+		return
+	}
+
+	data.Param.Data.User = c.Request.Header.Get("username")
+
+	if err, isok := data.Param.Data.Download(); !isok {
+		httpclient.SendErrorMessage(c, 200, "文件下载失败或已存在", err.Error())
+	} else {
+		httpclient.SendSuccessMessage(c, 200, "success download")
 	}
 }
 
@@ -54,12 +72,22 @@ func music_local_list(c *gin.Context) {
 				tag.SetTitle(x)
 			}
 
+			second := 300.01
+			year := tag.Year()
+			if year != "" {
+				second, err = strconv.ParseFloat(year, 64)
+				if err != nil {
+					log.Error(err)
+					second = 300
+				}
+			}
+
 			list = append(list, music.Musichistory{
 				Id:       int64(index),
 				Album:    tag.Album(),
-				Duration: float64(tag.Size()) * 3.5,
+				Duration: second,
 				Image:    "https://p3.music.126.net/YglUhn-RRq6KM7Dfm6VUZw==/109951168255550269.jpg",
-				Name:     tag.Title(),
+				Name:     strings.Replace(tag.Title(), ".mp3", "", -1),
 				Singer:   tag.Artist(),
 				Url:      fmt.Sprintf("/static/%s/%s", username, x),
 				// Url: "https://music.163.com/song/media/outer/url?id=1997438791.mp3",
