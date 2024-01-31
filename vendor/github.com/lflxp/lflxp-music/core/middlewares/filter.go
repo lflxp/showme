@@ -1,6 +1,8 @@
 package middlewares
 
 import (
+	"fmt"
+	"log/slog"
 	"net/http"
 	"regexp"
 	"strings"
@@ -8,7 +10,6 @@ import (
 	js "github.com/lflxp/lflxp-music/core/middlewares/jwt/services"
 
 	"github.com/gin-gonic/gin"
-	log "github.com/go-eden/slf4go"
 	"github.com/lflxp/tools/httpclient"
 )
 
@@ -17,13 +18,20 @@ func TokenFilter() gin.HandlerFunc {
 		// token := jwt.ExtractClaims(c)
 		// log.Debug("ExtractClaims token ", token)
 
+		// history := admin.History{
+		// 	IP:     c.Request.RemoteAddr,
+		// 	Op:     c.Request.Method,
+		// 	Common: c.Request.RequestURI,
+		// 	Client: c.Request.UserAgent(),
+		// }
+		// defer admin.AddHistory(&history)
 		if !isWhilteUrl(c) {
 			user, err := js.ParseJWTToken(c)
 			if err != nil {
 				if strings.Contains(err.Error(), "named cookie not present") {
-					c.Redirect(http.StatusFound, "/login?url="+c.Request.RequestURI)
+					// c.Redirect(http.StatusFound, "/login?url="+c.Request.RequestURI)
+					httpclient.SendErrorMessage(c, http.StatusUnauthorized, "token invalid", "/music/#/login?url="+c.Request.RequestURI)
 					c.Abort()
-					// httpclient.SendErrorMessage(c, http.StatusUnauthorized, "token invalid", "/music/#/login?url="+c.Request.RequestURI)
 					return
 				}
 				c.AbortWithStatusJSON(http.StatusUnauthorized, httpclient.Result{
@@ -38,13 +46,15 @@ func TokenFilter() gin.HandlerFunc {
 				return
 			}
 
+			// history.Name = fmt.Sprintf("%s:%s:%s", user.Username, user.Name, user.Email)
 			c.Request.Header.Set("username", user.Username)
-			c.Request.Header.Set("name", user.Name)
-			c.Request.Header.Set("userid", user.UserId)
-			c.Request.Header.Set("email", user.Email)
+			// c.Request.Header.Set("name", user.Name)
+			// c.Request.Header.Set("userid", user.UserId)
+			// c.Request.Header.Set("email", user.Email)
 			c.Request.Header.Set("token", user.Token)
-			c.Request.Header.Set("refreshtoken", user.RefreshToken)
+			// c.Request.Header.Set("refreshtoken", user.RefreshToken)
 		} else {
+			// history.Name = "unknown"
 			c.Next()
 		}
 	}
@@ -80,6 +90,6 @@ func isWhilteUrl(c *gin.Context) bool {
 		}
 	}
 
-	log.Debugf("method [%s] isWhite %v path %s Url.Path %s ", c.Request.Method, rs, c.Request.RequestURI, c.Request.URL.Path)
+	slog.Debug(fmt.Sprintf("method [%s] isWhite %v path %s Url.Path %s ", c.Request.Method, rs, c.Request.RequestURI, c.Request.URL.Path))
 	return rs
 }

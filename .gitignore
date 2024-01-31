@@ -1,7 +1,7 @@
 # project
 *.swp
 showme
-showme.*
+showme
 !showme.gif
 *.db
 *.log

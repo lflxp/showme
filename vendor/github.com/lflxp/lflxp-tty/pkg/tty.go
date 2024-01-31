@@ -11,20 +11,15 @@ import (
 	"os/signal"
 	"time"
 
+	"log/slog"
+
 	"github.com/DeanThompson/ginpprof"
 	"github.com/unrolled/secure"
 
 	"github.com/chenjiandongx/ginprom"
 	"github.com/gin-gonic/gin"
-	log "github.com/go-eden/slf4go"
 	"github.com/gorilla/websocket" // https://blog.csdn.net/u014029783/article/details/80001251 教程
 )
-
-func init() {
-	// 设置将日志输出到标准输出（默认的输出为stderr，标准错误）
-	// 日志消息输出可以是任意的io.writer类型
-	log.SetLevel(log.DebugLevel)
-}
 
 var upGrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -70,11 +65,11 @@ func ServeGin(data *Tty) {
 
 	if httpXterm.Options.EnableTLS {
 		// if !IsPathExists(httpXterm.Options.CrtPath) || !IsPathExists(httpXterm.Options.KeyPath) {
-// 			err := GenerateRSAKey(1024)
-// 			if err != nil {
-// 				panic(err)
-// 			}
-// 		}
+		// 			err := GenerateRSAKey(1024)
+		// 			if err != nil {
+		// 				panic(err)
+		// 			}
+		// 		}
 
 		pool := x509.NewCertPool()
 		caCeretPath := httpXterm.Options.CrtPath
@@ -111,48 +106,48 @@ func ServeGin(data *Tty) {
 		// 	log.Fatal("Server Close:", err)
 		// }
 
-		log.Info("Shutdown Server ...")
+		slog.Info("Shutdown Server ...")
 
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		if err := server.Shutdown(ctx); err != nil {
-			log.Fatal("Server Shutdown:", err)
+			slog.Error("Server Shutdown:", err)
 		}
-		log.Info("Server exiting")
+		slog.Info("Server exiting")
 	}()
 
 	if data.Host == "0.0.0.0" {
 		ips := GetIPs()
 		for _, ip := range ips {
-			log.Infof("Listening and serving HTTPS on http://%s:%s", ip, data.Port)
+			slog.Info("Listening and serving HTTPS on http://%s:%s", ip, data.Port)
 		}
 	} else {
-		log.Infof("Listening and serving HTTPS on http://%s:%s", data.Host, data.Port)
+		slog.Info("Listening and serving HTTPS on http://%s:%s", data.Host, data.Port)
 	}
 
 	if httpXterm.Options.EnableTLS {
 		if IsPathExists(httpXterm.Options.CrtPath) && IsPathExists(httpXterm.Options.KeyPath) {
 			if err := server.ListenAndServeTLS(httpXterm.Options.CrtPath, httpXterm.Options.KeyPath); err != nil {
 				if err == http.ErrServerClosed {
-					log.Info("Server closed under request")
+					slog.Info("Server closed under request")
 				} else {
-					log.Fatal("Server closed unexpect", err.Error())
+					slog.Error("Server closed unexpect", err.Error())
 				}
 			}
 		} else {
-			log.Error("EnableTLS is true,but crt or key path is not exists")
+			slog.Error("EnableTLS is true,but crt or key path is not exists")
 		}
 	} else {
 		if err := server.ListenAndServe(); err != nil {
 			if err == http.ErrServerClosed {
-				log.Info("Server closed under request")
+				slog.Info("Server closed under request")
 			} else {
-				log.Fatal("Server closed unexpect", err.Error())
+				slog.Error("Server closed unexpect", err.Error())
 			}
 		}
 	}
 
-	log.Info("Server exiting")
+	slog.Info("Server exiting")
 }
 
 func TlsHandler(host, port string) gin.HandlerFunc {

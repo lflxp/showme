@@ -1,10 +1,11 @@
 package router
 
 import (
-	"github.com/lflxp/lflxp-k8s/core/controller"
+	"log/slog"
+
 	"github.com/lflxp/lflxp-k8s/core/middlewares"
-	"github.com/lflxp/lflxp-k8s/core/pages"
 	"github.com/lflxp/lflxp-k8s/pkg/apiserver"
+	"github.com/lflxp/lflxp-k8s/pkg/monitor"
 	"github.com/lflxp/lflxp-k8s/pkg/vela/appshop"
 
 	"github.com/lflxp/lflxp-k8s/asset"
@@ -12,15 +13,14 @@ import (
 
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
-	log "github.com/go-eden/slf4go"
 )
 
 // 注册插件和路由
 func PreGinServe(r *gin.Engine) {
-	log.Info("注册Gin路由")
+	slog.Info("注册Gin路由")
 
 	r.Use(middlewares.TokenFilter())
-	// r.Use(gin.Logger())
+	r.Use(gin.Logger())
 	// TODO: 自定义Panic 处理
 	// r.Use(middlewares.PanicAdviceMiddleware())
 	//r.Use(gin.RecoveryWithWriter(os.Stdout))
@@ -59,10 +59,11 @@ func PreGinServe(r *gin.Engine) {
 	auth.RegisterAuth(r)
 
 	asset.RegisterAsset(r)
-	pages.RegisterTemplate(r)
-	controller.RegisterAdmin(r)
-	controller.Registertest(r)
+	// pages.RegisterTemplate(r)
+	// controller.RegisterAdmin(r)
+	// controller.Registertest(r)
 	apiserver.RegisterApiserver(r)
 	apiserver.RegisterApiserverWS(r)
 	appshop.RegisterShop(r)
+	monitor.RegisterMonitor(r)
 }

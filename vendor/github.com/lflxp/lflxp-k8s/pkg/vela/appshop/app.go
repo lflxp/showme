@@ -3,9 +3,9 @@ package appshop
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 
 	"github.com/gin-gonic/gin"
-	log "github.com/go-eden/slf4go"
 	"github.com/guonaihong/gout"
 	"github.com/lflxp/tools/httpclient"
 	"github.com/spf13/viper"
@@ -50,7 +50,7 @@ func repo_list(c *gin.Context) {
 	}
 
 	if code != 200 {
-		log.Error(body)
+		slog.Error(body)
 		httpclient.SendErrorMessage(c, code, fmt.Sprintf("%d", code), body)
 		return
 	}
@@ -58,7 +58,7 @@ func repo_list(c *gin.Context) {
 	var data interface{}
 	err = json.Unmarshal([]byte(body), &data)
 	if err != nil {
-		log.Error(body)
+		slog.Error(body)
 		httpclient.SendErrorMessage(c, 200, "json parse error", err.Error())
 		return
 	}
@@ -98,7 +98,7 @@ func repo_param(c *gin.Context) {
 	}
 
 	if code != 200 {
-		log.Error(body)
+		slog.Error(body)
 		httpclient.SendErrorMessage(c, code, fmt.Sprintf("%d", code), body)
 		return
 	}
@@ -106,7 +106,7 @@ func repo_param(c *gin.Context) {
 	var data interface{}
 	err = json.Unmarshal([]byte(body), &data)
 	if err != nil {
-		log.Error(body)
+		slog.Error(body)
 		httpclient.SendErrorMessage(c, 200, "json parse error", err.Error())
 		return
 	}
@@ -118,7 +118,7 @@ func repo_param_post(c *gin.Context) {
 	var postData interface{}
 	err := c.BindJSON(&postData)
 	if err != nil {
-		log.Error(err.Error())
+		slog.Error(err.Error())
 		httpclient.SendErrorMessage(c, 500, "bind json error", err.Error())
 		return
 	}
@@ -150,7 +150,7 @@ func repo_param_post(c *gin.Context) {
 	}
 
 	if code != 200 {
-		log.Error(body)
+		slog.Error(body)
 		httpclient.SendErrorMessage(c, code, fmt.Sprintf("%d", code), body)
 		return
 	}
@@ -158,7 +158,7 @@ func repo_param_post(c *gin.Context) {
 	var data interface{}
 	err = json.Unmarshal([]byte(body), &data)
 	if err != nil {
-		log.Error(body)
+		slog.Error(body)
 		httpclient.SendErrorMessage(c, 200, "json parse error", err.Error())
 		return
 	}
@@ -170,7 +170,7 @@ func repo_param_delete(c *gin.Context) {
 	// 	var postData interface{}
 	// 	err := c.BindJSON(&postData)
 	// 	if err != nil {
-	// 		log.Error(err.Error())
+	// 		slog.Error(err.Error())
 	// 		httpclient.SendErrorMessage(c, 500, "bind json error", err.Error())
 	// 		return
 	// 	}
@@ -201,7 +201,7 @@ func repo_param_delete(c *gin.Context) {
 	}
 
 	if code != 200 {
-		log.Error(body)
+		slog.Error(body)
 		httpclient.SendErrorMessage(c, code, fmt.Sprintf("%d", code), body)
 		return
 	}
@@ -209,7 +209,7 @@ func repo_param_delete(c *gin.Context) {
 	var data interface{}
 	err = json.Unmarshal([]byte(body), &data)
 	if err != nil {
-		log.Error(body)
+		slog.Error(body)
 		httpclient.SendErrorMessage(c, 200, "json parse error", err.Error())
 		return
 	}

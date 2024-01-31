@@ -3,12 +3,12 @@ package roles
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"reflect"
 	"time"
 
 	"github.com/devopsxp/xp/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -58,7 +58,7 @@ func (s *SystemdRole) Init(args *RoleArgs) error {
 		s.masked = masked
 	}
 
-	log.Debugf("Systemd %v", s)
+	slog.Debug(fmt.Sprintf("Systemd %v", s))
 
 	return nil
 }
@@ -109,9 +109,11 @@ func (s *SystemdRole) setState() error {
 			rs, err = utils.New(s.host, s.remote_user, s.remote_pwd, s.remote_port).Run(cmd)
 		}
 		if err != nil {
-			log.WithFields(log.Fields{"耗时": time.Now().Sub(s.starttime)}).Errorln(fmt.Sprintf("[Item: %s] => %s <=> %s", cmd, rs, err.Error()))
+			// log.WithFields(log.Fields{"耗时": time.Now().Sub(s.starttime)}).Errorln(fmt.Sprintf("[Item: %s] => %s <=> %s", cmd, rs, err.Error()))
+			slog.Error(err.Error())
 		} else {
-			log.WithFields(log.Fields{"耗时": time.Now().Sub(s.starttime)}).Infoln(fmt.Sprintf("[Item: %s] => %s ", cmd, rs))
+			// log.WithFields(log.Fields{"耗时": time.Now().Sub(s.starttime)}).Infoln(fmt.Sprintf("[Item: %s] => %s ", cmd, rs))
+			slog.Info(fmt.Sprintf("[Item: %s] => %s ", cmd, rs))
 		}
 	default:
 		err = errors.New(fmt.Sprintf("没有匹配到正确的systemRole %s", s.state))

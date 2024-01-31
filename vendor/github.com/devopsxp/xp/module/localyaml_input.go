@@ -1,6 +1,8 @@
 package module
 
 import (
+	"fmt"
+	"log/slog"
 	"reflect"
 	"runtime"
 	"sync"
@@ -8,7 +10,6 @@ import (
 
 	"github.com/devopsxp/xp/plugin"
 	"github.com/devopsxp/xp/utils"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -36,7 +37,7 @@ type LocalYaml struct {
 
 func (l *LocalYaml) Get() {
 	l.data = viper.AllSettings()
-	log.Debugf("所有配置： %v", l.data)
+	slog.Debug(fmt.Sprintf("所有配置： %v", l.data))
 }
 
 type LocalYamlInput struct {
@@ -52,7 +53,7 @@ func (l *LocalYamlInput) Receive() *plugin.Message {
 	l.yaml.Get()
 
 	if l.status != plugin.Started {
-		log.Warnln("LocalYaml input plugin is not running,input nothing.")
+		slog.Warn("LocalYaml input plugin is not running,input nothing.")
 		return nil
 	}
 
@@ -68,7 +69,7 @@ func (l *LocalYamlInput) SetConnectStatus(ip, status string) {
 func (l *LocalYamlInput) Start() {
 	l.fails = 0
 	l.status = plugin.Started
-	log.Debugln("LocalYamlInput plugin started.")
+	slog.Debug("LocalYamlInput plugin started.")
 
 	// Check all ips
 	ips, err := getips(viper.GetStringSlice("host"))
@@ -86,8 +87,8 @@ func (l *LocalYamlInput) Start() {
 
 	var wg sync.WaitGroup
 
-	log.Infoln("******************************************************** TASK [LocalYamlCheck : 主机状态检测] ********************************************************")
-	log.Infof("LocalYaml Input 插件开始执行ssh目标主机状态扫描，并发数： %d", 5*runtime.NumCPU())
+	slog.Info("******************************************************** TASK [LocalYamlCheck : 主机状态检测] ********************************************************")
+	slog.Info("LocalYaml Input 插件开始执行ssh目标主机状态扫描", "并发数", 5*runtime.NumCPU())
 	for n, i := range ips {
 		wg.Add(1)
 		checkchan <- i
@@ -95,10 +96,10 @@ func (l *LocalYamlInput) Start() {
 			defer wg.Done()
 			now := time.Now()
 			if utils.ScanPort(ip, port) {
-				log.Infof("%d: Ssh check %s:%d success 耗时: %v", num, ip, port, time.Now().Sub(now))
+				slog.Info(fmt.Sprintf("%d: Ssh check %s:%d success 耗时: %v", num, ip, port, time.Now().Sub(now)))
 				l.SetConnectStatus(ip, "success")
 			} else {
-				log.Infof("%d: Ssh check %s:%d failed 耗时：%v", num, ip, port, time.Now().Sub(now))
+				slog.Info(fmt.Sprintf("%d: Ssh check %s:%d failed 耗时：%v", num, ip, port, time.Now().Sub(now)))
 				l.fails += 1
 				l.SetConnectStatus(ip, "failed")
 			}
@@ -106,7 +107,7 @@ func (l *LocalYamlInput) Start() {
 		}(i, n)
 
 		if n%10 == 0 {
-			log.Infof("已完成 %d 主机连接测试, 当前GoRoutine数量: %d", n, runtime.NumGoroutine())
+			slog.Info(fmt.Sprintf("已完成 %d 主机连接测试, 当前GoRoutine数量: %d", n, runtime.NumGoroutine()))
 		}
 	}
 

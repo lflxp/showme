@@ -3,13 +3,13 @@ package roles
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"reflect"
 	"strings"
 	"time"
 
 	"github.com/devopsxp/xp/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -49,10 +49,10 @@ func (c *ScriptRole) Run() error {
 	dest := fmt.Sprintf("/tmp/%s", utils.GetRandomSalt())
 	err := utils.New(c.host, c.remote_user, c.remote_pwd, c.remote_port).SftpUploadToRemote(c.script, dest)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"src": c.script,
-			"耗时":  time.Now().Sub(c.starttime),
-		}).Errorln(err.Error())
+		// log.WithFields(log.Fields{
+		// 	"src": c.script,
+		// 	"耗时":  time.Now().Sub(c.starttime),
+		// }).Errorln(err.Error())
 		c.logs[fmt.Sprintf("%s %s %s", c.stage, c.host, c.name)] = err.Error()
 		if strings.Contains(err.Error(), "ssh:") {
 			return errors.New("ssh: handshake failed")
@@ -64,18 +64,20 @@ func (c *ScriptRole) Run() error {
 			err = utils.New(c.host, c.remote_user, c.remote_pwd, c.remote_port).RunTerminal(cmd, os.Stdout, os.Stderr)
 			rs := fmt.Sprintf("%s over", c.script)
 			if err != nil {
-				log.WithFields(log.Fields{"耗时": time.Now().Sub(c.starttime)}).Errorln(fmt.Sprintf("[Item: %s] => %s", c.script, err.Error()))
+				// log.WithFields(log.Fields{"耗时": time.Now().Sub(c.starttime)}).Errorln(fmt.Sprintf("[Item: %s] => %s", c.script, err.Error()))
 				return err
 			} else {
-				log.WithFields(log.Fields{"耗时": time.Now().Sub(c.starttime)}).Info(fmt.Sprintf("[Item: %s] => %s", c.script, rs))
+				// log.WithFields(log.Fields{"耗时": time.Now().Sub(c.starttime)}).Info(fmt.Sprintf("[Item: %s] => %s", c.script, rs))
+				slog.Info(fmt.Sprintf("[Item: %s] => %s", c.script, rs))
 			}
 		} else {
 			rs, err := utils.New(c.host, c.remote_user, c.remote_pwd, c.remote_port).Run(cmd)
 			if err != nil {
-				log.WithFields(log.Fields{"耗时": time.Now().Sub(c.starttime)}).Errorln(fmt.Sprintf("[Item: %s] => %s", c.script, err.Error()))
+				// log.WithFields(log.Fields{"耗时": time.Now().Sub(c.starttime)}).Errorln(fmt.Sprintf("[Item: %s] => %s", c.script, err.Error()))
 				return err
 			} else {
-				log.WithFields(log.Fields{"耗时": time.Now().Sub(c.starttime)}).Info(fmt.Sprintf("[Item: %s] => %s", c.script, rs))
+				// log.WithFields(log.Fields{"耗时": time.Now().Sub(c.starttime)}).Info(fmt.Sprintf("[Item: %s] => %s", c.script, rs))
+				slog.Info(fmt.Sprintf("[Item: %s] => %s", c.script, rs))
 			}
 		}
 

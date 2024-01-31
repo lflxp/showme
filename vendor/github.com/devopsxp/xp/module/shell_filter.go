@@ -2,6 +2,7 @@ package module
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"reflect"
 	"runtime"
@@ -11,7 +12,6 @@ import (
 	"github.com/devopsxp/xp/roles"
 	"github.com/devopsxp/xp/utils"
 	uuid "github.com/satori/go.uuid"
-	log "github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -27,28 +27,28 @@ type ShellFilter struct {
 
 func (s *ShellFilter) Process(msgs *plugin.Message) *plugin.Message {
 	if s.status != plugin.Started {
-		log.Warnln("Shell filter plugin is not running,filter nothing.")
+		slog.Warn("Shell filter plugin is not running,filter nothing.")
 		return msgs
 	}
 
 	// TODO:
 	// 1. 封装config shell|copy|template等操作
-	log.Infof("ShellFilter Filter 插件开始执行目标主机Config Playbook，并发数： %d", runtime.NumCPU())
+	slog.Info(fmt.Sprintf("ShellFilter Filter 插件开始执行目标主机Config Playbook，并发数： %d", runtime.NumCPU()))
 
 	// 解析yaml结果
-	log.Debugf("解析yaml结果 Check %v\n", msgs.Data.Check)
+	slog.Debug(fmt.Sprintf("解析yaml结果 Check %v\n", msgs.Data.Check))
 	// 1. 解析stage步骤
 	var stages []interface{}
 	if sg, ok := msgs.Data.Items["stage"]; ok {
 		stages = sg.([]interface{})
 	}
-	log.Debugf("Stage %v\n", stages)
+	slog.Debug(fmt.Sprintf("Stage %v\n", stages))
 
 	var configs []interface{}
 	if cf, ok := msgs.Data.Items["config"]; ok {
 		configs = cf.([]interface{})
 	} else {
-		log.Errorln("未配置config模块，退出！")
+		slog.Error("未配置config模块，退出！")
 		os.Exit(1)
 	}
 
@@ -61,11 +61,11 @@ func (s *ShellFilter) Process(msgs *plugin.Message) *plugin.Message {
 			// 获取include路径
 			includePath, ok := cc.(map[interface{}]interface{})["include"]
 			if ok {
-				log.Infof("匹配到 include 配置[%s] %s", cc.(map[interface{}]interface{})["name"], includePath)
+				slog.Info(fmt.Sprintf("匹配到 include 配置[%s] %s", cc.(map[interface{}]interface{})["name"], includePath))
 				// include 配置格式为： [map[interface{}]interface{}]
 				iData, err := utils.ReadYamlConfig(includePath.(string))
 				if err != nil {
-					log.Errorf("读取include yaml文件错误：%s", err.Error())
+					slog.Error("读取include yaml文件", "错误", err.Error())
 					os.Exit(1)
 				}
 
@@ -75,15 +75,15 @@ func (s *ShellFilter) Process(msgs *plugin.Message) *plugin.Message {
 				case map[interface{}]interface{}:
 					configs = append(configs, iData.(map[interface{}]interface{}))
 				default:
-					log.Warnf("Include Yaml文件格式不能匹配 %v", iData)
+					slog.Warn("Include Yaml文件格式不能匹配 %v", iData)
 				}
 			}
 		}
 	}
 
-	log.Debugln("configs", configs)
+	slog.Debug("configs", configs)
 
-	log.Debugf("Config %v\n", configs)
+	slog.Debug(fmt.Sprintf("Config %v\n", configs))
 	var (
 		pipelineUuid                               string
 		remote_user, remote_pwd, workdir, reponame string
@@ -108,7 +108,7 @@ func (s *ShellFilter) Process(msgs *plugin.Message) *plugin.Message {
 		timeoutexit = true
 	}
 
-	log.Info("******************************************************** Prepare [DockerWorkspace : 镜像工作空间设置] ")
+	slog.Info("******************************************************** Prepare [DockerWorkspace : 镜像工作空间设置] ")
 	pipelineUuid = uuid.NewV4().String()
 
 	// docker共享空间
@@ -118,7 +118,7 @@ func (s *ShellFilter) Process(msgs *plugin.Message) *plugin.Message {
 		if !isexist && err != nil {
 			panic(err)
 		}
-		log.Debugf("判断docker共享目录是否存在: %s", workdir)
+		slog.Debug(fmt.Sprintf("判断docker共享目录是否存在: %s", workdir))
 	} else {
 		// 当没有设置workdir时，判断并创建在当前目录下
 		workdir = fmt.Sprintf("%s/workspace", utils.GetCurrentDirectory())
@@ -126,10 +126,10 @@ func (s *ShellFilter) Process(msgs *plugin.Message) *plugin.Message {
 		if !isexist && err != nil {
 			panic(err)
 		}
-		log.Debugf("判断docker共享目录是否存在: %s", workdir)
+		slog.Debug(fmt.Sprintf("判断docker共享目录是否存在: %s", workdir))
 	}
 
-	log.Infof("准备docker 共享目录完毕: %s", workdir)
+	slog.Info(fmt.Sprintf("准备docker 共享目录完毕: %s", workdir))
 
 	// 如果设置了git仓库，则拉取repo并修改workdir路径
 	if git, ok := msgs.Data.Items["git"]; ok {
@@ -137,7 +137,7 @@ func (s *ShellFilter) Process(msgs *plugin.Message) *plugin.Message {
 		var branch, depth, cmd string
 		// 如果设置了url则进行往下进行
 		if url, ok := git.(map[string]interface{})["url"]; ok {
-			log.Infof("******************************************************** Prepare [GitClone : %s] ", url)
+			slog.Info(fmt.Sprintf("******************************************************** Prepare [GitClone : %s] ", url))
 
 			reponame = strings.Split(url.(string), "/")[len(strings.Split(url.(string), "/"))-1]
 			if br, ok := git.(map[string]interface{})["branch"]; ok {
@@ -160,17 +160,13 @@ func (s *ShellFilter) Process(msgs *plugin.Message) *plugin.Message {
 
 			rs, err := utils.ExecCommandString(cmd)
 			if err != nil {
-				log.WithFields(log.Fields{
-					"cmd": cmd,
-				}).Error(rs)
+				slog.Error(rs)
 			}
 
-			log.WithFields(log.Fields{
-				"cmd": cmd,
-			}).Infof("success git clone: %s", rs)
+			slog.Info("success git clone", "url", rs)
 
 			workdir = fmt.Sprintf("%s/%s", workdir, pipelineUuid)
-			log.Infof("准备docker git clone共享目录完毕: %s", workdir)
+			slog.Info(fmt.Sprintf("准备docker git clone共享目录完毕: %s", workdir))
 		}
 	}
 
@@ -207,14 +203,14 @@ func (s *ShellFilter) Process(msgs *plugin.Message) *plugin.Message {
 	// 2. 根据stage进行解析
 	for host, status := range msgs.Data.Check {
 		if status == "failed" {
-			log.Debugf("host %s is failed, next.\n", host)
+			slog.Debug(fmt.Sprintf("host %s is failed, next.\n", host))
 		} else {
 			for _, stage := range stages {
 				if roles.IsRolesAllow(stage.(string), rolesData) {
 					// 3. TODO: 解析yaml中shell的模块，然后进行匹配
 					err := roles.NewShellRole(roles.NewRoleArgs(stage.(string), remote_user, remote_pwd, host, workdir, reponame, vars, configs, msgs, nil, remote_port, timeout, timeoutexit))
 					if err != nil {
-						log.Debugln(err.Error())
+						slog.Debug(err.Error())
 						// os.Exit(1)
 						break
 					}
@@ -233,7 +229,7 @@ func (s *ShellFilter) Process(msgs *plugin.Message) *plugin.Message {
 			// 		// 3. TODO: 解析yaml中shell的模块，然后进行匹配
 			// 		err := roles.NewShellRole(roles.NewRoleArgs(stage.(string), remote_user, host, vars, configs, msgs, nil))
 			// 		if err != nil {
-			// 			log.Debugln(err.Error())
+			// 			slog.Debug(err.Error())
 			// 			os.Exit(1)
 			// 		}
 			// 	}

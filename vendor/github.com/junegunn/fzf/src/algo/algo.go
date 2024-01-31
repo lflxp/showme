@@ -221,9 +221,9 @@ func charClassOfAscii(char rune) charClass {
 		return charUpper
 	} else if char >= '0' && char <= '9' {
 		return charNumber
-	} else if strings.IndexRune(whiteChars, char) >= 0 {
+	} else if strings.ContainsRune(whiteChars, char) {
 		return charWhite
-	} else if strings.IndexRune(delimiterChars, char) >= 0 {
+	} else if strings.ContainsRune(delimiterChars, char) {
 		return charDelimiter
 	}
 	return charNonWord
@@ -240,7 +240,7 @@ func charClassOfNonAscii(char rune) charClass {
 		return charLetter
 	} else if unicode.IsSpace(char) {
 		return charWhite
-	} else if strings.IndexRune(delimiterChars, char) >= 0 {
+	} else if strings.ContainsRune(delimiterChars, char) {
 		return charDelimiter
 	}
 	return charNonWord
@@ -617,7 +617,7 @@ func FuzzyMatchV2(caseSensitive bool, normalize bool, forward bool, input *util.
 func calculateScore(caseSensitive bool, normalize bool, text *util.Chars, pattern []rune, sidx int, eidx int, withPos bool) (int, *[]int) {
 	pidx, score, inGap, consecutive, firstBonus := 0, 0, false, 0, int16(0)
 	pos := posArray(withPos, len(pattern))
-	prevClass := charWhite
+	prevClass := initialCharClass
 	if sidx > 0 {
 		prevClass = charClassOf(text.Get(sidx - 1))
 	}

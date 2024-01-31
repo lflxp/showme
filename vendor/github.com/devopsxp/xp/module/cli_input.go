@@ -1,6 +1,8 @@
 package module
 
 import (
+	"fmt"
+	"log/slog"
 	"reflect"
 	"runtime"
 	"sync"
@@ -8,7 +10,6 @@ import (
 
 	"github.com/devopsxp/xp/plugin"
 	"github.com/devopsxp/xp/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 // 1. 获取cli参数
@@ -31,7 +32,7 @@ type CliInput struct {
 
 func (c *CliInput) Receive() *plugin.Message {
 	if c.status != plugin.Started {
-		log.Warnln("LocalYaml input plugin is not running,input nothing.")
+		slog.Warn("LocalYaml input plugin is not running,input nothing.")
 		return nil
 	}
 
@@ -47,7 +48,7 @@ func (c *CliInput) SetConnectStatus(ip, status string) {
 func (c *CliInput) Start() {
 	c.faileds = 0
 	c.status = plugin.Started
-	log.Debugln("LocalYamlInput plugin started.")
+	slog.Debug("LocalYamlInput plugin started.")
 
 	// Check all ipsl.yaml.
 	// TODO: error 没有viper取配置了
@@ -68,8 +69,8 @@ func (c *CliInput) Start() {
 
 	var wg sync.WaitGroup
 
-	log.Infoln("******************************************************** TASK [CliCheck : 主机状态检测] ********************************************************")
-	log.Infof("LocalYaml Input 插件开始执行ssh目标主机状态扫描，并发数： %d", 5*runtime.NumCPU())
+	slog.Info("******************************************************** TASK [CliCheck : 主机状态检测] ********************************************************")
+	slog.Info("LocalYaml Input 插件开始执行ssh目标主机状态扫描", "并发数", 5*runtime.NumCPU())
 	for n, i := range ips {
 		wg.Add(1)
 
@@ -78,10 +79,10 @@ func (c *CliInput) Start() {
 			defer wg.Done()
 			now := time.Now()
 			if utils.ScanPort(ip, port) {
-				log.Infof("%d: Ssh check %s:%d success 耗时: %v", num, ip, port, time.Now().Sub(now))
+				slog.Info(fmt.Sprintf("%d: Ssh check %s:%d success 耗时: %v", num, ip, port, time.Now().Sub(now)))
 				c.SetConnectStatus(ip, "success")
 			} else {
-				log.Infof("%d: Ssh check %s:%d failed 耗时：%v", num, ip, port, time.Now().Sub(now))
+				slog.Info(fmt.Sprintf("%d: Ssh check %s:%d failed 耗时：%v", num, ip, port, time.Now().Sub(now)))
 				c.faileds += 1
 				c.SetConnectStatus(ip, "failed")
 			}
@@ -89,7 +90,7 @@ func (c *CliInput) Start() {
 		}(i, n)
 
 		if n%10 == 0 {
-			log.Infof("已完成 %d 主机连接测试, 当前GoRoutine数量: %d", n, runtime.NumGoroutine())
+			slog.Info(fmt.Sprintf("已完成 %d 主机连接测试, 当前GoRoutine数量: %d", n, runtime.NumGoroutine()))
 		}
 	}
 

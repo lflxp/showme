@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"log/slog"
 	"math/rand"
 	"net"
 	"os"
@@ -15,20 +16,19 @@ import (
 	"time"
 
 	"github.com/asdine/storm/v3"
-	log "github.com/go-eden/slf4go"
 )
 
 var boltDB *storm.DB
 
 func InitBoltDB() *storm.DB {
 	if boltDB == nil {
-		log.Info("初始化bolt数据库")
+		slog.Info("初始化bolt数据库")
 		homepath, err := Home()
 		if err != nil {
 			panic(err)
 		}
 
-		log.Info(fmt.Sprintf("%s/.lflxp-tty.bolt", homepath))
+		slog.Info(fmt.Sprintf("%s/.lflxp-tty.bolt", homepath))
 		boltDB, err = storm.Open(fmt.Sprintf("%s/.lflxp-tty.bolt", homepath))
 		if err != nil {
 			panic(err)

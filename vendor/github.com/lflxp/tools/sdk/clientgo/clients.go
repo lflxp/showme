@@ -1,6 +1,8 @@
 package clientgo
 
 import (
+	"log/slog"
+
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
@@ -9,7 +11,6 @@ import (
 	"path/filepath"
 	"sync"
 
-	log "github.com/go-eden/slf4go"
 	"k8s.io/client-go/kubernetes"
 	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/rest"
@@ -32,10 +33,10 @@ func InitClientDiscovery() *discovery.DiscoveryClient {
 	// 实现同时集群内外的支持
 	// 便于本地调试
 	three.Do(func() {
-		log.Info("start doInitDiscovery()")
+		slog.Info("start doInitDiscovery()")
 		discoveryclient, err = doInitDiscovery()
 		if err != nil {
-			log.Debugf("init out of cluster error: %v", err)
+			slog.Debug("init out of cluster error: %v", err)
 			discoveryclient, err = doInitDiscoveryInner()
 			if err != nil {
 				// log.Fatal(err)
@@ -90,10 +91,10 @@ func InitClient() *kubernetes.Clientset {
 	// 实现同时集群内外的支持
 	// 便于本地调试
 	twice.Do(func() {
-		log.Info("start doInit()")
+		slog.Info("start doInit()")
 		clientset, err = doInit()
 		if err != nil {
-			log.Debugf("init out of cluster error: %v", err)
+			slog.Debug("init out of cluster error", "Error", err)
 			clientset, err = doInitInner()
 			if err != nil {
 				// log.Fatal(err)
@@ -109,13 +110,13 @@ func InitClientDynamic() (dynamic.Interface, error) {
 	// 实现同时集群内外的支持
 	// 便于本地调试
 	once.Do(func() {
-		log.Info("start doInit()")
+		slog.Info("start doInit()")
 		clients, err = DoInitDynamic()
 		if err != nil {
-			log.Debugf("init out of cluster error: %v", err)
+			slog.Debug("init out of cluster error", "Error", err.Error())
 			clients, err = doInitInnerDynamic()
 			if err != nil {
-				log.Fatal(err)
+				slog.Error(err.Error())
 			}
 		}
 	})

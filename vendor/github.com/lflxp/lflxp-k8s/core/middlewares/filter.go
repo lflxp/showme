@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"regexp"
 	"strings"
@@ -12,7 +13,6 @@ import (
 	js "github.com/lflxp/lflxp-k8s/core/middlewares/jwt/services"
 
 	"github.com/gin-gonic/gin"
-	log "github.com/go-eden/slf4go"
 	"github.com/lflxp/tools/httpclient"
 )
 
@@ -68,6 +68,7 @@ func TokenFilter() gin.HandlerFunc {
 				if strings.Contains(err.Error(), "named cookie not present") {
 					// c.Redirect(http.StatusFound, "/d2admin/#/login?url="+c.Request.RequestURI)
 					httpclient.SendErrorMessage(c, http.StatusUnauthorized, "token invalid", "/d2admin/#/login?url="+c.Request.RequestURI)
+					c.Abort()
 					return
 				}
 				c.AbortWithStatusJSON(http.StatusUnauthorized, httpclient.Result{
@@ -94,6 +95,8 @@ func TokenFilter() gin.HandlerFunc {
 	}
 }
 
+// `^/api/*`, // for debug only
+// `^/ws/*`,
 func isWhilteUrl(c *gin.Context) bool {
 	var rs bool
 	url := []string{
@@ -113,9 +116,8 @@ func isWhilteUrl(c *gin.Context) bool {
 		`^/admin/auth/login`,
 		`^/api/login`,
 		`^/apis/*`,
-		// `^/api/*`, // for debug only
-		// `^/ws/*`,
 		`^/node_modules/*`,
+		// `^/monitor/*`,
 	}
 
 	for _, x := range url {
@@ -125,6 +127,6 @@ func isWhilteUrl(c *gin.Context) bool {
 		}
 	}
 
-	log.Debugf("method [%s] isWhite %v path %s Url.Path %s ", c.Request.Method, rs, c.Request.RequestURI, c.Request.URL.Path)
+	slog.Debug("method [%s] isWhite %v path %s Url.Path %s ", c.Request.Method, rs, c.Request.RequestURI, c.Request.URL.Path)
 	return rs
 }

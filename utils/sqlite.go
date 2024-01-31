@@ -2,10 +2,10 @@ package utils
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/go-xorm/xorm"
 	_ "github.com/mattn/go-sqlite3"
-	log "github.com/sirupsen/logrus"
 )
 
 var Engine *xorm.Engine
@@ -18,7 +18,7 @@ func InitSqlite() {
 
 	Engine, err = xorm.NewEngine("sqlite3", fmt.Sprintf("%s/.showme.db", homepath))
 	if err != nil {
-		log.Error(err.Error())
+		slog.Error(err.Error())
 	}
-	log.Infof("初始化sqlite数据库 %s/.showme.db", homepath)
+	slog.Info(fmt.Sprintf("初始化sqlite数据库 %s/.showme.db", homepath))
 }

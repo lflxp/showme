@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 
 	"go/ast"
 	"go/token"
 
-	log "github.com/go-eden/slf4go"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -123,10 +123,10 @@ func UnInstallYaml(dataRaw []byte) error {
 
 func InstallYamlFilename(clientSet *kubernetes.Clientset, dynamicClient dynamic.Interface, ns string, filename string) error {
 	f, err := os.Open(filename)
-	log.Info("=====================>" + filename)
+	slog.Info("=====================>" + filename)
 
 	if err != nil {
-		log.Error(err)
+		slog.Error(err.Error())
 		return err
 	}
 	d := yaml.NewYAMLOrJSONDecoder(f, 4096)
@@ -134,7 +134,7 @@ func InstallYamlFilename(clientSet *kubernetes.Clientset, dynamicClient dynamic.
 
 	restMapperRes, err := restmapper.GetAPIGroupResources(dc)
 	if err != nil {
-		log.Error(err)
+		slog.Error(err.Error())
 		return err
 	}
 
@@ -147,27 +147,27 @@ func InstallYamlFilename(clientSet *kubernetes.Clientset, dynamicClient dynamic.
 			if err == io.EOF {
 				break
 			}
-			log.Fatal(err)
+			slog.Error(err.Error())
 		}
 
 		// runtime.Object
 		obj, gvk, err := unstructured.UnstructuredJSONScheme.Decode(ext.Raw, nil, nil)
 		if err != nil {
-			log.Error(err)
+			slog.Error(err.Error())
 			return err
 		}
 
 		mapping, err := restMapper.RESTMapping(gvk.GroupKind(), gvk.Version)
 		fmt.Printf("mapping:%+v\n", mapping)
 		if err != nil {
-			log.Error(err)
+			slog.Error(err.Error())
 			return err
 		}
 
 		// runtime.Object转换为unstructed
 		unstructuredObj, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
 		if err != nil {
-			log.Error(err)
+			slog.Error(err.Error())
 			return err
 		}
 		// fmt.Printf("unstructuredObj: %+v", unstructuredObj)
@@ -179,7 +179,7 @@ func InstallYamlFilename(clientSet *kubernetes.Clientset, dynamicClient dynamic.
 		if ns == "" {
 			res, err := dynamicClient.Resource(mapping.Resource).Create(context.TODO(), &unstruct, metav1.CreateOptions{})
 			if err != nil {
-				log.Error(err)
+				slog.Error(err.Error())
 				return err
 			}
 
@@ -187,7 +187,7 @@ func InstallYamlFilename(clientSet *kubernetes.Clientset, dynamicClient dynamic.
 		} else {
 			res, err := dynamicClient.Resource(mapping.Resource).Namespace(ns).Create(context.TODO(), &unstruct, metav1.CreateOptions{})
 			if err != nil {
-				log.Error(err)
+				slog.Error(err.Error())
 				return err
 			}
 			GuessType(res)
@@ -207,7 +207,7 @@ func UninstallYaml(clientSet *kubernetes.Clientset, dynamicClient dynamic.Interf
 	f, err := os.Open(filename)
 
 	if err != nil {
-		log.Error(err)
+		slog.Error(err.Error())
 		return err
 	}
 	d := yaml.NewYAMLOrJSONDecoder(f, 4096)
@@ -215,7 +215,7 @@ func UninstallYaml(clientSet *kubernetes.Clientset, dynamicClient dynamic.Interf
 
 	restMapperRes, err := restmapper.GetAPIGroupResources(dc)
 	if err != nil {
-		log.Error(err)
+		slog.Error(err.Error())
 		return err
 	}
 
@@ -228,27 +228,27 @@ func UninstallYaml(clientSet *kubernetes.Clientset, dynamicClient dynamic.Interf
 			if err == io.EOF {
 				break
 			}
-			log.Fatal(err)
+			slog.Error(err.Error())
 		}
 
 		// runtime.Object
 		obj, gvk, err := unstructured.UnstructuredJSONScheme.Decode(ext.Raw, nil, nil)
 		if err != nil {
-			log.Error(err)
+			slog.Error(err.Error())
 			return err
 		}
 
 		mapping, err := restMapper.RESTMapping(gvk.GroupKind(), gvk.Version)
 		// fmt.Printf("mapping:%+v\n", mapping)
 		if err != nil {
-			log.Error(err)
+			slog.Error(err.Error())
 			return err
 		}
 
 		// runtime.Object转换为unstructed
 		unstructuredObj, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
 		if err != nil {
-			log.Error(err)
+			slog.Error(err.Error())
 			return err
 		}
 		// fmt.Printf("unstructuredObj: %+v", unstructuredObj)
@@ -260,18 +260,18 @@ func UninstallYaml(clientSet *kubernetes.Clientset, dynamicClient dynamic.Interf
 		tmpMetadata := unstructuredObj["metadata"].(map[string]interface{})
 		tmpName := tmpMetadata["name"].(string)
 		tmpKind := unstructuredObj["kind"].(string)
-		log.Info("deleting resource name: " + tmpName + ", kind: " + tmpKind + ", ns: " + ns)
+		slog.Info("deleting resource name: " + tmpName + ", kind: " + tmpKind + ", ns: " + ns)
 
 		if ns == "" {
 			err := dynamicClient.Resource(mapping.Resource).Delete(context.TODO(), tmpName, metav1.DeleteOptions{})
 			if err != nil {
-				log.Error(err)
+				slog.Error(err.Error())
 				return err
 			}
 		} else {
 			err := dynamicClient.Resource(mapping.Resource).Namespace(ns).Delete(context.TODO(), tmpName, metav1.DeleteOptions{})
 			if err != nil {
-				log.Error(err)
+				slog.Error(err.Error())
 				return err
 			}
 		}

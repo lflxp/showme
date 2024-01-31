@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"io/ioutil"
+	"log/slog"
 	"net/url"
 	"strings"
 	"time"
@@ -15,7 +16,6 @@ import (
 	"github.com/lflxp/lflxp-music/core/middlewares/template"
 
 	"github.com/gin-gonic/gin"
-	log "github.com/go-eden/slf4go"
 	"github.com/lflxp/tools/orm/sqlite"
 )
 
@@ -176,16 +176,16 @@ func process(c *gin.Context) {
 					}
 				}
 			}
-			log.Error(sql)
+			slog.Error(sql)
 			result, err := sqlite.NewOrm().Query(sql)
 			if err != nil {
-				log.Error(err.Error())
+				slog.Error(err.Error())
 			}
 			total, err := sqlite.NewOrm().Table(strings.ToLower(name)).Count()
 			if err != nil {
-				log.Error(err.Error())
+				slog.Error(err.Error())
 			}
-			log.Error(sql)
+			slog.Error(sql)
 			ttt := map[string]interface{}{}
 			t2 := []map[string]string{}
 			for _, x := range result {
@@ -213,7 +213,7 @@ func process(c *gin.Context) {
 		} else if typed == "delete" {
 			ids := c.Query("ids")
 			name := c.Query("name")
-			log.Error(ids, name)
+			slog.Error(ids, name)
 			sql := fmt.Sprintf("delete from %s where id in (%s)", name, ids)
 			_, err := sqlite.NewOrm().Query(sql)
 			if err != nil {
@@ -226,7 +226,7 @@ func process(c *gin.Context) {
 			value := []string{}
 
 			name := c.Query("table")
-			// log.Error(string(this.Ctx.Input.RequestBody))
+			// slog.Error(string(this.Ctx.Input.RequestBody))
 			//获取字段和所有值
 			bs, err := ioutil.ReadAll(c.Request.Body)
 			if err != nil {
@@ -240,10 +240,10 @@ func process(c *gin.Context) {
 				c.String(400, err.Error())
 				return
 			}
-			// log.Error(parseBody.Path)
+			// slog.Error(parseBody.Path)
 			l, err := url.ParseQuery(parseBody.Path)
 			if err != nil {
-				log.Error(err.Error())
+				slog.Error(err.Error())
 				c.String(400, err.Error())
 				return
 			}
@@ -254,7 +254,7 @@ func process(c *gin.Context) {
 			}
 
 			sql := fmt.Sprintf("insert into %s(%s) values (%s)", name, strings.Join(col, ","), strings.Join(value, ","))
-			log.Debug(sql)
+			slog.Debug(sql)
 			_, err = sqlite.NewOrm().Query(sql)
 			if err != nil {
 				c.String(400, err.Error())
@@ -303,10 +303,10 @@ func process(c *gin.Context) {
 					c.String(400, err.Error())
 					return
 				}
-				// log.Error(parseBody.Path)
+				// slog.Error(parseBody.Path)
 				l, err := url.ParseQuery(parseBody.Path)
 				if err != nil {
-					log.Error(err.Error())
+					slog.Error(err.Error())
 					c.String(400, err.Error())
 					return
 				}
@@ -321,7 +321,7 @@ func process(c *gin.Context) {
 				// core.Debug(sql)
 				_, err = sqlite.NewOrm().Query(sql)
 				if err != nil {
-					log.Error("sql error", err.Error())
+					slog.Error("sql error", err.Error())
 					c.String(400, err.Error())
 					return
 				}

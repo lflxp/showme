@@ -3,11 +3,11 @@ package roles
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	. "github.com/devopsxp/xp/plugin"
 	"github.com/devopsxp/xp/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 // 执行过程生命周期接口
@@ -125,21 +125,21 @@ func (r *RoleLC) Common(args *RoleArgs) error {
 
 // 初始化
 func (r *RoleLC) Init(args *RoleArgs) error {
-	log.Debug("Parent Object Init Func")
+	slog.Debug("Parent Object Init Func")
 	return r.Common(args)
 }
 
 // 准备环节
 func (r *RoleLC) Pre() {
-	log.Debugf("Role module %s Pre running.", r.name)
+	slog.Debug(fmt.Sprintf("Role module %s Pre running.", r.name))
 	// 设置开始时间
 	r.starttime = time.Now()
 }
 
 // 执行前的条件判断
 func (r *RoleLC) Before() error {
-	log.Debugf("Role module %s Before running.", r.name)
-	log.Infof("******************************************************** TASK [%s : %s] BY %s@%s \n", r.stage, r.name, r.remote_user, r.host)
+	slog.Debug(fmt.Sprintf("Role module %s Before running.", r.name))
+	slog.Info(fmt.Sprintf("******************************************************** TASK [%s : %s] BY %s@%s \n", r.stage, r.name, r.remote_user, r.host))
 	// when条件判断 @key shell命令 @value 命令结果
 	if when, ok := r.args.currentConfig["when"]; ok {
 		// 如果when条件判断存在，则执行@key命令
@@ -161,19 +161,13 @@ func (r *RoleLC) Before() error {
 
 // 执行环节
 func (r *RoleLC) Run() {
-	log.Debugf("Role module %s Run running.", r.name)
+	slog.Debug(fmt.Sprintf("Role module %s Run running.", r.name))
 }
 
 // 执行后环节
 func (r *RoleLC) After() {
-	// log.Debugf("Role module %s After running.", r.name)
-	log.WithFields(log.Fields{
-		"Status": "After LifeCycle",
-		"Role":   r.types,
-		"Name":   r.name,
-		"Stage":  r.stage,
-		"Host":   r.host,
-	}).Infof("执行完成 耗时：%v", time.Now().Sub(r.starttime))
+	// slog.Debug(fmt.Sprintf("Role module %s After running.", r.name)
+	slog.Info(fmt.Sprintf("执行完成 耗时：%v", time.Now().Sub(r.starttime)))
 }
 
 // 执行判断IsHook
@@ -184,7 +178,7 @@ func (r *RoleLC) IsHook() bool {
 
 // 钩子函数，思考：是否和After以及output插件冲突
 func (r *RoleLC) Hooks() error {
-	log.Debugf("Role module %s Hooks Args running.", r.name, r.hook.hookArgs)
+	slog.Debug(fmt.Sprintf("Role module %s Hooks Args running.", r.name, r.hook.hookArgs))
 	err := r.hook.hookFunc(r.hook.hookArgs)
 	return err
 }

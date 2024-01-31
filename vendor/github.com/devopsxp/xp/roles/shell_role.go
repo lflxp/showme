@@ -3,13 +3,13 @@ package roles
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"reflect"
 	"strings"
 	"time"
 
 	"github.com/devopsxp/xp/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -68,7 +68,7 @@ func (r *ShellRole) Run() error {
 		}
 
 		if err != nil {
-			log.WithFields(log.Fields{"耗时": time.Now().Sub(r.starttime)}).Errorln(fmt.Sprintf("[Item: %s] => %s", r.shell, err.Error()))
+			// log.WithFields(log.Fields{"耗时": time.Now().Sub(r.starttime)}).Errorln(fmt.Sprintf("[Item: %s] => %s", r.shell, err.Error()))
 			r.logs[fmt.Sprintf("%s %s %s", r.stage, r.host, r.name)] = err.Error()
 			if strings.Contains(err.Error(), "ssh:") {
 				err = errors.New("ssh: handshake failed")
@@ -76,19 +76,19 @@ func (r *ShellRole) Run() error {
 			}
 			// return errors.New(fmt.Sprintf("%s | %s | %s | %s => %s", r.host, r.stage, r.name, cmd, err.Error()))
 		} else {
-			log.WithFields(log.Fields{"耗时": time.Now().Sub(r.starttime)}).Info(fmt.Sprintf("[Item: %s] => %s", r.shell, rs))
+			// log.WithFields(log.Fields{"耗时": time.Now().Sub(r.starttime)}).Info(fmt.Sprintf("[Item: %s] => %s", r.shell, rs))
 			r.logs[fmt.Sprintf("%s %s %s", r.stage, r.host, r.name)] = rs
 		}
 	} else {
-		for n, it := range r.items {
+		for _, it := range r.items {
 			// 补充go template基本语法
 			// 注意：只针对with_items数组类型
 			cmd, err := utils.ApplyTemplate(r.shell, map[string]interface{}{"item": it})
 			if err != nil {
-				log.Errorf("cmd %s error: %v", cmd, err)
+				// slog.Errorf("cmd %s error: %v", cmd, err)
 				panic(err)
 			}
-			log.Debugf("cmd is %s", cmd)
+			slog.Debug(fmt.Sprintf("cmd is %s", cmd))
 
 			if r.terminial {
 				err = utils.New(r.host, r.remote_user, r.remote_pwd, r.remote_port).RunTerminal(cmd, os.Stdout, os.Stderr)
@@ -103,12 +103,12 @@ func (r *ShellRole) Run() error {
 					err = errors.New("ssh: handshake failed")
 					// goto OVER
 				} else {
-					log.WithFields(log.Fields{"耗时": time.Now().Sub(r.starttime)}).Errorln(fmt.Sprintf("[序号: %d Item: %s] => %s", n, cmd, err.Error()))
+					// log.WithFields(log.Fields{"耗时": time.Now().Sub(r.starttime)}).Errorln(fmt.Sprintf("[序号: %d Item: %s] => %s", n, cmd, err.Error()))
 				}
 				// return errors.New(fmt.Sprintf("%s | %s | %s | %s => %s %s", r.host, r.stage, r.name, cmd, rs, err.Error()))
 				return err
 			} else {
-				log.WithFields(log.Fields{"耗时": time.Now().Sub(r.starttime)}).Info(fmt.Sprintf("[序号: %d Item: %s] => %s", n, cmd, rs))
+				// log.WithFields(log.Fields{"耗时": time.Now().Sub(r.starttime)}).Info(fmt.Sprintf("[序号: %d Item: %s] => %s", n, cmd, rs))
 				r.logs[fmt.Sprintf("%s %s %s", r.stage, r.host, r.name)] = rs
 			}
 		}
@@ -125,6 +125,6 @@ func (r *ShellRole) After() {
 }
 
 func testhook(a, b string) error {
-	log.Printf("%s %s test hook send")
+	slog.Info(fmt.Sprintf("%s %s test hook send"))
 	return nil
 }

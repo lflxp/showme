@@ -50,20 +50,21 @@ func buildResult(item *Item, offsets []Offset, score int) Result {
 			// Higher is better
 			val = math.MaxUint16 - util.AsUint16(score)
 		case byChunk:
-			b := minBegin
-			e := maxEnd
-			l := item.text.Length()
-			for ; b >= 1; b-- {
-				if unicode.IsSpace(item.text.Get(b - 1)) {
-					break
+			if validOffsetFound {
+				b := minBegin
+				e := maxEnd
+				for ; b >= 1; b-- {
+					if unicode.IsSpace(item.text.Get(b - 1)) {
+						break
+					}
 				}
-			}
-			for ; e < l; e++ {
-				if unicode.IsSpace(item.text.Get(e)) {
-					break
+				for ; e < numChars; e++ {
+					if unicode.IsSpace(item.text.Get(e)) {
+						break
+					}
 				}
+				val = util.AsUint16(e - b)
 			}
-			val = util.AsUint16(e - b)
 		case byLength:
 			val = item.TrimLength()
 		case byBegin, byEnd:
@@ -79,7 +80,7 @@ func buildResult(item *Item, offsets []Offset, score int) Result {
 				if criterion == byBegin {
 					val = util.AsUint16(minEnd - whitePrefixLen)
 				} else {
-					val = util.AsUint16(math.MaxUint16 - math.MaxUint16*(maxEnd-whitePrefixLen)/int(item.TrimLength()))
+					val = util.AsUint16(math.MaxUint16 - math.MaxUint16*(maxEnd-whitePrefixLen)/int(item.TrimLength()+1))
 				}
 			}
 		}
@@ -137,7 +138,9 @@ func (result *Result) colorOffsets(matchOffsets []Offset, theme *tui.ColorTheme,
 		for i := off[0]; i < off[1]; i++ {
 			// Negative of 1-based index of itemColors
 			// - The extra -1 means highlighted
-			cols[i] = cols[i]*-1 - 1
+			if cols[i] >= 0 {
+				cols[i] = cols[i]*-1 - 1
+			}
 		}
 	}
 

@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"math/rand"
 	"net"
 	"os"
@@ -17,8 +18,6 @@ import (
 	"strings"
 	"text/template"
 	"time"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // 渲染模板
@@ -63,7 +62,7 @@ func GetRandomSalt() string {
 	return GetRandomString(32)
 }
 
-//生成随机字符串
+// 生成随机字符串
 func GetRandomString(len int) string {
 	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	bytes := []byte(str)
@@ -120,7 +119,7 @@ func ExecCommandString(cmd string) (string, error) {
 func GetCurrentDirectory() string {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0])) //返回绝对路径  filepath.Dir(os.Args[0])去除最后一个元素的路径
 	if err != nil {
-		log.Fatal(err)
+		slog.Error(err.Error())
 	}
 	return strings.Replace(dir, "\\", "/", -1) //将\替换成/
 }
@@ -290,11 +289,11 @@ func IsBetweenAB(start, end string) (bool, error) {
 	if now.After(startTime) && now.Before(endTime) {
 		rs = true
 	}
-	log.Println("验证时间", rs, fmt.Sprintf("%s %s", days, start), fmt.Sprintf("%s %s", days, end), now.Format(format_mm))
+	slog.Info(fmt.Sprintf("验证时间", rs, fmt.Sprintf("%s %s", days, start), fmt.Sprintf("%s %s", days, end), now.Format(format_mm)))
 	return rs, nil
 }
 
-//PathExists 判断文件夹是否存在
+// PathExists 判断文件夹是否存在
 func PathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {

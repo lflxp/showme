@@ -5,14 +5,15 @@ package module
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/devopsxp/xp/plugin"
 	"github.com/devopsxp/xp/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 type Text struct {
@@ -67,7 +68,7 @@ func NewWechat(data map[interface{}]interface{}, msg *plugin.Message, vars map[s
 			vars["logs"] = msg.CallBack
 			temp, err := utils.ApplyTemplate(text.(string), vars)
 			if err != nil {
-				log.Debugf("告警模板解析失败: %s", err.Error())
+				slog.Debug(fmt.Sprintf("告警模板解析失败: %s", err.Error()))
 				return result, err
 			}
 			result.Markdown = Text{Content: temp}
@@ -91,7 +92,7 @@ func NewWechat(data map[interface{}]interface{}, msg *plugin.Message, vars map[s
 
 				temp, err := utils.ApplyTemplate(string(tempFile), vars)
 				if err != nil {
-					log.Debugf("告警模板解析失败: %s", err.Error())
+					slog.Debug(fmt.Sprintf("告警模板解析失败: %s", err.Error()))
 					return result, err
 				}
 				result.Markdown = Text{Content: temp}
@@ -125,31 +126,14 @@ func (this *Wechat) SpecificSend() (string, error) {
 		rs  string
 		err error
 	)
-	log.WithFields(log.Fields{
-		"uuid":   this.Sid,
-		"type":   "wechat",
-		"title":  this.Title,
-		"method": "SpecificSend()",
-	}).Info(this.Origin)
+	slog.Info(this.Origin)
 	for _, address := range this.Address {
 		rs, err = post(address, this.Origin)
 		if err != nil {
-			log.WithFields(log.Fields{
-				"uuid":    this.Sid,
-				"type":    "wechat",
-				"title":   this.Title,
-				"address": address,
-				"method":  "SpecificSend()",
-			}).Error(err.Error())
+			slog.Error(err.Error())
 			// this.CallBack(this.Sid, err.Error())
 		} else {
-			log.WithFields(log.Fields{
-				"uuid":    this.Sid,
-				"type":    "wechat",
-				"title":   this.Title,
-				"address": address,
-				"method":  "SpecificSend()",
-			}).Info("发送成功")
+			slog.Info("发送成功")
 			// this.CallBack(this.Sid, "success")
 		}
 	}
@@ -177,16 +161,10 @@ func post(url, message string) (string, error) {
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"url":    url,
-			"method": "post",
-		}).Error(err.Error())
+		slog.Error(err.Error())
 		return rs, err
 	}
-	log.WithFields(log.Fields{
-		"url":    url,
-		"method": "post",
-	}).Info("Http Post Response ", string(body))
+	slog.Info("Http Post Response ", string(body))
 	rs = string(body)
 	return rs, nil
 }
@@ -198,7 +176,7 @@ func (this *Wechat) IsCurrent() bool {
 		tmp := strings.Split(this.Range, "|")
 		rangeTime, err := utils.TransformCHN(strings.Split(tmp[0], ","))
 		if err != nil {
-			log.Println(err.Error())
+			slog.Error(err.Error())
 			return rs
 		}
 		now := time.Now()

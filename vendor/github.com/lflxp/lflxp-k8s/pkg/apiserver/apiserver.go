@@ -1,10 +1,11 @@
 package apiserver
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	log "github.com/go-eden/slf4go"
+	"github.com/lflxp/lflxp-k8s/asset"
 	"github.com/lflxp/lflxp-k8s/pkg/apiserver/model"
 	"github.com/lflxp/tools/httpclient"
 	"github.com/lflxp/tools/sdk/clientgo"
@@ -13,9 +14,11 @@ import (
 const (
 	GVR_GET_LIST      string = "/gvr/list"
 	GVR_OTHER         string = "/gvr"
+	GVR_PATCH_OTHER   string = "/gvr/patchstrate"
 	GVR_GET_GET       string = "/gvr/get"
 	GVR_GET_ALL       string = "/gvr/all"
 	GVR_GET_NAMESPACE string = "/gvr/namespace"
+	INSTALL_MONITOR   string = "/install/monitor"
 )
 
 func RegisterApiserver(router *gin.Engine) {
@@ -27,9 +30,25 @@ func RegisterApiserver(router *gin.Engine) {
 		keycloakGroup.GET(GVR_GET_NAMESPACE, get_namespaces)
 		keycloakGroup.DELETE(GVR_OTHER, gvr_delete_del)
 		keycloakGroup.PATCH(GVR_OTHER, gvr_patch_edit)
+		keycloakGroup.PATCH(GVR_PATCH_OTHER, gvr_patch_strate)
 		keycloakGroup.PUT(GVR_OTHER, gvr_put_update)
 		keycloakGroup.POST(GVR_OTHER, gvr_post_add)
+		keycloakGroup.GET(INSTALL_MONITOR, install_monitor)
 	}
+}
+
+func install_monitor(c *gin.Context) {
+	err := asset.RunYaml("yaml/monitor/manifests/setup")
+	if err != nil {
+		httpclient.SendErrorMessage(c, http.StatusInternalServerError, "install yaml/monitor/manifests/setup error", err.Error())
+		return
+	}
+	err = asset.RunYaml("yaml/monitor/manifests")
+	if err != nil {
+		httpclient.SendErrorMessage(c, http.StatusInternalServerError, "install yaml/monitor/manifests error", err.Error())
+		return
+	}
+	httpclient.SendSuccessMessage(c, 200, "install monitor success")
 }
 
 func get_namespaces(c *gin.Context) {
@@ -77,7 +96,7 @@ func gvr_get_list(c *gin.Context) {
 
 	list, err := data.List()
 	if err != nil {
-		log.Errorf("list error: %s", err.Error())
+		slog.Error("list error: %s", err.Error())
 		httpclient.SendErrorMessage(c, 500, "list error", err.Error())
 		return
 	}
@@ -94,7 +113,7 @@ func gvr_get_get(c *gin.Context) {
 
 	list, err := data.Get()
 	if err != nil {
-		log.Errorf("get error: %s", err.Error())
+		slog.Error("get error: %s", err.Error())
 		httpclient.SendErrorMessage(c, 500, "get error", err.Error())
 		return
 	}
@@ -111,7 +130,7 @@ func gvr_post_add(c *gin.Context) {
 
 	list, err := data.Post()
 	if err != nil {
-		log.Errorf("post error: %s", err.Error())
+		slog.Error("post error: %s", err.Error())
 		httpclient.SendErrorMessage(c, 500, "post error", err.Error())
 		return
 	}
@@ -128,7 +147,24 @@ func gvr_patch_edit(c *gin.Context) {
 
 	list, err := data.Patch()
 	if err != nil {
-		log.Errorf("patch error: %s", err.Error())
+		slog.Error("patch error: %s", err.Error())
+		httpclient.SendErrorMessage(c, 500, "patcg error", err.Error())
+		return
+	}
+
+	httpclient.SendSuccessMessage(c, 200, list)
+}
+
+func gvr_patch_strate(c *gin.Context) {
+	var data model.GetGVR
+	if err := c.BindJSON(&data); err != nil {
+		httpclient.SendErrorMessage(c, http.StatusBadRequest, "not found", err.Error())
+		return
+	}
+
+	list, err := data.PatchStrate()
+	if err != nil {
+		slog.Error("patch error: %s", err.Error())
 		httpclient.SendErrorMessage(c, 500, "patcg error", err.Error())
 		return
 	}
@@ -145,7 +181,7 @@ func gvr_put_update(c *gin.Context) {
 
 	list, err := data.Put()
 	if err != nil {
-		log.Errorf("put error: %s", err.Error())
+		slog.Error("put error: %s", err.Error())
 		httpclient.SendErrorMessage(c, 500, "put error", err.Error())
 		return
 	}
@@ -162,7 +198,7 @@ func gvr_delete_del(c *gin.Context) {
 
 	err := data.Delete()
 	if err != nil {
-		log.Errorf("delete error: %s", err.Error())
+		slog.Error("delete error: %s", err.Error())
 		httpclient.SendErrorMessage(c, 500, "delete error", err.Error())
 		return
 	}

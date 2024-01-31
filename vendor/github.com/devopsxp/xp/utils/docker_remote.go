@@ -6,8 +6,6 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type docker struct {
@@ -50,7 +48,6 @@ func NewDockerCLI(host, port, version string) *docker {
 // 500 – server error
 func (d *docker) ListContainers() (result interface{}, err error) {
 	url := fmt.Sprintf("http://%s:%s/%s/containers/json?all=1", d.host, d.port, d.version)
-	log.Debug(url)
 	data, err := Get(url)
 	if err != nil {
 		return
@@ -158,7 +155,6 @@ func (d *docker) ListContainers() (result interface{}, err error) {
 // 500 – server error
 func (d *docker) CreateContainer(data interface{}) (result []byte, err error) {
 	url := fmt.Sprintf("http://%s:%s/%s/containers/create", d.host, d.port, d.version)
-	log.Debug(url)
 	result, err = Post(url, data, "application/json")
 	return
 }
@@ -166,7 +162,6 @@ func (d *docker) CreateContainer(data interface{}) (result []byte, err error) {
 // 监控容器，使用容器id获取该容器的底层信息
 func (d *docker) ContainerJson(id string) (result interface{}, err error) {
 	url := fmt.Sprintf("http://%s:%s/%s/containers/%s/json", d.host, d.port, d.version, id)
-	log.Debug(url)
 	data, err := Get(url)
 	if err != nil {
 		return
@@ -183,7 +178,6 @@ func (d *docker) ContainerJson(id string) (result interface{}, err error) {
 // 进程列表。获取容器内进程的清单：
 func (d *docker) ContainerTop(id string) (result interface{}, err error) {
 	url := fmt.Sprintf("http://%s:%s/%s/containers/%s/top", d.host, d.port, d.version, id)
-	log.Debug(url)
 	data, err := Get(url)
 	if err != nil {
 		return
@@ -213,7 +207,6 @@ func (d *docker) ContainerTop(id string) (result interface{}, err error) {
 // 500 – server error
 func (d *docker) ContainerLogs(id string) (result interface{}, err error) {
 	url := fmt.Sprintf("http://%s:%s/%s/containers/%s/logs?stderr=1&stdout=1&timestamps=1&follow=0", d.host, d.port, d.version, id)
-	log.Debug(url)
 	data, err := Get(url)
 	if err != nil {
 		return
@@ -237,7 +230,7 @@ func (d *docker) ContainerLogs(id string) (result interface{}, err error) {
 // 500 – server error
 func (d *docker) ContainerStart(id string, data interface{}) (result []byte, err error) {
 	url := fmt.Sprintf("http://%s:%s/%s/containers/%s/start", d.host, d.port, d.version, id)
-	log.Debug(url)
+
 	result, err = Post(url, data, "application/json")
 	return
 }
@@ -252,7 +245,7 @@ func (d *docker) ContainerStart(id string, data interface{}) (result []byte, err
 // 500 – server error
 func (d *docker) ContainerStop(id string) (result []byte, err error) {
 	url := fmt.Sprintf("http://%s:%s/%s/containers/%s/stop?t=5", d.host, d.port, d.version, id)
-	log.Debug(url)
+
 	result, err = Post(url, nil, "application/json")
 	return
 }
@@ -266,7 +259,7 @@ func (d *docker) ContainerStop(id string) (result []byte, err error) {
 // 500 – server error
 func (d *docker) ContainerRestart(id string) (result []byte, err error) {
 	url := fmt.Sprintf("http://%s:%s/%s/containers/%s/restart?t=5", d.host, d.port, d.version, id)
-	log.Debug(url)
+
 	result, err = Post(url, nil, "application/json")
 	return
 }
@@ -280,7 +273,7 @@ func (d *docker) ContainerRestart(id string) (result []byte, err error) {
 // 500 – server error
 func (d *docker) ContainerKill(id string) (result []byte, err error) {
 	url := fmt.Sprintf("http://%s:%s/%s/containers/%s/kill", d.host, d.port, d.version, id)
-	log.Debug(url)
+
 	result, err = Post(url, nil, "application/json")
 	return
 }

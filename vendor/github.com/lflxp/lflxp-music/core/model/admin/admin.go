@@ -3,41 +3,40 @@ package admin
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"time"
 
-	"github.com/lflxp/lflxp-music/core/middlewares/template"
-
-	log "github.com/go-eden/slf4go"
 	"github.com/lflxp/tools/orm/sqlite"
 )
 
 func init() {
 	// vpn := Vpn{}s
-	template.Register(new(Vpn), new(Machine), new(Cdn), new(More), new(User), new(Claims), new(Groups), new(Userauth), new(History))
+	// template.Register(new(MusicUser), new(Claims), new(Groups), new(Userauth), new(History))
+	// template.Register(new(Vpn), new(Machine), new(Cdn), new(More), new(MusicUser), new(Claims), new(Groups), new(Userauth), new(History))
 
-	user := User{Username: "admin"}
-	has, err := sqlite.NewOrm().Get(&user)
-	if err != nil {
-		log.Error(err)
-	}
+	// user := User{Username: "admin"}
+	// has, err := sqlite.NewOrm().Get(&user)
+	// if err != nil {
+	// 	slog.Error(err.Error())
+	// }
 
-	if !has {
-		claims := Claims{
-			Auth:  "admin",
-			Type:  "nav",
-			Value: "dashboard",
-		}
+	// if !has {
+	// 	claims := Claims{
+	// 		Auth:  "admin",
+	// 		Type:  "nav",
+	// 		Value: "dashboard",
+	// 	}
 
-		sqlite.NewOrm().Insert(&claims)
+	// 	sqlite.NewOrm().Insert(&claims)
 
-		log.Info("init admin user")
-		sql := "insert into user('username','password','claims_id') values ('admin','admin','1');"
-		n, err := sqlite.NewOrm().Query(sql)
-		if err != nil {
-			log.Errorf("init admin user err %s", err.Error())
-		}
-		log.Infof("insert admin user count: %d", len(n))
-	}
+	// 	slog.Info("init admin user")
+	// 	sql := "insert into user('username','password','claims_id') values ('admin','admin','1');"
+	// 	n, err := sqlite.NewOrm().Query(sql)
+	// 	if err != nil {
+	// 		slog.Error("init admin user err", "ERROR", err.Error())
+	// 	}
+	// 	slog.Info("insert admin user count", "nums", len(n))
+	// }
 }
 
 /*
@@ -132,7 +131,7 @@ func InsertHistory(beans ...interface{}) (int64, error) {
 	defer func() {
 		data, err := json.Marshal(beans)
 		if err != nil {
-			log.Error(err)
+			slog.Error(err.Error())
 			return
 		}
 		info := History{
@@ -142,7 +141,7 @@ func InsertHistory(beans ...interface{}) (int64, error) {
 		}
 		_, err = AddHistory(&info)
 		if err != nil {
-			log.Error(err)
+			slog.Error(err.Error())
 		}
 
 	}()
@@ -153,9 +152,11 @@ type History struct {
 	Id     int64     `xorm:"id pk not null autoincr" name:"id"`
 	Name   string    `xorm:"name" name:"name" verbose_name:"操作历史" list:"true"`
 	Op     string    `xorm:"op" name:"op" verbose_name:"操作"`
+	IP     string    `xorm:"ip" name:"ip" verbose_name:"IP"`
+	Client string    `xorm:"client" name:"client" verbose_name:"客户端"`
 	Common string    `xorm:"common" name:"common" verbose_name:"备注"`
-	Create time.Time `xorm:"created"` //这个Field将在Insert时自动赋值为当前时间
-	Update time.Time `xorm:"updated"` //这个Field将在Insert或Update时自动赋值为当前时间
+	Create time.Time `xorm:"created" name:"create" verbose_name:"创建时间"` //这个Field将在Insert时自动赋值为当前时间
+	Update time.Time `xorm:"updated"`                                   //这个Field将在Insert或Update时自动赋值为当前时间
 }
 
 func getByUUIDHistory(uuid string) (*History, bool, error) {

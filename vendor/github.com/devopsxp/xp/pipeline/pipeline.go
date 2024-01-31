@@ -1,11 +1,12 @@
 package pipeline
 
 import (
+	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/briandowns/spinner"
 	"github.com/devopsxp/xp/plugin"
-	log "github.com/sirupsen/logrus"
 )
 
 // 性能分析
@@ -93,7 +94,7 @@ func (p *Pipeline) Start() {
 	p.input.Start()
 	// p.check.Start()
 	p.status = plugin.Started
-	log.Debugln("Pipeline started.")
+	slog.Debug("Pipeline started.")
 }
 
 // 停止的顺序 check -> input -> filter -> output
@@ -104,8 +105,8 @@ func (p *Pipeline) Stop() {
 	p.filter.Stop()
 	p.output.Stop()
 	p.status = plugin.Stopped
-	log.Debugln("Pipeline stopped.")
-	log.Infof("Pipeline执行完毕，耗时：%v", time.Now().Sub(p.start))
+	slog.Debug("Pipeline stopped.")
+	slog.Info(fmt.Sprintf("Pipeline执行完毕，耗时：%v", time.Now().Sub(p.start)))
 }
 
 func (p *Pipeline) Status() plugin.StatusPlugin {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log/slog"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -24,7 +25,6 @@ import (
 	"github.com/shirou/gopsutil/host"
 	"github.com/shirou/gopsutil/mem"
 	"github.com/shirou/gopsutil/process"
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/term"
 )
 
@@ -206,7 +206,7 @@ func CommandPty(cmd string) error {
 	go func() {
 		for range ch {
 			if err := pty.InheritSize(os.Stdin, ptmx); err != nil {
-				log.Printf("error resizing pty: %s", err)
+				slog.Error(fmt.Sprintf("error resizing pty: %s", err))
 
 			}
 
@@ -282,14 +282,14 @@ func (t *TuiScreen) Gopsutil() error {
 	// 获取主机名
 	hostname, err := os.Hostname()
 	if err != nil {
-		log.Errorln("os.Hostname", err.Error())
+		slog.Error("os.Hostname", err.Error())
 		return err
 	}
 	t.Files = append(t.Files, fmt.Sprintf("HOST %s", hostname))
 	// 获取内存信息
 	v, err := mem.VirtualMemory()
 	if err != nil {
-		log.Errorln("mem.VirtualMemory", err.Error())
+		slog.Error("mem.VirtualMemory", err.Error())
 		return err
 	}
 	t.Files = append(t.Files, fmt.Sprintf("MEM %v", v))
@@ -302,12 +302,12 @@ func (t *TuiScreen) Gopsutil() error {
 	// 获取CPU信息
 	physicalCnt, err := cpu.Counts(false)
 	if err != nil {
-		log.Errorln("cpu.Counts.false", err.Error())
+		slog.Error("cpu.Counts.false", err.Error())
 		return err
 	}
 	logicalCnt, err := cpu.Counts(true)
 	if err != nil {
-		log.Errorln("cpu.Counts", err.Error())
+		slog.Error("cpu.Counts", err.Error())
 		return err
 	}
 	t.Files = append(t.Files, fmt.Sprintf("CPU PHYSICAL %d", physicalCnt))
@@ -315,7 +315,7 @@ func (t *TuiScreen) Gopsutil() error {
 
 	info, err := cpu.Info()
 	if err != nil {
-		log.Errorln("cpu.Info", err.Error())
+		slog.Error("cpu.Info", err.Error())
 		return err
 	}
 	for i, c := range info {
@@ -324,7 +324,7 @@ func (t *TuiScreen) Gopsutil() error {
 
 	times, err := cpu.Times(true)
 	if err != nil {
-		log.Errorln("cpu.Times", err.Error())
+		slog.Error("cpu.Times", err.Error())
 		return err
 	}
 	for i, c := range times {
@@ -334,7 +334,7 @@ func (t *TuiScreen) Gopsutil() error {
 	// 磁盘
 	mapStat, err := disk.IOCounters()
 	if err != nil {
-		log.Errorln("disk.IOCounters", err.Error())
+		slog.Error("disk.IOCounters", err.Error())
 		return err
 	}
 
@@ -344,7 +344,7 @@ func (t *TuiScreen) Gopsutil() error {
 
 	infos, err := disk.Partitions(true)
 	if err != nil {
-		log.Errorln("disk.Partitions", err.Error())
+		slog.Error("disk.Partitions", err.Error())
 		return err
 	}
 	for i, c := range infos {
@@ -359,21 +359,21 @@ func (t *TuiScreen) Gopsutil() error {
 	// 主机信息
 	timestamp, err := host.BootTime()
 	if err != nil {
-		log.Errorln("host.BootTime()", err.Error())
+		slog.Error("host.BootTime()", err.Error())
 		return err
 	}
 	t.Files = append(t.Files, fmt.Sprintf("HOST BootTime %s Unix %v", time.Unix(int64(timestamp), 0).Local().Format("2006-01-02 15:04:05"), timestamp))
 
 	version, err := host.KernelVersion()
 	if err != nil {
-		log.Errorln("kernelVersion", err.Error())
+		slog.Error("kernelVersion", err.Error())
 		return err
 	}
 	t.Files = append(t.Files, fmt.Sprintf("HOST VERSION %s", version))
 
 	platform, family, version, err := host.PlatformInformation()
 	if err != nil {
-		log.Errorln("PlatformInformation", err.Error())
+		slog.Error("PlatformInformation", err.Error())
 		return err
 	}
 	t.Files = append(t.Files, fmt.Sprintf("HOST PLATFORM %s", platform))
@@ -382,7 +382,7 @@ func (t *TuiScreen) Gopsutil() error {
 
 	users, err := host.Users()
 	if err != nil {
-		log.Errorln("host.Users", err.Error())
+		slog.Error("host.Users", err.Error())
 		return err
 	}
 
@@ -394,7 +394,7 @@ func (t *TuiScreen) Gopsutil() error {
 	// 内存
 	swapMemory, err := mem.SwapMemory()
 	if err != nil {
-		log.Errorln("swapMemory", err.Error())
+		slog.Error("swapMemory", err.Error())
 		return err
 	}
 	t.Files = append(t.Files, fmt.Sprintf("MEM SWAP %v", swapMemory))
@@ -402,7 +402,7 @@ func (t *TuiScreen) Gopsutil() error {
 	// 进程
 	processes, err := process.Processes()
 	if err != nil {
-		log.Errorln("process0", err.Error())
+		slog.Error("process0", err.Error())
 		return err
 	}
 
@@ -417,7 +417,7 @@ func (t *TuiScreen) Gopsutil() error {
 	if rootProcess != nil {
 		rootP, err := rootProcess.Children()
 		if err != nil {
-			log.Errorln("process", err.Error())
+			slog.Error("process", err.Error())
 			return err
 		}
 		for i, pp := range rootP {
@@ -435,7 +435,7 @@ func (t *TuiScreen) Gopsutil() error {
 
 	cmds, err := ExecCommandString("compgen -c")
 	if err != nil {
-		log.Errorln("compgen", err.Error())
+		slog.Error("compgen", err.Error())
 		return err
 	}
 	for _, c := range strings.Split(cmds, "\n") {
@@ -445,7 +445,7 @@ func (t *TuiScreen) Gopsutil() error {
 	// 历史命令
 	hcmds, err := ExecCommandString("cat ~/.zsh_history")
 	if err != nil {
-		log.Errorln("fc -rl 1", err.Error())
+		slog.Error("fc -rl 1", err.Error())
 		return err
 	}
 	// log.Error("hcmds", hcmds)
@@ -1080,11 +1080,11 @@ func Run(unsearch []string, show bool) {
 		x.GetCommand()
 		err = x.Gopsutil()
 		if err != nil {
-			log.Error(err)
+			slog.Error(err.Error())
 		}
 		err = x.GetAllFiles(".", true)
 		if err != nil {
-			log.Error(err)
+			slog.Error(err.Error())
 		}
 		x.finish <- 1
 	}()

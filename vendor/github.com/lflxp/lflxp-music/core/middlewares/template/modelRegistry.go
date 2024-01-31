@@ -2,10 +2,10 @@ package template
 
 import (
 	"fmt"
+	"log/slog"
 	"reflect"
 	"strings"
 
-	log "github.com/go-eden/slf4go"
 	"github.com/lflxp/tools/orm/sqlite"
 )
 
@@ -114,7 +114,7 @@ func Register(data ...interface{}) error {
 	// 注册Model
 	err := sqlite.NewOrm().Sync2(data...)
 	if err != nil {
-		log.Error(err)
+		slog.Error(err.Error())
 		return err
 	}
 

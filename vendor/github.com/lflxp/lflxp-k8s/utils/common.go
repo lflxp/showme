@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -13,6 +14,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
+	"strconv"
 	"strings"
 	"text/template"
 	"time"
@@ -78,7 +81,7 @@ func GetRandomSalt() string {
 	return GetRandomString(32)
 }
 
-//生成随机字符串
+// 生成随机字符串
 func GetRandomString(len int) string {
 	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	bytes := []byte(str)
@@ -162,4 +165,107 @@ func GetIPs() (ips []string) {
 		}
 	}
 	return ips
+}
+
+func IsPathExists(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	return false
+}
+
+func GetIps() []string {
+	rs := []string{}
+	addrs, err := net.InterfaceAddrs()
+
+	if err != nil {
+		rs = append(rs, err.Error())
+		return rs
+	}
+
+	for _, address := range addrs {
+
+		// 检查ip地址判断是否回环地址
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				rs = append(rs, ipnet.IP.String())
+			}
+		}
+	}
+	return rs
+}
+
+func ParseIps(in string) ([]string, error) {
+	rs := []string{}
+	if strings.Contains(in, "-") {
+		tmp_a := strings.Split(in, ".")
+		if len(tmp_a) != 4 {
+			fmt.Println(tmp_a)
+			return nil, errors.New("ip地址不正确")
+		}
+		A := []string{}
+		B := []string{}
+		C := []string{}
+		D := []string{}
+		for m, n := range tmp_a {
+			if strings.Contains(n, "-") {
+				tmp := strings.Split(n, "-")
+				a, err := strconv.Atoi(tmp[0])
+				if err != nil {
+					return rs, err
+				}
+				b, err := strconv.Atoi(tmp[1])
+				if err != nil {
+					return rs, err
+				}
+				for i := a; i <= b; i++ {
+					if m == 0 {
+						A = append(A, fmt.Sprintf("%d", i))
+					} else if m == 1 {
+						B = append(B, fmt.Sprintf("%d", i))
+					} else if m == 2 {
+						C = append(C, fmt.Sprintf("%d", i))
+					} else if m == 3 {
+						D = append(D, fmt.Sprintf("%d", i))
+					}
+				}
+			} else {
+				if m == 0 {
+					A = append(A, n)
+				} else if m == 1 {
+					B = append(B, n)
+				} else if m == 2 {
+					C = append(C, n)
+				} else if m == 3 {
+					D = append(D, n)
+				}
+			}
+		}
+		for _, a1 := range A {
+			for _, b1 := range B {
+				for _, c1 := range C {
+					for _, d1 := range D {
+						rs = append(rs, fmt.Sprintf("%s.%s.%s.%s", a1, b1, c1, d1))
+					}
+				}
+			}
+		}
+	} else {
+		rs = append(rs, in)
+	}
+	return rs, nil
+}
+
+// 快速判断字符是否在字符数组中
+func In(target string, source []string) bool {
+	sort.Strings(source)
+	index := sort.SearchStrings(source, target)
+	if index < len(source) && source[index] == target {
+		return true
+	}
+	return false
 }

@@ -1,10 +1,10 @@
 package apiserver
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	log "github.com/go-eden/slf4go"
 	"github.com/lflxp/lflxp-k8s/pkg/apiserver/model"
 	"github.com/lflxp/lflxp-k8s/pkg/apiserver/ws/logs"
 	"github.com/lflxp/lflxp-k8s/pkg/apiserver/ws/ssh"
@@ -58,7 +58,7 @@ func ws_get_logs(c *gin.Context) {
 	data.ContainerName = c.Param("container")
 	data.PodName = c.Param("pod")
 
-	log.Debugf("data is %v", data)
+	slog.Debug("data is %v", data)
 
 	if data.Namespace == "" || data.ContainerName == "" || data.PodName == "" {
 		httpclient.SendErrorMessage(c, http.StatusBadRequest, "args not allowed", "namespace or container name or pod name required")

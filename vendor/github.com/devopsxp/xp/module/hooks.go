@@ -1,10 +1,11 @@
 package module
 
 import (
+	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/devopsxp/xp/plugin"
-	log "github.com/sirupsen/logrus"
 )
 
 // 对外接口
@@ -40,29 +41,29 @@ func (h *hook) Send(msg *plugin.Message) {
 	switch h.Type {
 	case "count":
 		for k, v := range msg.Count {
-			log.Warnf("%s : ok=%d   changed=%d failed=%d  skipped=%d rescued=%d  ignored=%d", k, v["ok"], v["changed"], v["failed"], v["skipped"], v["rescued"], v["ignored"])
+			slog.Warn("%s : ok=%d   changed=%d failed=%d  skipped=%d rescued=%d  ignored=%d", k, v["ok"], v["changed"], v["failed"], v["skipped"], v["rescued"], v["ignored"])
 		}
-		log.Warnf("count日志耗时：%v", time.Now().Sub(h.start))
+		slog.Warn("count日志耗时：%v", time.Now().Sub(h.start))
 	case "console":
-		log.Debugf("console hook send %v\n", msg.Data.Check)
+		slog.Debug(fmt.Sprintf("console hook send %v\n", msg.Data.Check))
 		for k, v := range msg.CallBack {
-			log.Warnln(k, v)
+			slog.Warn(k, v)
 		}
-		log.Warnf("console日志耗时：%v", time.Now().Sub(h.start))
+		slog.Warn("console日志耗时：%v", time.Now().Sub(h.start))
 	default:
-		log.Debugln("email hook send")
+		slog.Debug("email hook send")
 		status := h.IsCurrent()
 		if !status {
-			log.Warnln("不在发送时间，停止发送")
+			slog.Warn("不在发送时间，停止发送")
 		} else {
 			rs, err := h.SpecificSend()
 			if err != nil {
-				log.Errorln(err)
+				slog.Error(err.Error())
 			} else {
-				log.Warnln(rs)
+				slog.Warn(rs)
 			}
 		}
-		log.Warnf("%s 发送耗时：%v", h.Type, time.Now().Sub(h.start))
+		slog.Warn("%s 发送耗时：%v", h.Type, time.Now().Sub(h.start))
 	}
 }
 

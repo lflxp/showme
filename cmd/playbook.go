@@ -16,8 +16,9 @@ limitations under the License.
 package cmd
 
 import (
+	"log/slog"
+
 	"github.com/devopsxp/xp/pipeline"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +28,7 @@ var playbookCmd = &cobra.Command{
 	Short: "批量主机任务编排脚本执行器",
 	Long:  `测试ansile-playbook功能和pipeline流程管控`,
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Debugln("playbook called")
+		slog.Debug("playbook called")
 
 		// 根据yaml解析shell等模块，进行动态匹配，进行顺序执行
 		config := pipeline.DefaultPipeConfig("shell").

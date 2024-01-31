@@ -2,11 +2,11 @@ package music
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
-	log "github.com/go-eden/slf4go"
 	"github.com/lflxp/lflxp-music/core/model/music"
 	"github.com/lflxp/tools/httpclient"
 	"github.com/lflxp/tools/orm/sqlite"
@@ -77,7 +77,7 @@ func repo_add(c *gin.Context) {
 
 	list, err := data.Param.Data.Post()
 	if err != nil {
-		log.Errorf("新增音乐历史错误: %s", err.Error())
+		slog.Error("新增音乐历史错误", "ERROR", err.Error())
 		httpclient.SendErrorMessage(c, 500, "新增音乐历史错误", err.Error())
 		return
 	}

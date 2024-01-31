@@ -4,11 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log/slog"
 	"strconv"
 	"strings"
 	"time"
-
-	log "github.com/sirupsen/logrus"
 
 	"github.com/devopsxp/xp/plugin"
 	"github.com/devopsxp/xp/utils"
@@ -100,7 +99,7 @@ func NewEmail(data map[interface{}]interface{}, msg *plugin.Message, vars map[st
 			vars["logs"] = msg.CallBack
 			temp, err := utils.ApplyTemplate(text.(string), vars)
 			if err != nil {
-				log.Debugf("告警模板解析失败: %s", err.Error())
+				slog.Debug(fmt.Sprintf("告警模板解析失败: %s", err.Error()))
 				return result, err
 			}
 			result.Body = temp
@@ -124,7 +123,7 @@ func NewEmail(data map[interface{}]interface{}, msg *plugin.Message, vars map[st
 
 				temp, err := utils.ApplyTemplate(string(tempFile), vars)
 				if err != nil {
-					log.Debugf("告警模板解析失败: %s", err.Error())
+					slog.Debug(fmt.Sprintf("告警模板解析失败: %s", err.Error()))
 					return result, err
 				}
 				result.Body = temp
@@ -156,11 +155,7 @@ func (this *Email) SpecificSend() (string, error) {
 	err := d.DialAndSend(m)
 	// log.Println("邮件发送结果", err)
 
-	log.WithFields(log.Fields{
-		"uuid":   this.Sid,
-		"type":   "email",
-		"method": "SpecificSend",
-	}).Info("邮件发送结果", err)
+	slog.Info("邮件发送结果", "ERROR", err)
 
 	// if err != nil {
 	// 	this.CallBack(this.Sid, err.Error())
@@ -184,7 +179,7 @@ func (this *Email) IsCurrent() bool {
 		tmp := strings.Split(this.Range, "|")
 		rangeTime, err := utils.TransformCHN(strings.Split(tmp[0], ","))
 		if err != nil {
-			log.Println(err.Error())
+			slog.Info(err.Error())
 			return rs
 		}
 		now := time.Now()

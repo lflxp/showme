@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"reflect"
 	"strings"
 	"time"
 
 	"github.com/devopsxp/xp/pkg/k8s"
 	"github.com/devopsxp/xp/utils"
-	log "github.com/sirupsen/logrus"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -210,23 +210,21 @@ func (k *K8sRole) Run() error {
 
 	pod.Spec.Containers = containers
 
-	log.Debugf("pod name: %s %v", k.name, pod)
+	slog.Debug(fmt.Sprintf("pod name: %s %v", k.name, pod))
 
 	podinfo, err := k8s.CreatePod(pod)
 	if err != nil {
-		log.Error(err)
+		slog.Error(err.Error())
 		return err
 	}
 
 	info, err := json.MarshalIndent(podinfo, "", "\t")
 	if err != nil {
-		log.Error(err)
+		slog.Error(err.Error())
 		return err
 	}
 
-	log.WithFields(log.Fields{
-		"耗时": time.Now().Sub(k.starttime),
-	}).Infof("Pod YAML: %s", info)
+	slog.Info("Pod ", "YAML", info)
 	return err
 }
 
@@ -239,7 +237,7 @@ func (k *K8sRole) After() {
 
 // hook钩子 进行pod删除
 func (k *K8sRole) Hooks() error {
-	log.Debugf("K8s Role module on %s => %s", k.namespace, k.name)
+	slog.Debug(fmt.Sprintf("K8s Role module on %s => %s", k.namespace, k.name))
 	// err := k8s.DeletePod(k.namespace, k.name)
 	// log.WithFields(log.Fields{
 	// 	"耗时": time.Now().Sub(k.starttime),

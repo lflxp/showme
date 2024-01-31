@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log/slog"
 	"net"
 	"os"
 	"time"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/sftp"
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -40,11 +40,11 @@ type Cli struct {
 	LastResult string       //最近一次Run的结果
 }
 
-//创建命令行对象
-//@param ip IP地址
-//@param username 用户名
-//@param password 密码
-//@param port 端口号,默认22
+// 创建命令行对象
+// @param ip IP地址
+// @param username 用户名
+// @param password 密码
+// @param port 端口号,默认22
 func New(ip string, username string, password string, port ...int) *Cli {
 	cli := new(Cli)
 	cli.IP = ip
@@ -58,8 +58,8 @@ func New(ip string, username string, password string, port ...int) *Cli {
 	return cli
 }
 
-//执行shell
-//@param shell shell脚本命令
+// 执行shell
+// @param shell shell脚本命令
 func (c *Cli) Run(shell string) (string, error) {
 	if c.client == nil {
 		if err := c.connect(); err != nil {
@@ -79,7 +79,7 @@ func (c *Cli) Run(shell string) (string, error) {
 	return c.LastResult, err
 }
 
-//连接
+// 连接
 func (c *Cli) connect() error {
 	var config ssh.ClientConfig
 	if c.Password != "" {
@@ -94,13 +94,13 @@ func (c *Cli) connect() error {
 	} else {
 		key, err := ioutil.ReadFile(privateKey)
 		if err != nil {
-			log.Errorf("Unable to read private key: %v\n", err)
+			slog.Error("Unable to read private key: %v\n", err)
 			return err
 		}
 
 		signer, err := ssh.ParsePrivateKey(key)
 		if err != nil {
-			log.Errorf("Unable to parse private key: %v\n", err)
+			slog.Error("Unable to parse private key: %v\n", err)
 			return err
 		}
 
@@ -134,7 +134,7 @@ func (c *Cli) SftpUploadTemplateString(data, remotepath string) error {
 
 	dstFile, err := c.sftpClient.Create(remotepath)
 	if err != nil {
-		log.Errorf("创建文件 %s 失败: %s", remotepath, err.Error())
+		slog.Error(fmt.Sprintf("创建文件 %s 失败: %s", remotepath, err.Error()))
 		return err
 	}
 	defer dstFile.Close()
@@ -142,7 +142,7 @@ func (c *Cli) SftpUploadTemplateString(data, remotepath string) error {
 	// 按byte传输文件
 	dstFile.Write([]byte(data))
 
-	log.Debugf("模板文件 %s 上传成功", remotepath)
+	slog.Debug(fmt.Sprintf("模板文件 %s 上传成功", remotepath))
 	return nil
 }
 
@@ -157,17 +157,17 @@ func (c *Cli) SftpUploadToRemote(localpath, remotepath string) error {
 	defer c.sftpClient.Close()
 
 	// remoteFileName := path.Base(localpath)
-	// log.Warnln(localpath, remoteFileName)
+	// slog.Warn(localpath, remoteFileName)
 	srcFile, err := os.Open(localpath)
 	if err != nil {
-		log.Errorln("打开文件失败", err)
+		slog.Error("打开文件失败", err)
 		return err
 	}
 	defer srcFile.Close()
 
 	dstFile, err := c.sftpClient.Create(remotepath)
 	if err != nil {
-		log.Errorf("创建文件 %s 失败: %s", remotepath, err.Error())
+		slog.Error("创建文件 %s 失败: %s", remotepath, err.Error())
 		return err
 	}
 	defer dstFile.Close()
@@ -178,17 +178,17 @@ func (c *Cli) SftpUploadToRemote(localpath, remotepath string) error {
 		n, err := srcFile.Read(buffer)
 		if err != nil {
 			if err == io.EOF {
-				log.Debug("已读取到文件末尾")
+				slog.Debug("已读取到文件末尾")
 				break
 			} else {
-				log.Debugf("读取文件出错 %v", err)
+				slog.Debug(fmt.Sprintf("读取文件出错 %v", err))
 				return err
 			}
 		}
 		//注意，由于文件大小不定，不可直接使用buffer，否则会在文件末尾重复写入，以填充1024的整数倍
 		dstFile.Write(buffer[:n])
 	}
-	log.Debugf("文件 %s 上传成功", remotepath)
+	slog.Debug(fmt.Sprintf("文件 %s 上传成功", remotepath))
 	return nil
 }
 
@@ -203,7 +203,7 @@ func (c *Cli) SftpDownloadToLocal(localpath, remotepath string) error {
 
 	srcFile, err := c.sftpClient.Open(remotepath)
 	if err != nil {
-		log.Errorln("文件读取失败", err)
+		slog.Error("文件读取失败", err)
 		return err
 	}
 	defer srcFile.Close()
@@ -211,17 +211,17 @@ func (c *Cli) SftpDownloadToLocal(localpath, remotepath string) error {
 	// localFilename := path.Base(remotepath)
 	dstFile, err := os.Create(localpath)
 	if err != nil {
-		log.Errorln("文件创建失败", err.Error())
+		slog.Error("文件创建失败", err.Error())
 		return err
 	}
 	defer dstFile.Close()
 
 	if _, err := srcFile.WriteTo(dstFile); err != nil {
-		log.Errorln("额外那件写入失败", err.Error())
+		slog.Error("额外那件写入失败", err.Error())
 		return err
 	}
 
-	log.Warnf("文件 %s 下载成功", localpath)
+	slog.Warn("文件 %s 下载成功", localpath)
 	return nil
 }
 
@@ -242,13 +242,13 @@ func (c *Cli) sftpConnect() error {
 	} else {
 		key, err := ioutil.ReadFile(privateKey)
 		if err != nil {
-			log.Errorf("Unable to read private key: %v\n", err)
+			slog.Error("Unable to read private key: %v\n", err)
 			return err
 		}
 
 		signer, err := ssh.ParsePrivateKey(key)
 		if err != nil {
-			log.Errorf("Unable to parse private key: %v\n", err)
+			slog.Error("Unable to parse private key: %v\n", err)
 			return err
 		}
 
@@ -265,12 +265,12 @@ func (c *Cli) sftpConnect() error {
 	addr := fmt.Sprintf("%s:%d", c.IP, c.Port)
 	sshClient, err := ssh.Dial("tcp", addr, clientConfig) //连接ssh
 	if err != nil {
-		log.Errorln("连接ssh失败", err)
+		slog.Error("连接ssh失败", err)
 		return err
 	}
 
 	if sftpClient, err := sftp.NewClient(sshClient); err != nil { //创建客户端
-		log.Errorln("创建客户端失败", err)
+		slog.Error("创建客户端失败", err)
 		return err
 	} else {
 		c.sftpClient = sftpClient
@@ -279,7 +279,7 @@ func (c *Cli) sftpConnect() error {
 	return nil
 }
 
-//执行带交互的命令
+// 执行带交互的命令
 func (c *Cli) RunTerminal(shell string, stdout, stderr io.Writer) error {
 	if c.client == nil {
 		if err := c.connect(); err != nil {

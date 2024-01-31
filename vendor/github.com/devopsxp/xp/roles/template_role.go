@@ -4,12 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log/slog"
 	"reflect"
 	"strings"
 	"time"
 
 	"github.com/devopsxp/xp/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -57,26 +57,26 @@ func (r *TemplateRole) Run() error {
 		return err
 	}
 
-	log.Debugf("template is %s", destFile)
+	slog.Debug(fmt.Sprintf("template is %s", destFile))
 
 	err = utils.New(r.host, r.remote_user, r.remote_pwd, r.remote_port).SftpUploadTemplateString(destFile, r.dest)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"template": r.src,
-			"dest":     r.dest,
-			"耗时":       time.Now().Sub(r.starttime),
-		}).Errorln(err.Error())
+		// log.WithFields(log.Fields{
+		// 	"template": r.src,
+		// 	"dest":     r.dest,
+		// 	"耗时":       time.Now().Sub(r.starttime),
+		// }).Errorln(err.Error())
 		r.logs[fmt.Sprintf("%s %s %s", r.stage, r.host, r.name)] = err.Error()
 		if strings.Contains(err.Error(), "ssh:") {
 			err = errors.New("ssh: handshake failed")
 			return err
 		}
 	} else {
-		log.WithFields(log.Fields{
-			"template": r.src,
-			"dest":     r.dest,
-			"耗时":       time.Now().Sub(r.starttime),
-		}).Infof("模板上传成功 %s", r.dest)
+		// log.WithFields(log.Fields{
+		// 	"template": r.src,
+		// 	"dest":     r.dest,
+		// 	"耗时":       time.Now().Sub(r.starttime),
+		// }).Infof("模板上传成功 %s", r.dest)
 		r.logs[fmt.Sprintf("%s %s %s", r.stage, r.host, r.name)] = fmt.Sprintf("模板上传成功 %s", r.dest)
 	}
 

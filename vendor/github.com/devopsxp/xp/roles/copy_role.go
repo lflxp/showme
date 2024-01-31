@@ -3,12 +3,12 @@ package roles
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"reflect"
 	"strings"
 	"time"
 
 	"github.com/devopsxp/xp/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -55,22 +55,14 @@ func (c *CopyRole) Run() error {
 	if c.items == nil {
 		err := utils.New(c.host, c.remote_user, c.remote_pwd, c.remote_port).SftpUploadToRemote(c.src, c.dest)
 		if err != nil {
-			log.WithFields(log.Fields{
-				"src":  c.src,
-				"dest": c.dest,
-				"耗时":   time.Now().Sub(c.starttime),
-			}).Errorln(err.Error())
+			slog.Error(err.Error())
 			c.logs[fmt.Sprintf("%s %s %s", c.stage, c.host, c.name)] = err.Error()
 			if strings.Contains(err.Error(), "ssh:") {
 				err = errors.New("ssh: handshake failed")
 				goto OVER
 			}
 		} else {
-			log.WithFields(log.Fields{
-				"src":  c.src,
-				"dest": c.dest,
-				"耗时":   time.Now().Sub(c.starttime),
-			}).Infof("success upload file %s", c.dest)
+			slog.Info("success upload ", "file", c.dest)
 			c.logs[fmt.Sprintf("%s %s %s", c.stage, c.host, c.name)] = fmt.Sprintf("success upload file %s", c.dest)
 		}
 	} else {
@@ -79,28 +71,19 @@ func (c *CopyRole) Run() error {
 			// 注意：只针对with_items数组类型
 			src, err := utils.ApplyTemplate(c.src, map[string]interface{}{"item": it})
 			if err != nil {
-				log.Errorf("src %s error: %v", src, err)
+				slog.Error(fmt.Sprintf("src %s error: %v", src, err))
 				panic(err)
 			}
 			dest, err := utils.ApplyTemplate(c.dest, map[string]interface{}{"item": it})
 			err = utils.New(c.host, c.remote_user, c.remote_pwd, c.remote_port).SftpUploadToRemote(src, dest)
 			if err != nil {
-				log.WithFields(log.Fields{
-					"src":  src,
-					"dest": dest,
-					"耗时":   time.Now().Sub(c.starttime),
-				}).Errorln(err.Error())
+				slog.Error(err.Error())
 				c.logs[fmt.Sprintf("%s %s %s", c.stage, c.host, c.name)] = err.Error()
 				if strings.Contains(err.Error(), "ssh:") {
 					err = errors.New("ssh: handshake failed")
 					goto OVER
 				}
 			} else {
-				log.WithFields(log.Fields{
-					"src":  src,
-					"dest": dest,
-					"耗时":   time.Now().Sub(c.starttime),
-				}).Infof("success upload file %s", dest)
 				c.logs[fmt.Sprintf("%s %s %s", c.stage, c.host, c.name)] = fmt.Sprintf("success upload file %s", dest)
 			}
 		}

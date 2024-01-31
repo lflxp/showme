@@ -3,12 +3,10 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
-	"github.com/astaxie/beego"
-
 	bolt "github.com/coreos/bbolt"
-	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -82,20 +80,18 @@ func InitDB(dbName, defaultDb string) {
 	if err != nil {
 		fmt.Println(err.Error())
 		// panic(err)
-		log.WithFields(log.Fields{
-			"bbolt.go": "CreateBucket",
-		}).Error(err.Error())
+		slog.Error(err.Error())
 	}
 
 	//初始化user表
 	us, _ := GetValueByBucketName(defaultDb, "test")
 	if len(us) == 0 {
-		beego.Critical("初始化测试数据")
+		slog.Error("初始化测试数据")
 		AddKeyValueByBucketName(defaultDb, "test", "test", demo)
 	}
 	GetAllTables(defaultDb)
-	// log.Println(Mmap)
-	log.Println("init db logging success")
+	// slog.Info(Mmap)
+	slog.Info("init db logging success")
 }
 
 func CreateBucket(db string) error {
@@ -175,10 +171,10 @@ func DeleteTables(db, tablename string) error {
 func AddKeyValueByBucketName(db, table, key, value string) error {
 	// fmt.Println(Mmap)
 	if _, ok := Mmap[table]; !ok {
-		log.Debug(fmt.Printf("%s is not exist\n", table))
+		// slog.Debug(fmt.Printf("%s is not exist\n", table))
 		CreateBucket(db)
 	}
-	// log.Println(Mmap)
+	// slog.Info(Mmap)
 	return Db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(table))
 		err := b.Put([]byte(key), []byte(value))

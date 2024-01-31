@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"log/slog"
 	"sort"
 	"strings"
 	"time"
 
-	log "github.com/go-eden/slf4go"
 	"github.com/lflxp/tools/orm/sqlite"
 )
 
@@ -48,15 +48,15 @@ func BeegoLi(info []map[string]string) string {
 	tmp := map[string][]map[string]string{}
 
 	for _, in := range info {
-		log.Debugf("Service %s", in["Services"])
+		slog.Debug(fmt.Sprintf("Service %s", in["Services"]))
 		if d, ok := tmp[in["Services"]]; ok {
 			d = append(d, in)
 			tmp[in["Services"]] = d
-			// log.Debugf("Service ADD %v", tmp)
+			// slog.Debugf("Service ADD %v", tmp)
 		} else {
 			t := []map[string]string{in}
 			tmp[in["Services"]] = t
-			// log.Debugf("New Service %v", tmp)
+			// slog.Debugf("New Service %v", tmp)
 		}
 	}
 
@@ -218,9 +218,6 @@ jQuery(function($){
 	   });
 });
 </script>`
-	log.Errorf("Col %s|", data["Col"])
-	log.Error("List", data["List"])
-	log.Error("Search", data["Search"])
 	if data["Col"] == "" {
 		return "Col is none"
 	}
@@ -266,12 +263,12 @@ jQuery(function($){
 		case "o2o":
 			tmp_o2o_string := ""
 			tmp_o2o := strings.Split(tmp[3], "|")
-			// log.Error("tmp_o2o", tmp[3])
+			// slog.Error("tmp_o2o", tmp[3])
 			sql := fmt.Sprintf("select * from %s", tmp_o2o[0])
-			// log.Error(sql)
+			// slog.Error(sql)
 			resultSql, err := sqlite.NewOrm().Query(sql)
 			if err != nil {
-				log.Error(err.Error())
+				slog.Error(err.Error())
 			}
 			showCol := strings.Split(fmt.Sprintf("id,%s", tmp_o2o[1]), ",")
 			for _, x := range resultSql {
@@ -279,33 +276,32 @@ jQuery(function($){
 				t_v := ""
 				for _, value := range showCol {
 					t_v += fmt.Sprintf("%s ", string(x[value]))
-					// log.Error(value, t_v, string(x[value]), x)
+					// slog.Error(value, t_v, string(x[value]), x)
 				}
 				tmp_o2o_string += strings.Replace(strings.Replace(t_s, "%id", string(x[showCol[0]]), -1), "%value", t_v, -1)
-				// log.Error(tmp_o2o_string)
+				// slog.Error(tmp_o2o_string)
 			}
 			result += strings.Replace(strings.Replace(strings.Replace(selected, "$CONTENT", tmp_o2o_string, -1), "$NAME", tmp[2], -1), "$LABELS", tmp[0], -1)
 		case "o2m":
 			tmp_o2o_string := ""
 			tmp_o2o := strings.Split(tmp[3], "|")
-			// log.Error("tmp_o2o", tmp[3])
+			// slog.Error("tmp_o2o", tmp[3])
 			sql := fmt.Sprintf("select * from %s", tmp_o2o[0])
-			// log.Error(sql)
+			// slog.Error(sql)
 			resultSql, err := sqlite.NewOrm().Query(sql)
 			if err != nil {
-				log.Error(err.Error())
+				slog.Error(err.Error())
 			}
-			log.Error(resultSql)
 			showCol := strings.Split(fmt.Sprintf("id,%s", tmp_o2o[1]), ",")
 			for _, x := range resultSql {
 				t_s := "<option value=\"%id\">%value</option>"
 				t_v := ""
 				for _, value := range showCol {
 					t_v += fmt.Sprintf("%s ", string(x[value]))
-					// log.Error(value, t_v, string(x[value]), x)
+					// slog.Error(value, t_v, string(x[value]), x)
 				}
 				tmp_o2o_string += strings.Replace(strings.Replace(t_s, "%id", string(x[showCol[0]]), -1), "%value", t_v, -1)
-				// log.Error(tmp_o2o_string)
+				// slog.Error(tmp_o2o_string)
 			}
 			result += strings.Replace(strings.Replace(strings.Replace(strings.Replace(multiselect, "$CONTENT", tmp_o2o_string, -1), "$LABELS", tmp[0], -1), "$NAME", tmp[2], -1), "duallist", fmt.Sprintf("%d", time.Now().Nanosecond()), -1)
 		}
@@ -391,11 +387,8 @@ jQuery(function($){
 	   });
 });
 </script>`
-	log.Error("Col", data["Col"])
-	log.Error("List", data["List"])
-	log.Error("Search", data["Search"])
 	for _, info := range strings.Split(strings.TrimSpace(data["Col"]), " ") {
-		// log.Error(info)
+		// slog.Error(info)
 		tmp := strings.Split(info, ":")
 		switch tmp[1] {
 		case "password":
@@ -446,12 +439,12 @@ jQuery(function($){
 		case "o2o":
 			tmp_o2o_string := ""
 			tmp_o2o := strings.Split(tmp[3], "|")
-			// log.Error("tmp_o2o", tmp[3])
+			// slog.Error("tmp_o2o", tmp[3])
 			sql := fmt.Sprintf("select * from %s", tmp_o2o[0])
-			// log.Error(sql)
+			// slog.Error(sql)
 			resultSql, err := sqlite.NewOrm().Query(sql)
 			if err != nil {
-				log.Error(err.Error())
+				slog.Error(err.Error())
 			}
 			showCol := strings.Split(fmt.Sprintf("id,%s", tmp_o2o[1]), ",")
 			for _, x := range resultSql {
@@ -464,23 +457,22 @@ jQuery(function($){
 				t_v := ""
 				for _, value := range showCol {
 					t_v += fmt.Sprintf("%s ", string(x[value]))
-					// log.Error(value, t_v, string(x[value]), x)
+					// slog.Error(value, t_v, string(x[value]), x)
 				}
 				tmp_o2o_string += strings.Replace(strings.Replace(t_s, "%id", string(x[showCol[0]]), -1), "%value", t_v, -1)
-				// log.Error(tmp_o2o_string)
+				// slog.Error(tmp_o2o_string)
 			}
 			result += strings.Replace(strings.Replace(strings.Replace(selected, "$CONTENT", tmp_o2o_string, -1), "$NAME", tmp[2], -1), "$LABELS", tmp[0], -1)
 		case "o2m":
 			tmp_o2o_string := ""
 			tmp_o2o := strings.Split(tmp[3], "|")
-			// log.Error("tmp_o2o", tmp[3])
+			// slog.Error("tmp_o2o", tmp[3])
 			sql := fmt.Sprintf("select * from %s", tmp_o2o[0])
-			// log.Error(sql)
+			// slog.Error(sql)
 			resultSql, err := sqlite.NewOrm().Query(sql)
 			if err != nil {
-				log.Error(err.Error())
+				slog.Error(err.Error())
 			}
-			log.Error(resultSql)
 			showCol := strings.Split(fmt.Sprintf("id,%s", tmp_o2o[1]), ",")
 			for _, x := range resultSql {
 				var t_s string
@@ -492,10 +484,10 @@ jQuery(function($){
 				t_v := ""
 				for _, value := range showCol {
 					t_v += fmt.Sprintf("%s ", string(x[value]))
-					// log.Error(value, t_v, string(x[value]), x)
+					// slog.Error(value, t_v, string(x[value]), x)
 				}
 				tmp_o2o_string += strings.Replace(strings.Replace(t_s, "%id", string(x[showCol[0]]), -1), "%value", t_v, -1)
-				// log.Error(tmp_o2o_string)
+				// slog.Error(tmp_o2o_string)
 			}
 			result += strings.Replace(strings.Replace(strings.Replace(strings.Replace(multiselect, "$CONTENT", tmp_o2o_string, -1), "$LABELS", tmp[0], -1), "$NAME", tmp[2], -1), "duallist", fmt.Sprintf("%d", time.Now().Nanosecond()), -1)
 		}

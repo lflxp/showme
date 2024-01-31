@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"reflect"
 	"strings"
 	"time"
 
 	. "github.com/devopsxp/xp/plugin"
-	log "github.com/sirupsen/logrus"
 )
 
 var rf *RoleFactory
@@ -38,11 +38,11 @@ func (r *RoleFactory) Create(conf RoleType) (RolePlugin, error) {
 func IsRolesAllow(stage string, roles []interface{}) bool {
 	for _, role := range roles {
 		if stage == role.(string) {
-			log.Debugf("%s stage 允许执行", stage)
+			slog.Debug(fmt.Sprintf("%s stage 允许执行", stage))
 			return true
 		}
 	}
-	log.Debugf("%s stage 不允许执行", stage)
+	slog.Debug(fmt.Sprintf("%s stage 不允许执行", stage))
 	return false
 }
 
@@ -54,7 +54,7 @@ func ParseRoleType(config map[interface{}]interface{}) (rt RoleType, isok bool) 
 	for k, _ := range config {
 		// 与roleNames资源池匹配
 		if _, ok := roleNames[RoleType(k.(string))]; ok {
-			log.Debugf("匹配到 Role 资源池对象 roleNames %s", k)
+			slog.Debug(fmt.Sprintf("匹配到 Role 资源池对象 roleNames %s", k))
 			rt = RoleType(k.(string))
 			isok = true
 		}
@@ -133,7 +133,7 @@ func NewShellRole(args *RoleArgs) error {
 			isHook:   true,
 			hookArgs: []string{"test", "hook", "example"},
 			hookFunc: func(args ...[]string) error {
-				log.Debugf("钩子函数测试Demo: %v", args)
+				slog.Debug(fmt.Sprintf("钩子函数测试Demo: %v", args))
 				return nil
 			},
 		}
@@ -158,10 +158,10 @@ func NewShellRole(args *RoleArgs) error {
 				return err
 			}
 		case <-ctx.Done():
-			log.Errorf("超时 %d秒： 主机 %s Stage %s %v", args.timeout, args.host, args.stage, config)
+			slog.Error(fmt.Sprintf("超时 %d秒： 主机 %s Stage %s %v", args.timeout, args.host, args.stage, config))
 			// 超时是退出还是继续下一步？
 			if args.timeoutexit {
-				log.Error("超时退出")
+				slog.Error("超时退出")
 				os.Exit(1)
 			}
 		}
@@ -175,7 +175,7 @@ func execConfig(args *RoleArgs, n int, config interface{}) error {
 	// 设置当前config
 	// 静止并行执行
 	args.currentConfig = config.(map[interface{}]interface{})
-	log.Debugf("当前步骤: %d 当前Stage: %s Config信息: %v", n, args.stage, config)
+	slog.Debug(fmt.Sprintf("当前步骤: %d 当前Stage: %s Config信息: %v", n, args.stage, config))
 	rt, ok := ParseRoleType(config.(map[interface{}]interface{}))
 	if !ok {
 		return errors.New(fmt.Sprintf("未匹配到目标Role %v", config))
@@ -194,7 +194,7 @@ func execConfig(args *RoleArgs, n int, config interface{}) error {
 		if err != nil {
 			// 判断是stage不匹配还是其它错误
 			if strings.Contains(err.Error(), "not equal") || strings.Contains(err.Error(), "不在可执行主机范围内") {
-				log.Debugf("%s %v", args.host, err)
+				slog.Debug(fmt.Sprintf("%s %v", args.host, err))
 			} else {
 				args.AddCountByName(fmt.Sprintf("%s:%d", args.host, args.port), "failed")
 				return err
@@ -214,7 +214,7 @@ func execConfig(args *RoleArgs, n int, config interface{}) error {
 				// 状态判断
 				err = role.Before()
 				if err != nil {
-					log.Error(err)
+					slog.Error(err.Error())
 				} else {
 					// 处理重试逻辑
 					if retry, ok := config.(map[interface{}]interface{})["retry"]; ok {
@@ -222,16 +222,16 @@ func execConfig(args *RoleArgs, n int, config interface{}) error {
 						for i := 0; i < retry.(int); i++ {
 							errs = role.Run()
 							if errs != nil {
-								log.Warningf("重试第 %d 次，主机: %s Stage: %s User: %s 错误信息： %s", i, args.host, args.stage, args.user, errs.Error())
+								slog.Warn(fmt.Sprintf("重试第 %d 次，主机: %s Stage: %s User: %s 错误信息： %s", i, args.host, args.stage, args.user, errs.Error()))
 								if i+1 == retry {
-									log.Errorf("重试次数 %d 完毕，未能执行完成，错误信息: %s", i, errs.Error())
+									slog.Error(fmt.Sprintf("重试次数 %d 完毕，未能执行完成，错误信息: %s", i, errs.Error()))
 								}
 								// 重试等待时间
 								if retryWait, ok := config.(map[interface{}]interface{})["wait"]; ok {
-									log.Warnf("重试等待时间: %d 秒", retryWait.(int))
+									slog.Warn(fmt.Sprintf("重试等待时间: %d 秒", retryWait.(int)))
 									time.Sleep(time.Duration(retryWait.(int)) * time.Second)
 								} else {
-									log.Warnln("重试等待时间: 3 秒")
+									slog.Warn("重试等待时间: 3 秒")
 									time.Sleep(3 * time.Second)
 								}
 							} else {
@@ -287,7 +287,7 @@ func execConfig(args *RoleArgs, n int, config interface{}) error {
 					}
 				}
 			} else {
-				log.Infof("****************************** SKIP [ITEM: %s %s %s %v]\n", args.host, args.stage, args.user, config)
+				slog.Info(fmt.Sprintf("****************************** SKIP [ITEM: %s %s %s %v]\n", args.host, args.stage, args.user, config))
 				args.AddCountByName(fmt.Sprintf("%s:%d", args.host, args.port), "skipped")
 			}
 		}

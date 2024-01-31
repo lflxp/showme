@@ -16,13 +16,15 @@ package cmd
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"time"
 
 	_ "github.com/devopsxp/xp/module"
+	fzf "github.com/junegunn/fzf/src"
+	"github.com/junegunn/fzf/src/protector"
 	"github.com/lflxp/showme/utils"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"k8s.io/client-go/util/homedir"
@@ -31,6 +33,9 @@ import (
 var cfgFile string
 var debugs bool
 var islog bool
+var version string = "0.46"
+var revision string = "devel"
+var lvl slog.LevelVar
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -48,6 +53,7 @@ var rootCmd = &cobra.Command{
 	* 本地API接口（远程监控、远程数据bbolt存储）
 	* 运维自动化Agent（RPCX远程过程调用）
 	* web terminal 快速服务器登录
+	* smart && fzf 快速命令补全工具
 3. 无参数无命令
 	* 运维本地快速问题排查工具
 	3.1 排查工具介绍
@@ -72,9 +78,26 @@ var rootCmd = &cobra.Command{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println("Execute Error: ", err)
-		os.Exit(1)
+	// 保证没有参数或者参数只有一个且为completion的时候执行cobra
+	// 其余都走parseCmd
+	if len(os.Args) >= 2 {
+		switch os.Args[1] {
+		case "completion", "smart", "api", "cmd", "dashboard", "help", "k8s", "martix", "music", "playbook", "proxy", "static", "tty", "watch", "scan":
+			slog.Debug("进入cobra命令模式", slog.Any("args", os.Args[1]))
+			err := rootCmd.Execute()
+			if err != nil {
+				slog.Error("执行cobra命令失败", slog.Any("err", err))
+				os.Exit(1)
+			}
+		default:
+			slog.Debug("进入completion模式")
+			protector.Protect()
+			fzf.Run(fzf.ParseOptions(), version, revision)
+		}
+	} else {
+		slog.Debug("进入fzf模式")
+		protector.Protect()
+		fzf.Run(fzf.ParseOptions(), version, revision)
 	}
 }
 
@@ -95,38 +118,49 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	customFormatter := new(log.TextFormatter)
-	customFormatter.TimestampFormat = "2006-01-02 15:04:05"
+	// customFormatter := new(log.TextFormatter)
+	// customFormatter.TimestampFormat = "2006-01-02 15:04:05"
 	// Log as JSON instead of the default ASCII formatter.
-	log.SetFormatter(customFormatter)
-	customFormatter.FullTimestamp = true // 显示时间
+	// log.SetFormatter(customFormatter)
+	// customFormatter.FullTimestamp = true // 显示时间
 	// customFormatter.ForceQuote = true // 强制格式匹配
 	// customFormatter.PadLevelText = true // 显示完整日志级别
 
 	// Output to stdout instead of the default stderr
 	// Can be any io.Writer, see below for File example
+	// 日志配置
+	lvl.Set(slog.LevelError)
+	opts := slog.HandlerOptions{
+		AddSource: true,
+		Level:     &lvl,
+	}
+
+	// slog.SetDefault(slog.New((slog.NewJSONHandler(os.Stdout, &opts))))
+
 	if islog {
 		file, err := os.OpenFile(fmt.Sprintf("%s.log", time.Now().Format("20060102150405")), os.O_WRONLY|os.O_APPEND|os.O_CREATE|os.O_SYNC, 0600)
 		if err != nil {
 			panic(err)
 		}
+		defer file.Close()
 
-		info, err := file.Stat()
-		if err != nil {
-			panic(err)
-		}
+		// info, err := file.Stat()
+		// if err != nil {
+		// 	panic(err)
+		// }
 
-		fileWriter := utils.LogFileWriter{file, info.Size()}
-		log.SetOutput(fileWriter)
+		// fileWriter := utils.LogFileWriter{file, info.Size()}
+		// log.SetOutput(fileWriter)
+
+		slog.SetDefault(slog.New((slog.NewTextHandler(file, &opts))))
 	} else {
-		log.SetOutput(os.Stdout)
+		slog.SetDefault(slog.New((slog.NewTextHandler(os.Stdout, &opts))))
+		// log.SetOutput(os.Stdout)
 	}
 
 	//  log format setting
 	if debugs {
-		log.SetLevel(log.DebugLevel)
-	} else {
-		log.SetLevel(log.InfoLevel)
+		lvl.Set(slog.LevelDebug)
 	}
 
 	if cfgFile != "" {
@@ -152,11 +186,11 @@ admin: true
 app:
     - test
 global:
-    Name: demo 
+    Name: demo
     Pkg: demo
 host: 0.0.0.0
 log:
-    level: info 
+    level: info
 meili:
     apikey: masterKey
     enable: false
@@ -178,10 +212,11 @@ snakemapper: admin_
 
 	viper.AutomaticEnv() // read in environment variables that match
 
+	viper.ReadInConfig()
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	} else {
-		log.Debugf("Using config file error: %s\n", err.Error())
-	}
+	// if err := viper.ReadInConfig(); err == nil {
+	// fmt.Println("Using config file:", viper.ConfigFileUsed())
+	// } else {
+	// slog.Error("配置文件读取错误", "Using config file error: %s\n", err.Error())
+	// }
 }

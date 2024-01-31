@@ -3,6 +3,7 @@ package asset
 import (
 	"embed"
 	"errors"
+	"fmt"
 	"io/fs"
 	"net/http"
 	"path"
@@ -10,7 +11,7 @@ import (
 	"github.com/lflxp/lflxp-k8s/core/middlewares/jwt/framework"
 	"github.com/lflxp/lflxp-k8s/core/middlewares/jwt/services"
 
-	log "github.com/go-eden/slf4go"
+	"log/slog"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,6 +27,33 @@ var d2admin embed.FS
 
 //go:embed node_modules
 var nodeModules embed.FS
+
+//go:embed yaml
+var yaml embed.FS
+
+// base is path, eg: yaml/monitor/manifests
+func RunYaml(path string) error {
+	dirEntries, err := yaml.ReadDir(path)
+	if err != nil {
+		return err
+	}
+
+	for _, de := range dirEntries {
+		info, err := yaml.ReadFile(fmt.Sprintf("%s/%s", path, de.Name()))
+		if err != nil {
+			return err
+		}
+		fmt.Println(de.Name(), de.IsDir(), len(info))
+		// if !de.IsDir() {
+		// 	err = clientgo.InstallYaml(info)
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// 	slog.Info("%s/%s 安装完毕", path, de.Name())
+		// }
+	}
+	return nil
+}
 
 func RegisterAsset(router *gin.Engine) {
 	router.Any("/d2admin/*any", func(c *gin.Context) {
@@ -86,7 +114,7 @@ func wrapHandlerDocs(h http.FileSystem) http.HandlerFunc {
 		nfrw := &NotFoundRedirectRespWr{ResponseWriter: w}
 		hserver.ServeHTTP(nfrw, r)
 		if nfrw.status == 404 {
-			log.Debugf("Redirecting %s to index.html.", r.RequestURI)
+			slog.Debug("Redirecting %s to index.html.", r.RequestURI)
 			// hardCode
 			path := "/docs/index.html"
 			f, err := h.Open(path)
@@ -118,7 +146,7 @@ func wrapHandler(h http.FileSystem) http.HandlerFunc {
 		nfrw := &NotFoundRedirectRespWr{ResponseWriter: w}
 		hserver.ServeHTTP(nfrw, r)
 		if nfrw.status == 404 {
-			log.Debugf("Redirecting %s to index.html.", r.RequestURI)
+			slog.Debug("Redirecting %s to index.html.", r.RequestURI)
 			// hardCode
 			path := "/dashboard/index.html"
 			f, err := h.Open(path)

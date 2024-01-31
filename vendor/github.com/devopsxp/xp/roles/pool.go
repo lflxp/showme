@@ -1,9 +1,9 @@
 package roles
 
 import (
+	"fmt"
+	"log/slog"
 	"reflect"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type RoleType string
@@ -26,6 +26,6 @@ const (
 var roleNames = make(map[RoleType]reflect.Type)
 
 func addRoles(key RoleType, value reflect.Type) {
-	log.Debugf("添加Roles插件 %s", key)
+	slog.Debug(fmt.Sprintf("添加Roles插件 %s", key))
 	roleNames[key] = value
 }

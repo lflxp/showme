@@ -2,12 +2,12 @@ package roles
 
 import (
 	"fmt"
+	"log/slog"
 	"reflect"
 	"strings"
 	"time"
 
 	"github.com/devopsxp/xp/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -187,9 +187,7 @@ func (r *DockerRole) Run() error {
 
 	cli := utils.NewDockerCli(r.args, r.image, strings.Join(r.command, " && "), r.workspace, r.reponame)
 	cmd, err := cli.Run()
-	log.WithFields(log.Fields{
-		"耗时": time.Now().Sub(r.starttime),
-	}).Infof("[Local Docker] %s", cmd)
+	slog.Info("[Local Docker]", cmd)
 
 	return err
 }

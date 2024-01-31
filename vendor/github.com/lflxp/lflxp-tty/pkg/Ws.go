@@ -3,6 +3,7 @@ package pkg
 import (
 	"encoding/base64"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/exec"
@@ -15,7 +16,6 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 
-	log "github.com/go-eden/slf4go"
 	"github.com/gorilla/websocket"
 )
 
@@ -52,9 +52,9 @@ func (this *ClientContext) HandleClient() {
 		defer func() {
 			conns := atomic.AddInt64(this.Xtermjs.Connections, -1)
 			if this.Xtermjs.Options.MaxConnections != 0 {
-				log.Infof("连接关闭: %s , 连接状态: %d/%d", this.Request.RemoteAddr, conns, this.Xtermjs.Options.MaxConnections)
+				slog.Info("连接关闭: %s , 连接状态: %d/%d", this.Request.RemoteAddr, conns, this.Xtermjs.Options.MaxConnections)
 			} else {
-				log.Infof("连接关闭: %s, 连接总数: %d", this.Request.RemoteAddr, conns)
+				slog.Info("连接关闭: %s, 连接总数: %d", this.Request.RemoteAddr, conns)
 			}
 		}()
 
@@ -85,23 +85,23 @@ func (this *ClientContext) Send(quitChan chan bool) {
 	for {
 		select {
 		case <-quitChan:
-			log.Info("Close Send Channel")
+			slog.Info("Close Send Channel")
 			return
 		default:
 			// 读取命令执行结果并通过ws反馈给用户
 			size, err := this.Pty.Read(buf)
 			if err != nil {
-				log.Warnf("Send[87] %s -> %s", this.Request.RemoteAddr, err.Error())
+				slog.Warn("Send[87] %s -> %s", this.Request.RemoteAddr, err.Error())
 				return
 			}
-			log.Debugf("Send Size: %d\n", size)
+			slog.Debug("Send Size: %d\n", size)
 			// prometheus 监控
 			wsCounts.With(prometheus.Labels{"send": "count"}).Inc()
 			// 将所有返回结果包括UTF8编码的内容用base64进行编码，client解码再显示，避免了直接UTF8编码传输的报错
 			// Could not decode a text frame as UTF-8 的解决
 			safeMessage := base64.StdEncoding.EncodeToString([]byte(buf[:size]))
 			if err = this.write([]byte(safeMessage)); err != nil {
-				log.Error(err.Error())
+				slog.Error(err.Error())
 				return
 			}
 		}
@@ -111,13 +111,13 @@ func (this *ClientContext) Send(quitChan chan bool) {
 // xsrf验证
 // token = xsrf + request.remoteAddr
 func (this *ClientContext) ParseXsrf(info []byte) (string, string, bool) {
-	log.Debugf("xsrf[111] before %s", string(info))
+	slog.Debug("xsrf[111] before %s", string(info))
 	if len(info) < 34 {
 		return "", "", false
 	}
 	token := fmt.Sprintf("%s%s", string(info[1:33]), strings.Split(this.Request.RemoteAddr, ":")[0])
 	if v, ok := this.Xtermjs.XsrfToken.Load(token); ok {
-		log.Debugf("%s XsrfToken %s Created %s Message %s", this.Request.RemoteAddr, string(info[1:33]), v.(string), string(info[33:]))
+		slog.Debug("%s XsrfToken %s Created %s Message %s", this.Request.RemoteAddr, string(info[1:33]), v.(string), string(info[33:]))
 		return token, string(info[33:]), true
 	}
 	return token, string(info[33:]), false
@@ -130,22 +130,22 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 	for {
 		select {
 		case <-quitChan:
-			log.Info("Close Recive Channel")
+			slog.Info("Close Recive Channel")
 			return
 		default:
 			// 读取ws中的数据
 			_, message, err := this.WsConn.ReadMessage()
 			if err != nil {
-				log.Warnf("Receive[112] %s", err.Error())
+				slog.Warn("Receive[112] %s", err.Error())
 				return
 			}
 
 			if len(message) == 0 {
-				log.Error("An error mesaage length is 0")
+				slog.Error("An error mesaage length is 0")
 				return
 			}
 
-			log.Debugf("Receive[144] %s\n", string(message))
+			slog.Debug("Receive[144] %s\n", string(message))
 
 			var msg string
 			// Xsrf校验
@@ -155,7 +155,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 					cacheKey string
 				)
 				cacheKey, msg, status = this.ParseXsrf(message)
-				log.Debugf("xsrf[155] after %s %s %v", cacheKey, msg, status)
+				slog.Debug("xsrf[155] after %s %s %v", cacheKey, msg, status)
 				if !status {
 					tmp := &Aduit{
 						Remoteaddr: this.Request.RemoteAddr,
@@ -166,7 +166,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 					}
 					err = tmp.Save()
 					if err != nil {
-						log.Error("AddAduit error", err.Error())
+						slog.Error("AddAduit error", err.Error())
 					}
 					this.write([]byte("\x1B[1;3;31mPermission Denied\x1B[0m\n"))
 					break
@@ -205,7 +205,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 			if this.Xtermjs.Options.Audit {
 				cm, err := DecodeBase64(msg)
 				if err != nil {
-					log.Errorf("Recive[172] [%s] %s", msg, err.Error())
+					slog.Error("Recive[172] [%s] %s", msg, err.Error())
 					break
 				}
 				tmp := &Aduit{
@@ -217,7 +217,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 				}
 				err = tmp.Save()
 				if err != nil {
-					log.Error("AddAduit error", err.Error())
+					slog.Error("AddAduit error", err.Error())
 				}
 			}
 
@@ -234,14 +234,14 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 				// base64解码
 				decode, err := DecodeBase64Bytes(msg)
 				if err != nil {
-					log.Error("Recive[156] ", err.Error())
+					slog.Error("Recive[156] ", err.Error())
 					break
 				}
-				log.Debugf("Write info %s", string(decode))
+				slog.Debug("Write info %s", string(decode))
 				// 向pty中传入执行命令
 				_, err = this.Pty.Write(decode)
 				if err != nil {
-					log.Error("Recive[163] ", err.Error())
+					slog.Error("Recive[163] ", err.Error())
 					return
 				}
 			case Heartbeat:
@@ -253,20 +253,20 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 				// base64解码
 				decode, err := DecodeBase64(msg)
 				if err != nil {
-					log.Errorf("Recive[175] %s", err.Error())
+					slog.Error("Recive[175] %s", err.Error())
 					break
 				}
 
 				tmp := strings.Split(decode, ":")
 				rows, err := strconv.Atoi(tmp[0])
 				if err != nil {
-					log.Errorf("Recive[182] %s", err.Error())
+					slog.Error("Recive[182] %s", err.Error())
 					this.write([]byte(err.Error()))
 					break
 				}
 				cols, err := strconv.Atoi(tmp[1])
 				if err != nil {
-					log.Errorf("Recive[188] %s", err.Error())
+					slog.Error("Recive[188] %s", err.Error())
 					this.write([]byte(err.Error()))
 					break
 				}
@@ -289,7 +289,7 @@ func (this *ClientContext) Receive(quitChan chan bool) {
 				)
 			default:
 				this.write([]byte(fmt.Sprintf("Unknow Message Type %s", string(message[0]))))
-				log.Error("Unknow Message Type %v", message[0])
+				slog.Error("Unknow Message Type %v", message[0])
 			}
 		}
 	}

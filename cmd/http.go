@@ -15,13 +15,14 @@
 package cmd
 
 import (
+	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
 
 	"gitee.com/lflxp/proxy"
 	"github.com/gin-gonic/gin"
-	log "github.com/go-eden/slf4go"
 	"github.com/spf13/cobra"
 )
 
@@ -49,22 +50,22 @@ var httpCmd = &cobra.Command{
 
 		go func() {
 			<-quit
-			log.Warn("receive interrupt signal")
+			slog.Warn("receive interrupt signal")
 			if err := server.Close(); err != nil {
-				log.Fatal("Server Close:", err)
+				slog.Error("Server Close:", err)
 			}
 		}()
 
-		log.Infof("Listening and serving HTTPS on %s", local)
+		slog.Info(fmt.Sprintf("Listening and serving HTTPS on %s", local))
 		if err := server.ListenAndServe(); err != nil {
 			if err == http.ErrServerClosed {
-				log.Warn("Server closed under request")
+				slog.Warn("Server closed under request")
 			} else {
-				log.Fatal("Server closed unexpect")
+				slog.Error("Server closed unexpect")
 			}
 		}
 
-		log.Warn("Server exiting")
+		slog.Warn("Server exiting")
 	},
 }
 

@@ -3,6 +3,7 @@ package music
 import (
 	"fmt"
 	"io/ioutil"
+	"log/slog"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/bogem/id3v2/v2"
 	"github.com/gin-gonic/gin"
-	log "github.com/go-eden/slf4go"
 	"github.com/lflxp/lflxp-music/core/model/music"
 	"github.com/lflxp/lflxp-music/core/utils"
 	"github.com/lflxp/tools/httpclient"
@@ -64,7 +64,7 @@ func music_local_list(c *gin.Context) {
 		for index, x := range filelist {
 			tag, err := id3v2.Open(fmt.Sprintf("%s/%s", filepath.Join(home, fmt.Sprintf(".music/%s", username)), x), id3v2.Options{Parse: true})
 			if err != nil {
-				log.Fatal("Error while opening mp3 file: ", err)
+				slog.Error("Error while opening mp3 file", "error", err.Error())
 			}
 			defer tag.Close()
 
@@ -77,7 +77,7 @@ func music_local_list(c *gin.Context) {
 			if year != "" {
 				second, err = strconv.ParseFloat(year, 64)
 				if err != nil {
-					log.Error(err)
+					slog.Error(err.Error())
 					second = 300
 				}
 			}

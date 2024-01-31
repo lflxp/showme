@@ -3,10 +3,11 @@ package services
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
-	log "github.com/go-eden/slf4go"
 	"github.com/lflxp/lflxp-music/core/middlewares/jwt/model"
 
 	"github.com/gin-gonic/gin"
@@ -14,15 +15,15 @@ import (
 )
 
 // 获取用户详细信息
-func ParseToken(info string, sc *corev1.Secret) (*model.User, error) {
+func ParseToken(info string, sc *corev1.Secret) (*model.MusicUser, error) {
 	// TODO: 填补用户信息
-	jwtUser := &model.User{}
+	jwtUser := &model.MusicUser{}
 
 	return jwtUser, nil
 }
 
 // 解析JWT Token
-func ParseJWTToken(c *gin.Context) (*model.User, error) {
+func ParseJWTToken(c *gin.Context) (*model.MusicUser, error) {
 	jwtoken, err := c.Cookie("token")
 	if err != nil {
 		return nil, err
@@ -35,7 +36,7 @@ func ParseJWTToken(c *gin.Context) (*model.User, error) {
 		return nil, err
 	}
 
-	var user *model.User
+	var user *model.MusicUser
 	err = json.Unmarshal(payload, &user)
 	if err != nil {
 		return nil, err
@@ -61,14 +62,14 @@ func IsExpiresHeader(c *gin.Context) bool {
 
 	payload, err := base64.RawURLEncoding.DecodeString(info)
 	if err != nil {
-		log.Errorf("error decoding payload %s: %v", info, err)
+		slog.Error(fmt.Sprintf("error decoding payload %s: %v", info, err))
 		return false
 	}
 
 	var data JwtData
 	err = json.Unmarshal(payload, &data)
 	if err != nil {
-		log.Errorf("error Unmarshal payload %s", err.Error())
+		slog.Error(fmt.Sprintf("error Unmarshal payload %s", err.Error()))
 		return false
 	}
 
@@ -77,9 +78,9 @@ func IsExpiresHeader(c *gin.Context) bool {
 	t := time.Unix(data.Exp, 0)
 
 	if now.Before(t) {
-		log.Debugf("now %s before exp %s", now.String(), t.String())
+		slog.Debug(fmt.Sprintf("now %s before exp %s", now.String(), t.String()))
 		return true
 	}
-	log.Debugf("ERROR: now %s after exp %s", now.String(), t.String())
+	slog.Debug(fmt.Sprintf("ERROR: now %s after exp %s", now.String(), t.String()))
 	return false
 }

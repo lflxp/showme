@@ -2,10 +2,10 @@ package logs
 
 import (
 	"io"
+	"log/slog"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	log "github.com/go-eden/slf4go"
 	"github.com/gorilla/websocket"
 	"github.com/lflxp/lflxp-k8s/pkg/apiserver/model"
 )
@@ -22,7 +22,7 @@ func GetLogs(data *model.CoreV1, c *gin.Context) {
 	ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		if _, ok := err.(websocket.HandshakeError); !ok {
-			log.Error(err.Error())
+			slog.Error(err.Error())
 		}
 		return
 	}
@@ -36,7 +36,7 @@ func writer(ws *websocket.Conn, data *model.CoreV1) {
 
 	stream, err := data.GetLogs()
 	if err != nil {
-		log.Error(err.Error())
+		slog.Error(err.Error())
 		return
 	}
 	defer stream.Close()
@@ -53,21 +53,21 @@ func writer(ws *websocket.Conn, data *model.CoreV1) {
 			buf := make([]byte, upgrader.ReadBufferSize)
 			numBytes, err := stream.Read(buf)
 			if numBytes == 0 {
-				log.Debug("received 0 bytes")
+				slog.Debug("received 0 bytes")
 				continue
 			}
 			if err == io.EOF {
-				log.Debug("EOF received")
+				slog.Debug("EOF received")
 				break
 			}
 			if err != nil {
-				log.Error(err)
+				slog.Error(err.Error())
 				return
 			}
 			// message := string(buf[:numBytes])
 			// log.Debug("==========", numBytes, message)
 			if err := ws.WriteMessage(websocket.BinaryMessage, buf[:numBytes]); err != nil {
-				log.Error(err.Error())
+				slog.Error(err.Error())
 				return
 			}
 		}

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 	"sync"
@@ -19,7 +20,6 @@ import (
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
-	log "github.com/go-eden/slf4go"
 	"github.com/lflxp/tools/orm/sqlite"
 	"github.com/spf13/viper"
 )
@@ -32,7 +32,7 @@ var (
 
 func init() {
 	identityKey = viper.GetString("token.jwtIdentityKey")
-	// log.Debugf("初始化jwtIdentityKey %s", identityKey)
+	// slog.Debugf("初始化jwtIdentityKey %s", identityKey)
 }
 
 func GetMiddleware() *jwt.GinJWTMiddleware {
@@ -45,16 +45,16 @@ func GetMiddleware() *jwt.GinJWTMiddleware {
 // 验证用户密码
 func VerifyAuth(username, password string) (bool, error) {
 	// 优先查询数据库
-	var user = new(model.User)
+	var user = new(model.MusicUser)
 	// 忽略[]claims与string 解析
 	has, err := sqlite.NewOrm().Where("username=?", username).Get(user)
 	if err != nil {
-		log.Error(err)
+		slog.Error(err.Error())
 		return false, err
 	}
 
 	if has {
-		log.Debugf("Found User %s Login", username)
+		slog.Debug(fmt.Sprintf("Found User %s Login", username))
 		if user.Password == password {
 			return true, nil
 		} else {
@@ -96,7 +96,7 @@ func VerifyKubeVelaLogin(username, password string) (*model.KubeVelaToken, error
 	var result model.KubeVelaToken
 	host := viper.GetString("auth.url")
 	url := fmt.Sprintf("%s/api/v1/auth/login", host)
-	log.Debug("kubevela login url: %s", url)
+	slog.Debug("kubevela login url: %s", url)
 	code := 0
 	body := ""
 	err := httpclient.NewGoutClient().
@@ -117,7 +117,7 @@ func VerifyKubeVelaLogin(username, password string) (*model.KubeVelaToken, error
 	}
 
 	if code != 200 {
-		log.Error(body)
+		slog.Error(body)
 		return &result, errors.New(body)
 	}
 
@@ -131,9 +131,9 @@ func VerifyKubeVelaLogin(username, password string) (*model.KubeVelaToken, error
 
 func VerifyAuthByRancher(username, password string) (string, string, bool) {
 	rancherHost := viper.GetString("proxy.host")
-	log.Infof("初始化RancherHost地址 %s", rancherHost)
+	slog.Info(fmt.Sprintf("初始化RancherHost地址 %s", rancherHost))
 	url := fmt.Sprintf("%s/v3-public/localProviders/local?action=login", rancherHost)
-	log.Debugf("url is %s", url)
+	slog.Debug(fmt.Sprintf("url is %s", url))
 	code := 0
 	body := ""
 	header := make(http.Header)
@@ -156,22 +156,22 @@ func VerifyAuthByRancher(username, password string) (string, string, bool) {
 		Do()
 
 	if err != nil {
-		log.Error(err.Error())
+		slog.Error(err.Error())
 		return "", "", false
 	}
 
 	if code != 200 {
-		log.Error(body)
+		slog.Error(body)
 		return "", "", false
 	}
 
 	ress := header.Get("Set-Cookie")
 	if ress == "" {
-		log.Error("no token found")
+		slog.Error("no token found")
 		return "", "", false
 	}
 
-	log.Debugf("Ress is %s", ress)
+	slog.Debug(fmt.Sprintf("Ress is %s", ress))
 	var rs string
 	for _, t := range strings.Split(ress, ";") {
 		if strings.Contains(t, "R_SESS") {
@@ -180,7 +180,7 @@ func VerifyAuthByRancher(username, password string) (string, string, bool) {
 		}
 	}
 	if rs == "" {
-		log.Error("no R_SESS found")
+		slog.Error("no R_SESS found")
 		return "", "", false
 	}
 	return rs, ress, true
@@ -213,24 +213,24 @@ func NewGinJwtMiddlewares(jwta JwtAuthorizator) *jwt.GinJWTMiddleware {
 		MaxRefresh:  10 * time.Hour,
 		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
-			if v, ok := data.(*model.User); ok {
+			if v, ok := data.(*model.MusicUser); ok {
 				// claimJson, err := GetUserClaims(v.Username)
 				// if err != nil {
-				// 	log.Error(err.Error())
+				// 	slog.Error(err.Error())
 				// 	return jwt.MapClaims{}
 				// }
 				// maps the claims in the JWT
 				return jwt.MapClaims{
-					"username":     v.Username,
-					"token":        v.Token,
-					"email":        v.Email,
-					"tenant":       v.Tenant,
-					"authProvider": v.AuthProvider,
-					"userId":       v.UserId,
-					"role":         v.Role,
-					"roleLevel":    v.RoleLevel,
-					"roleReal":     v.RoleReal,
-					"isGlobal":     v.IsGlobal,
+					"username": v.Username,
+					"token":    v.Token,
+					// "email":        v.Email,
+					// "tenant":       v.Tenant,
+					// "authProvider": v.AuthProvider,
+					// "userId":       v.UserId,
+					// "role":         v.Role,
+					// "roleLevel":    v.RoleLevel,
+					// "roleReal":     v.RoleReal,
+					// "isGlobal":     v.IsGlobal,
 				}
 			} else if vv, ok := data.(map[string]string); ok {
 				tmp := jwt.MapClaims{}
@@ -253,11 +253,11 @@ func NewGinJwtMiddlewares(jwta JwtAuthorizator) *jwt.GinJWTMiddleware {
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
-			log.Debugf("I Claims: %v", claims)
+			slog.Debug(fmt.Sprintf("claims %v", claims))
 			return nil
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
-			var loginVals model.User
+			var loginVals model.MusicUser
 			if err := c.ShouldBind(&loginVals); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}
@@ -266,11 +266,11 @@ func NewGinJwtMiddlewares(jwta JwtAuthorizator) *jwt.GinJWTMiddleware {
 
 			c.Request.Header.Set("user", loginVals.Username)
 
-			log.Debugf("JWT Authenticator %v username %s password %s", loginVals, userID, password)
+			slog.Debug(fmt.Sprintf("JWT Authenticator %v username %s password %s", loginVals, userID, password))
 			if IsRancherLogin {
 				if token, ress, ok := VerifyAuthByRancher(userID, password); ok {
 					c.Header("Set-Cookie", strings.Replace(ress, "Secure", "", -1))
-					return &model.User{
+					return &model.MusicUser{
 						Username: userID,
 						Token:    token,
 					}, nil
@@ -281,16 +281,16 @@ func NewGinJwtMiddlewares(jwta JwtAuthorizator) *jwt.GinJWTMiddleware {
 					if token, err := VerifyKubeVelaLogin(userID, password); err == nil {
 						return token, nil
 					} else {
-						log.Error(err.Error())
+						slog.Error(err.Error())
 					}
 				} else {
 					if ok, err := VerifyAuth(userID, password); ok {
-						return &model.User{
+						return &model.MusicUser{
 							Username: userID,
 							Token:    "verifyAuth",
 						}, nil
 					} else {
-						log.Error(err.Error())
+						slog.Error(err.Error())
 					}
 				}
 			}
@@ -301,7 +301,8 @@ func NewGinJwtMiddlewares(jwta JwtAuthorizator) *jwt.GinJWTMiddleware {
 		Authorizator: jwta,
 		//handles unauthorized logic
 		Unauthorized: func(c *gin.Context, code int, message string) {
-			c.Redirect(http.StatusFound, "/login?url="+c.Request.RequestURI)
+			// c.Redirect(http.StatusFound, "/login?url="+c.Request.RequestURI)
+			httpclient.SendErrorMessage(c, 401, "Invalid credentials", "token is not authorized")
 		},
 		// TokenLookup is a string in the form of "<source>:<name>" that is used
 		// to extract token from the request.
@@ -342,7 +343,7 @@ func NewGinJwtMiddlewares(jwta JwtAuthorizator) *jwt.GinJWTMiddleware {
 		},
 	})
 	if err != nil {
-		log.Fatal("JWT Error:" + err.Error())
+		slog.Error("JWT Error:" + err.Error())
 	}
 	return authMiddleware
 }

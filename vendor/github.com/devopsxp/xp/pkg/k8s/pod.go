@@ -3,9 +3,10 @@ package k8s
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
+	"log/slog"
 
-	log "github.com/sirupsen/logrus"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -51,7 +52,7 @@ func CreatePod(pod *apiv1.Pod) (*apiv1.Pod, error) {
 		return nil, err
 	}
 
-	log.Debugf("create pod  %v\n", pod)
+	slog.Debug(fmt.Sprintf("create pod  %v\n", pod))
 	podCallBack, err := cli.CoreV1().Pods(pod.ObjectMeta.Namespace).Create(context.Background(), pod, metav1.CreateOptions{})
 	return podCallBack, err
 }

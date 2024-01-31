@@ -7,9 +7,13 @@ import (
 	"time"
 
 	"github.com/mattn/go-isatty"
-	"github.com/mattn/go-runewidth"
 	"github.com/rivo/uniseg"
 )
+
+// StringWidth returns string width where each CR/LF character takes 1 column
+func StringWidth(s string) int {
+	return uniseg.StringWidth(s) + strings.Count(s, "\n") + strings.Count(s, "\r")
+}
 
 // RunesWidth returns runes width
 func RunesWidth(runes []rune, prefixWidth int, tabstop int, limit int) (int, int) {
@@ -22,8 +26,7 @@ func RunesWidth(runes []rune, prefixWidth int, tabstop int, limit int) (int, int
 		if len(rs) == 1 && rs[0] == '\t' {
 			w = tabstop - (prefixWidth+width)%tabstop
 		} else {
-			s := string(rs)
-			w = runewidth.StringWidth(s) + strings.Count(s, "\n")
+			w = StringWidth(string(rs))
 		}
 		width += w
 		if width > limit {
@@ -41,7 +44,7 @@ func Truncate(input string, limit int) ([]rune, int) {
 	gr := uniseg.NewGraphemes(input)
 	for gr.Next() {
 		rs := gr.Runes()
-		w := runewidth.StringWidth(string(rs))
+		w := StringWidth(string(rs))
 		if width+w > limit {
 			return runes, width
 		}
@@ -152,4 +155,24 @@ func Once(nextResponse bool) func() bool {
 		state = false
 		return prevState
 	}
+}
+
+// RepeatToFill repeats the given string to fill the given width
+func RepeatToFill(str string, length int, limit int) string {
+	times := limit / length
+	rest := limit % length
+	output := strings.Repeat(str, times)
+	if rest > 0 {
+		for _, r := range str {
+			rest -= uniseg.StringWidth(string(r))
+			if rest < 0 {
+				break
+			}
+			output += string(r)
+			if rest == 0 {
+				break
+			}
+		}
+	}
+	return output
 }

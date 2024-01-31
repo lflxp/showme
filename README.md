@@ -18,7 +18,43 @@ showme -h
 
 # Module
 
-* 【Doing】k8s 【Kubenetes Dashboard】
+* 【Doing】[kubectl智能命令行提示(zsh-completion+fzf+kubectl)](https://github.com/lflxp/smkubectl)
+
+![smart.png](./img/smart.png)
+
+## 特点
+
+* 支持 kubectl | go | git | kill 等命令的自动补全
+* 无其它任何依赖，一个文件`smkubectl`搞定所有事情
+* 无复杂繁琐的fzf配置，无需安装fzf命令
+* 自动生成zsh-completion配置，只需简单配置即可，无需复杂zsh|zsh-completion配置
+* 开箱即用，效率提升，简单易用
+
+## 安装及使用
+
+> go install github.com/lflxp/showme@latest
+
+```zsh
+autoload -U compinit && compinit -u
+source <(showme completion zsh)
+```
+
+## 快捷键
+
+> ~
+
+## 操作
+
+* k + ~
+* k g + ~
+* k get + ~
+* k get po+~ (没有空格)
+* k get po + ~ (有空格)
+* k edit po -n
+* k get po -n namespace pod -c + ~
+* k logs -f + ~
+
+* 【Doing】[k8s 【Kubenetes Dashboard】](https://github.com/lflxp/lflxp-k8s)
 
 ![k8s.png](./img/k8s.png)
 

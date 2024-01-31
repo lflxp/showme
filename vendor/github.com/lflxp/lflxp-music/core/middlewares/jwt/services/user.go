@@ -1,6 +1,8 @@
 package services
 
 import (
+	"log/slog"
+
 	"github.com/lflxp/lflxp-music/core/middlewares/jwt/model"
 
 	"github.com/lflxp/tools/httpclient"
@@ -8,7 +10,6 @@ import (
 	"github.com/lflxp/tools/utils"
 
 	"github.com/gin-gonic/gin"
-	log "github.com/go-eden/slf4go"
 )
 
 func DecodeUser(c *gin.Context, data map[string]interface{}) (*model.Auth, error) {
@@ -30,7 +31,7 @@ func DecodeUser(c *gin.Context, data map[string]interface{}) (*model.Auth, error
 	} else {
 		err := c.BindJSON(auth)
 		if err != nil {
-			log.Error(err)
+			slog.Error(err.Error())
 			httpclient.SendErrorMessage(c, 500, "500", err.Error())
 			return nil, err
 		}

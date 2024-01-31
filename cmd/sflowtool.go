@@ -1,3 +1,4 @@
+//go:build gopacket
 // +build gopacket
 
 /*
@@ -7,7 +8,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,13 +19,13 @@ limitations under the License.
 package cmd
 
 import (
+	"log/slog"
 	"net"
 	"time"
 
 	"github.com/spf13/cobra"
 
 	"github.com/lflxp/lflxp-sflowtool/pkg"
-	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -84,16 +85,14 @@ var sflowtoolCmd = &cobra.Command{
 
 		// 设置日志级别
 		if debug {
-			log.SetLevel(log.DebugLevel)
-			log.Info("日志模式 DEBUG")
+			lvl.Set(slog.LevelDebug)
 		} else {
-			log.SetLevel(log.InfoLevel)
-			log.Info("日志模式 INFO")
+			lvl.Set(slog.LevelInfo)
 		}
 
 		// 初始化es index
 		if Con.IsEs {
-			log.Info("开启es通道")
+			slog.Info("开启es通道")
 			pkg.InitEs(Con.EsPath, Con.Index)
 		}
 

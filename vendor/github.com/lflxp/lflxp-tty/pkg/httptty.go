@@ -4,7 +4,9 @@ package pkg
 import (
 	"fmt"
 	"html/template"
+	"log/slog"
 	"net/http"
+	"os"
 	"os/exec"
 	"strings"
 	"sync"
@@ -14,22 +16,35 @@ import (
 	"github.com/chenjiandongx/ginprom"
 	"github.com/creack/pty"
 	"github.com/gin-gonic/gin"
-	log "github.com/go-eden/slf4go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var httpXterm *XtermJs
 var rootPath string
 
+var lvl slog.LevelVar
+
+func init() {
+	// 日志配置
+	lvl.Set(slog.LevelError)
+	opts := slog.HandlerOptions{
+		AddSource: true,
+		Level:     &lvl,
+	}
+
+	// slog.SetDefault(slog.New((slog.NewJSONHandler(os.Stdout, &opts))))
+	slog.SetDefault(slog.New((slog.NewTextHandler(os.Stdout, &opts))))
+}
+
 // isLocal 参数是用于判断是否为第三方引用，进而改变访问路径
 func RegisterTty(router *gin.Engine, data *Tty, isLocal bool) {
 	if data.IsDebug {
 		// 设置日志级别为warn以上
-		log.SetLevel(log.DebugLevel)
+		lvl.Set(slog.LevelDebug)
 		gin.SetMode(gin.DebugMode)
 	} else {
 		// 设置日志级别为warn以上
-		log.SetLevel(log.InfoLevel)
+		lvl.Set(slog.LevelInfo)
 		gin.SetMode(gin.ReleaseMode)
 	}
 
@@ -108,7 +123,7 @@ func Check(c *gin.Context) {
 		}
 		err := who.Save()
 		if err != nil {
-			log.Error(err)
+			slog.Error(err.Error())
 		}
 	}()
 	name := c.DefaultQuery("name", "")
@@ -134,7 +149,7 @@ func Who(c *gin.Context) {
 		}
 		err := who.Save()
 		if err != nil {
-			log.Error(err)
+			slog.Error(err.Error())
 		}
 	}()
 	name := c.DefaultQuery("name", "")
@@ -162,7 +177,7 @@ func Admin(c *gin.Context) {
 		}
 		err := who.Save()
 		if err != nil {
-			log.Error(err)
+			slog.Error(err.Error())
 		}
 	}()
 	var (
@@ -202,7 +217,7 @@ func Ws(c *gin.Context) {
 			}
 			err := who.Save()
 			if err != nil {
-				log.Error(err)
+				slog.Error(err.Error())
 			}
 		}
 	}()
@@ -211,7 +226,7 @@ func Ws(c *gin.Context) {
 	connects.Set(float64(conns))
 	if httpXterm.Options.MaxConnections != 0 {
 		if conns > httpXterm.Options.MaxConnections {
-			log.Infof("Max Connected: %d", httpXterm.Options.MaxConnections)
+			slog.Info("Max Connected", "nums", httpXterm.Options.MaxConnections)
 			atomic.AddInt64(httpXterm.Connections, -1)
 			return
 		}
@@ -236,16 +251,16 @@ func Ws(c *gin.Context) {
 	//这里得到标准输出和标准错误输出的两个管道，此处获取了错误处理
 	ptmx, err := pty.Start(cmd)
 	if err != nil {
-		log.Errorf("ptmx[52] %s", err.Error())
+		slog.Error("ptmx[52] %s", err.Error())
 		return
 	}
 
 	if httpXterm.Options.MaxConnections != 0 {
-		log.Infof("Command is running for client %s with PID %d (args=%q), connections: %d/%d",
-			c.Request.RemoteAddr, cmd.Process.Pid, httpXterm.Cmds, conns, httpXterm.Options.MaxConnections)
+		slog.Info("Command is running for client %s with PID %d (args=%q), connections: %d/%d",
+			"client", c.Request.RemoteAddr, "PID", cmd.Process.Pid, "args", httpXterm.Cmds, "connections", conns, "maxconnections", httpXterm.Options.MaxConnections)
 	} else {
-		log.Infof("Command is running for client %s with PID %d (args=%q), connections: %d",
-			c.Request.RemoteAddr, cmd.Process.Pid, httpXterm.Cmds, conns)
+		slog.Info("Command is running for with PID  (args=), connections: ",
+			"client", c.Request.RemoteAddr, "PID", cmd.Process.Pid, "args", httpXterm.Cmds, "connections", conns)
 	}
 
 	httpXterm.Server.StartGo()
@@ -274,7 +289,7 @@ func Index(c *gin.Context) {
 			}
 			err := who.Save()
 			if err != nil {
-				log.Error(err)
+				slog.Error(err.Error())
 			}
 		}
 	}()
@@ -296,7 +311,7 @@ func Index(c *gin.Context) {
 		httproto = "http"
 	}
 	newXsrf := GetRandomSalt()
-	log.Debugf("%s xsrftoken %s", c.Request.RemoteAddr, newXsrf)
+	slog.Debug("xsrf日志", "address", c.Request.RemoteAddr, "xsrftoken", newXsrf)
 	if !httpXterm.Options.Xsrf {
 		httpXterm.XsrfToken.Store(fmt.Sprintf("%s%s", newXsrf, strings.Split(c.Request.RemoteAddr, ":")[0]), time.Now().String())
 	}

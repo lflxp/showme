@@ -1,11 +1,12 @@
 package module
 
 import (
+	"fmt"
+	"log/slog"
 	"reflect"
 
 	"github.com/devopsxp/xp/pkg/k8s"
 	"github.com/devopsxp/xp/plugin"
-	log "github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -21,13 +22,13 @@ type ConsoleOutput struct {
 
 func (c *ConsoleOutput) Send(msgs *plugin.Message) {
 	if c.status != plugin.Started {
-		log.Warnln("Console output is not running, output nothing.")
+		slog.Warn("Console output is not running, output nothing.")
 		return
 	}
 
-	// log.Printf("Output:\n\tHeader: %+v, Body: %+v\n", msgs.Data.Raw, msgs.Data.Target)
+	// slog.Printf("Output:\n\tHeader: %+v, Body: %+v\n", msgs.Data.Raw, msgs.Data.Target)
 	// c.SetType("console").SetTarget("stdout").Send(msgs)
-	log.Info("ConsoleOutput Output 插件开始执行目标主机，并发数： 1")
+	slog.Info("ConsoleOutput Output 插件开始执行目标主机，并发数： 1")
 
 	// 全局动态变量
 	var vars map[string]interface{}
@@ -47,10 +48,10 @@ func (c *ConsoleOutput) Send(msgs *plugin.Message) {
 						NewHookAdapter(nil).SetType("count").Send(msgs)
 						if ns, ok := msgs.Tmp["namespace"]; ok {
 							if name, ok := msgs.Tmp["name"]; ok {
-								log.Infof("Pipeline Success,清理 Namespace: %s Pod: %s", ns, name)
+								slog.Info(fmt.Sprintf("Pipeline Success,清理 Namespace: %s Pod: %s", ns, name))
 								err := k8s.DeletePod(ns, name)
 								if err != nil {
-									log.Errorf("Pipeline 清理失败， Namespace： %s Pod: %s %s", ns, name, err.Error())
+									slog.Error(fmt.Sprintf("Pipeline 清理失败， Namespace： %s Pod: %s %s", ns, name, err.Error()))
 								}
 							}
 						}
@@ -61,28 +62,22 @@ func (c *ConsoleOutput) Send(msgs *plugin.Message) {
 					case "email":
 						email, err := NewEmail(types.(map[interface{}]interface{}), msgs, vars)
 						if err != nil {
-							log.WithFields(log.Fields{
-								"plugin": "console_output",
-								"type":   "email",
-							}).Errorln(err)
+							slog.Error(err.Error())
 						} else {
 							NewHookAdapter(email).SetType("email").Send(msgs)
 						}
 					case "wechat":
 						wechat, err := NewWechat(types.(map[interface{}]interface{}), msgs, vars)
 						if err != nil {
-							log.WithFields(log.Fields{
-								"plugin": "console_output",
-								"type":   "wechat",
-							}).Errorln(err)
+							slog.Error(err.Error())
 						} else {
 							NewHookAdapter(wechat).SetType("wechat").Send(msgs)
 						}
 					default:
-						log.Warnf("未适配该类型的hooks: %s", t.(string))
+						slog.Warn(fmt.Sprintf("未适配该类型的hooks: %s", t.(string)))
 					}
 				} else {
-					log.Errorln("hooks 配置内容不包含[type]字段,请检查！")
+					slog.Error("hooks 配置内容不包含[type]字段,请检查！")
 					break
 				}
 			}
