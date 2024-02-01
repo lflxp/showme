@@ -3,7 +3,7 @@ package pkg
 import (
 	"fmt"
 
-	"github.com/shirou/gopsutil/disk"
+	"github.com/shirou/gopsutil/v3/disk"
 )
 
 var beforeDisk *MonitorDisk

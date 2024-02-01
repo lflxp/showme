@@ -1,0 +1,26 @@
+{{ define "menu" }}
+<ul class="list-group" style="margin: 10px 10px;">
+  {{.Data | beegoli | str2html}}
+  <li class="list-group-item list-group-item-info">AUTHENTICATION AND AUTHORIZATION</li>
+  <li class="list-group-item">
+      <a style="float: right;" href="/admin/add?name=Groups"><span class="glyphicon glyphicon-plus"></span>添加</a>
+      <a href="/admin/table?name=Groups" target="_self">Groups</a>
+  </li>
+  <li class="list-group-item">
+      <a style="float: right;" href="/admin/add?name=Userauth"><span class="glyphicon glyphicon-plus"></span>添加</a>
+      <a href="/admin/table?name=Userauth" target="_self">Userauth</a>
+  </li>
+  <li class="list-group-item">
+      <a style="float: right;" href="/admin/add?name=User"><span class="glyphicon glyphicon-plus"></span>添加</a>
+      <a href="/admin/table?name=User" target="_self">User</a>
+  </li>
+  <li class="list-group-item">
+      <a style="float: right;" href="/admin/add?name=Claims"><span class="glyphicon glyphicon-plus"></span>添加</a>
+      <a href="/admin/table?name=Claims" target="_self">Claims</a>
+  </li>
+  <li class="list-group-item">
+      <a style="float: right;" href="/admin/add?name=History"><span class="glyphicon glyphicon-plus"></span>添加</a>
+      <a href="/admin/table?name=History" target="_self">History</a>
+  </li>
+</ul>
+{{ end }}

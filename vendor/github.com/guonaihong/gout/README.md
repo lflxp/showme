@@ -50,6 +50,7 @@ gout 是go写的http 客户端，为提高工作效率而开发
 	- [GET POST PUT DELETE PATH HEAD OPTIONS template](#get-post-put-delete-path-head-options-template)
     - [Query Parameters](#Query-Parameters)
     - [http header](#http-header)
+		- [Do not convert http headers](#do-not-convert-http-headers)
 		- [Set request header](#set-request-header)
 		- [Parsing the response header](#parsing-the-response-header)
 		- [get all header](#get-all-header)
@@ -88,6 +89,7 @@ gout 是go写的http 客户端，为提高工作效率而开发
 		- [trace info](#trace-info)
 		- [save to writer](#save-to-writer)
 		- [save to file](#save-to-file)
+		- [Extracting trace information](#extracting-trace-information)
 	- [benchmark](#benchmark)
 		- [benchmarking a certain number of times](#benchmarking-a-certain-number-of-times)
 		- [benchmarking for a certain time](#benchmark-duration)
@@ -105,8 +107,11 @@ gout 是go写的http 客户端，为提高工作效率而开发
 	- [Using chunked data format](#Using-chunked-data-format)
 	- [NewWithOpt](#NewWithOpt)
 		- [Insecure skip verify](#insecure-skip-verify)
-		- [Turn off 3xx status code automatic jump](#Turn-off-3xx-status-code-automatic-jump)
-		- [NewWithOpt set timeout](#NewWithOpt-set-timeout)
+		- [Turn off 3xx status code automatic jump](#turn-off-3xx-status-code-automatic-jump)
+		- [NewWithOpt set timeout](#new-with-opt-set-timeout)
+		- [NewWithOpt unix sock](#new-with-opt-unix-socket)
+        - [NewWithOpt proxy](#new-with-opt-proxy)
+		- [NewWithOpt socks5](#new-with-opt-socks5)
 	- [Global configuration](#Global-configuration)
 		- [set timeout](#set-timeout)
 		- [set debug](#set-debug)
@@ -348,7 +353,6 @@ func main() {
 
 ```
 ### SetQuery支持的更多数据类型
-<details>
 
 ```go
 package main
@@ -412,6 +416,56 @@ SetQuery([]string{"active", "enable", "action", "drop"})`
 </details>
 
 ## http header
+#### Do not convert http headers
+与SetHeader API唯一的区别就是不修改header名. 大部分情况用SetHeader，如果有不修改header的需求再使用SetHeaderRaw。
+```go
+package main
+
+import (
+    "fmt"
+    "github.com/guonaihong/gout"
+    "time"
+)
+
+func main() {
+    err := gout.
+        //设置GET请求和url，:8080/test.header是127.0.0.1:8080/test.header的简写
+        GET(":8080/test.header").
+        //设置debug模式
+        Debug(true).
+        //设置请求http header
+        SetHeaderRaw(gout.H{
+            "h1": "v1",
+            "h2": 2,
+            "h3": float32(3.14),
+            "h4": 4.56,
+            "h5": time.Now().Unix(),
+            "h6": time.Now().UnixNano(),
+            "h7": time.Now().Format("2006-01-02")}).
+        Do()
+    if err != nil {
+        fmt.Printf("%s\n", err)
+        return
+    }
+
+}
+
+/*
+> GET /test.header HTTP/1.1
+> h2: 2
+> h3: 3.14
+> h4: 4.56
+> h5: 1574081686
+> h6: 1574081686471347098
+> h7: 2019-11-18
+> h1: v1
+>
+
+
+< HTTP/1.1 200 OK
+< Content-Length: 0
+*/
+```
 #### Set request header
 ```go
 package main
@@ -1673,6 +1727,35 @@ func main() {
 	}
 }
 ```
+### extracting trace information
+```go
+package main
+
+import (
+    "fmt"
+    "github.com/guonaihong/gout"
+	"github.com/guonaihong/gout/debug"
+)
+
+func main() {
+    var buf bytes.Buffer
+    err := gout.POST(":8080/colorjson").
+        Debug(debug.TraceJSONToWriter(&buf)).
+        SetJSON(gout.H{"str": "foo",
+            "num":   100,
+            "bool":  false,
+            "null":  nil,
+            "array": gout.A{"foo", "bar", "baz"},
+            "obj":   gout.H{"a": 1, "b": 2},
+        }).Do()
+
+    if err != nil {
+        fmt.Printf("err = %v\n", err)
+    }
+    fmt.Printf("%s", buf.String())
+}
+
+```
 ## benchmark
 ### benchmarking a certain number of times
 下面的例子，起了20并发。对:8080端口的服务，发送3000次请求进行压测，内容为json结构
@@ -2053,7 +2136,7 @@ func main() {
 	}
 }
 ```
-## Turn off 3xx status code automatic jump
+## turn off 3xx status code automatic jump
 golang client库默认遇到301的状态码会自动跳转重新发起新请求, 你希望关闭这种默认形为, 那就使用下面的功能
 ```go
 import (
@@ -2070,7 +2153,7 @@ func main() {
 	}
 }
 ```
-## NewWithOpt set timeout
+## new with opt set timeout
 ```gout.WithTimeout``` 为了让大家少用```gout.SetTimeout```而设计
 ```go
 import (
@@ -2088,6 +2171,58 @@ func main() {
 }
 ```
 
+## new with opt unix socket
+```gout.WithUnixSocket``` 为了让大家少用```.UnixSocket ```而设计
+```go
+import (
+	"github.com/guonaihong/gout"
+)
+
+func main() {
+	// globalWithOpt里面包含连接池, 这是一个全局可复用的对象, 一个进程里面可能只需创建1个, 如果有多个不同的unixsocket，可以创建多个
+	globalWithOpt := gout.NewWithOpt(gout.WithUnixSocket("/tmp/test.socket"))
+	err := globalWithOpt.GET("url").Do()
+	if err != nil {
+		fmt.Printf("err = %v\n" ,err)
+		return
+	}
+}
+```
+## new with opt proxy
+```gout.WithProxy``` 为了让大家少用```.SetProxy ```而设计
+```go
+import (
+	"github.com/guonaihong/gout"
+)
+
+func main() {
+	// globalWithOpt里面包含连接池, 这是一个全局可复用的对象, 一个进程里面可能只需创建1个, 如果有多个不同的proxy，可以创建多个
+	globalWithOpt := gout.NewWithOpt(gout.WithProxy("http://127.0.0.1:7000"))
+	err := globalWithOpt.GET("url").Do()
+	if err != nil {
+		fmt.Printf("err = %v\n" ,err)
+		return
+	}
+}
+```
+
+## new with opt socks5
+```gout.WithSocks5``` 为了让大家少用```.SetSOCKS5```而设计
+```go
+import (
+	"github.com/guonaihong/gout"
+)
+
+func main() {
+	// globalWithOpt里面包含连接池, 这是一个全局可复用的对象, 一个进程里面可能只需创建1个, 如果有多个不同的socks5，可以创建多个
+	globalWithOpt := gout.NewWithOpt(gout.WithSocks5("127.0.0.1:7000"))
+	err := globalWithOpt.GET("url").Do()
+	if err != nil {
+		fmt.Printf("err = %v\n" ,err)
+		return
+	}
+}
+```
 # Global configuration
 ##  set timeout
 

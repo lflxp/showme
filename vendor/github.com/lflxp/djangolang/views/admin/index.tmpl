@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<title>{{.Head }}</title>
+	{{ template "headjs" . }}
+</head>
+<body>
+	{{if .Nav}}
+	{{ template "nav" . }}
+	{{end}}
+	{{ template "main" . }}
+
+	{{ template "js" . }}
+</body>
+</html>

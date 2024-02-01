@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/c-bata/go-prompt"
-	net1 "github.com/shirou/gopsutil/net"
+	net1 "github.com/shirou/gopsutil/v3/net"
 )
 
 var beforeNet *MonitorNet

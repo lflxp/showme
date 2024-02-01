@@ -1,0 +1,122 @@
+{{ define "admin/editmenu.html" }}
+    {{ template "header" .}}
+    {{ template "nav" . }}
+
+    <div class="row">
+        <div class="col-md-4">
+            {{ template "menu" . }}
+        </div>
+        <div class="col-md-8">
+            <div class="row">
+                <div class="col-xs-12 col-sm-10">
+                    <div class="row">
+                        <div class="col-xs-10 col-sm-10 col-md-offset-2">
+                            <h1>修改 {{.Name}} {{.Id}}</h1>
+                            <br/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <form id="myform" class="form-horizontal" enctype="multipart/form-data" role="form" method="POST" onSubmit="return false" action="/admin/edit?table={{.Name}}">  
+
+                                {{.Col| str2html}}
+
+                                <div class="row">
+                                    <div class="col-xs-10 col-sm-10 col-md-offset-2">
+                                        <div class="submit-row">
+                                            <input type="submit" value="修改" class="default" onclick="comfirm('back')" />
+                                            <input type="submit" value="取消" class="default"  onclick="back()" />
+                                            <input type="submit" style="float: left; background-color: red;" value="删除" class="btn btn-danger" onclick="comfirmdel()" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    function onlyrefresh() {
+        window.close();
+    }
+
+    function Add(name) {
+        window.location.href = "/admin/add?name="+name;
+    }
+
+    function back() {
+        window.location.href = "/admin/table?name={{.Name}}";
+    }
+    function reset() {
+        $('form')[0].reset();
+    }
+    $.fn.serializeObject = function() {
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function() {
+            if (o[this.name]) {
+                if (!o[this.name].push) {
+                    o[this.name] = [ o[this.name] ];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
+
+    function comfirm(info) {
+        var formData = new FormData();
+        {{- range $index, $element := .Columns}}
+            {{- if eq $element.ColType "file"}}
+                formData.append('{{$element.Name}}', $('#{{$element.Name}}')[0].files[0]);
+            {{else}}
+                formData.append('{{$element.Name}}', $('[name="{{$element.Name}}"]').val());
+            {{- end}}
+        {{- end}}
+        var options = {
+            url: "/admin/edit?table={{.Name}}"+'&' + window.location.search.substr(1),
+            type: 'post',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(data){
+                console.log(data)
+                if (info == 'back') {
+                    back()
+                } else if (info == 'reset') {
+                    reset()
+                } else {
+                    // onlyrefresh() 
+                    window.location.href = "/admin/table?name={{.Name}}";
+                }
+            }
+        }
+        $.ajax(options);
+    }
+    function comfirmdel() {
+        var r = confirm("确定删除吗？");
+        if (r==true){
+            var options = {
+                url:'/admin/delete?name={{.Name}}&ids='+{{.Id}},
+                type:'Post',
+                success: function(data) {
+                    console.log(data)
+                    window.location.href = "/admin/table?name={{.Name}}";
+                },
+                error: function(req, data) {
+                    alert(req.responseText)
+                }
+            }
+            $.ajax(options);
+        }
+    }
+    </script>
+
+    {{ template "footer" . }}
+{{ end }}
+
+

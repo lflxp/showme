@@ -85,9 +85,9 @@ func Run(ishttps bool) {
 	var openUrl string
 	for index, ip := range utils.GetIPs() {
 		if ishttps {
-			slog.Info("Listening and serving HTTPS on https://%s:%s", ip, port)
+			slog.Info(fmt.Sprintf("Listening and serving HTTPS on https://%s:%s", ip, port))
 		} else {
-			slog.Info("Listening and serving HTTPS on http://%s:%s", ip, port)
+			slog.Info(fmt.Sprintf("Listening and serving HTTPS on http://%s:%s", ip, port))
 		}
 
 		if index == 0 {

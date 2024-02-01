@@ -33,13 +33,8 @@ type ScanData struct {
 // scanCmd represents the scan command
 var scanCmd = &cobra.Command{
 	Use:   "scan",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "多线程IP+端口扫描工具",
+	Long:  `showme scan -i 127.0.0.1 -p 1-65535`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if scanDebug {
 			lvl.Set(slog.LevelDebug)

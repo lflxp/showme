@@ -1,0 +1,79 @@
+{{ define "ws/logs.html" }}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{{.Pod}}/{{.Container}}日志</title>
+<script src="//cdn.bootcss.com/jquery/2.1.4/jquery.js"></script>
+</head>
+<body>
+    <textarea id="logoutput" rows="30" placeholder="日志输出" style="background:#000; color:#FFF" ></textarea>
+</body>
+<script>
+    function binaryData(ev) {
+        var data = new TextDecoder("utf-8").decode(new Uint8Array(ev.data))
+        return data
+    }
+
+    $(document).ready(function() {
+        var data = document.getElementById("logoutput");
+    
+        // 监听内容变化
+        data.addEventListener('input', function(e) {
+
+            // 获取textarea的scrollHeight
+            const scrollHeight = data.scrollHeight
+
+            // 获取textarea的上下边框的高度 
+            // 由于textarea的边框可能有别的地方定义了更高级别的样式
+            // 使用getComputedStyle 读取的样式是最终样式，包括了内联样式、嵌入样式和外部样式
+            // document.defaultView.getComputedStyle(element[,pseudo-element]); 
+            // 或者
+            // window.getComputedStyle(element[,pseudo-element]);
+            const style = getComputedStyle(data)
+
+            const borderTop = parseInt(s.borderTopWidth)
+            const borderBottom = parseInt(s.borderBottomWidth)
+            const height = scrollHeight + borderTop + borderBottom
+            console.log('height: ', height)
+            data.style.height = height + 'px'
+        })
+
+        // 指定websocket路径
+        var ws = new WebSocket('ws://{{.Host}}/ws/logs/backend/{{.Namespace}}/{{.Pod}}/{{.Container}}');
+        ws.binaryType = 'arraybuffer';
+
+        ws.onmessage = function(event) {
+            console.log(event,binaryData(event))
+            // 接收服务端的实时日志并添加到HTML页面中
+            data.innerHTML += binaryData(event);
+            // 滚动条滚动到最低部
+            var d = data.scrollHeight;
+            data.scrollTop = d;
+        };
+        ws.onclose = function(evt) {
+            data.innerHTML += 'Connection closed';
+        }
+    });
+</script>
+<style>
+textarea {
+    display: block;
+    resize: vertical;
+    padding: 5px 15px;
+    line-height: 1.5;
+    box-sizing: border-box;
+    width: 100%;
+    font-size: inherit;
+    color: #606266;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    transition: border-color .2s cubic-bezier(.645,.045,.355,1);
+}
+</style>
+</body>
+</html>
+{{ end }}

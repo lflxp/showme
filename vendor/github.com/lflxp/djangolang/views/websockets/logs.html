@@ -1,0 +1,25 @@
+{{ define "ws/logs2.html" }}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{{.Pod}}/{{.Container}}日志</title>
+    </head>
+    <body>
+        <pre id="fileData">{{.Data}}</pre>
+        <script type="text/javascript">
+            (function() {
+                var data = document.getElementById("fileData");
+                var conn = new WebSocket("ws://{{.Host}}/ws/logs/backend/{{.Namespace}}/{{.Pod}}/{{.Container}}");
+                conn.onclose = function(evt) {
+                    data.textContent = 'Connection closed';
+                }
+                conn.onmessage = function(evt) {
+                    console.log('file updated');
+                    data.textContent += evt.data;
+                }
+            })();
+        </script>
+    </body>
+</html>
+{{ end }}

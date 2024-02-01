@@ -70,7 +70,7 @@ source <(showme completion zsh)
 
 ![](./img/gopacket.png)
 
-* [【DONE】monitor 监控展示](https://github.com/lflxp/lflxp-monitor/blob/master/README.md)
+* [【DONE】monitor 监控展示(支持macos｜linux)](https://github.com/lflxp/lflxp-monitor/blob/master/README.md)
 
 ![monitor.png](./img/monitor.png)
 

@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/v3/cpu"
 )
 
 var before []cpu.TimesStat

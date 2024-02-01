@@ -82,7 +82,7 @@ func Execute() {
 	// 其余都走parseCmd
 	if len(os.Args) >= 2 {
 		switch os.Args[1] {
-		case "completion", "smart", "api", "cmd", "dashboard", "help", "k8s", "martix", "music", "playbook", "proxy", "static", "tty", "watch", "scan":
+		case "completion", "smart", "api", "cmd", "dashboard", "help", "k8s", "martix", "music", "playbook", "proxy", "static", "tty", "watch", "scan", "django", "metrics", "monitor":
 			slog.Debug("进入cobra命令模式", slog.Any("args", os.Args[1]))
 			err := rootCmd.Execute()
 			if err != nil {
@@ -109,7 +109,7 @@ func init() {
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.showme.yaml)")
 	// rootCmd.PersistentFlags().BoolVarP(&debugs, "debug", "d", false, "是否打印debug日志")
-	rootCmd.PersistentFlags().BoolVarP(&islog, "log", "l", false, "是否文件输出")
+	rootCmd.PersistentFlags().BoolVarP(&islog, "log", "L", false, "是否文件输出")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.

@@ -22,7 +22,7 @@ import (
     `strings`
     `sync`
 
-    `github.com/bytedance/sonic/internal/loader`
+    `github.com/bytedance/sonic/loader`
     `github.com/bytedance/sonic/internal/rt`
     `github.com/twitchyliquid64/golang-asm/obj`
     `github.com/twitchyliquid64/golang-asm/obj/x86`
@@ -69,6 +69,18 @@ func (self *BaseAssembler) NOPn(n int) {
         for ; n >= i; n -= i {
             self.Byte(_NOPS[i - 1][:i]...)
         }
+    }
+}
+
+func (self *BaseAssembler) StorePtr(ptr int64, to obj.Addr, tmp obj.Addr) {
+    if (to.Type != obj.TYPE_MEM) || (tmp.Type != obj.TYPE_REG) {
+        panic("must store imm to memory, tmp must be register")
+    }
+    if (ptr >> 32) != 0 {
+        self.Emit("MOVQ", Imm(ptr), tmp)
+        self.Emit("MOVQ", tmp, to)
+    } else {
+        self.Emit("MOVQ", Imm(ptr), to);
     }
 }
 
@@ -202,14 +214,17 @@ func (self *BaseAssembler) Init(f func()) {
     self.o = sync.Once{}
 }
 
-func (self *BaseAssembler) Load(fn string, fp int, args int) loader.Function {
-    self.build()
-    return loader.Loader(self.c).Load(fn, fp, args)
+var jitLoader = loader.Loader{
+    Name: "sonic.jit.",
+    File: "github.com/bytedance/sonic/jit.go",
+    Options: loader.Options{
+        NoPreempt: true,
+    },
 }
 
-func (self *BaseAssembler) LoadWithFaker(fn string, fp int, args int, faker interface{}) loader.Function {
+func (self *BaseAssembler) Load(name string, frameSize int, argSize int, argStackmap []bool, localStackmap []bool) loader.Function {
     self.build()
-    return loader.Loader(self.c).LoadWithFaker(fn, fp, args, faker)
+    return jitLoader.LoadOne(self.c, name, frameSize, argSize, argStackmap, localStackmap)
 }
 
 /** Assembler Stages **/

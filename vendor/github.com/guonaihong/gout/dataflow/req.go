@@ -38,6 +38,9 @@ type Req struct {
 
 	// http header
 	headerEncode []interface{}
+	// raw header
+	rawHeader bool
+
 	headerDecode interface{}
 
 	// query
@@ -48,7 +51,7 @@ type Req struct {
 
 	callback func(*Context) error
 
-	//cookie
+	// cookie
 	cookies []*http.Cookie
 
 	ctxIndex int
@@ -117,10 +120,13 @@ func (r *Req) addDefDebug() {
 			r.ReqBodyType = "yaml"
 		}
 	}
-
 }
 
 func (r *Req) addContextType(req *http.Request) {
+	if req.Header.Get("Content-Type") != "" {
+		return
+	}
+
 	if r.wwwForm != nil {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	}
@@ -135,7 +141,6 @@ func (r *Req) addContextType(req *http.Request) {
 			req.Header.Add("Content-Type", "application/x-yaml")
 		}
 	}
-
 }
 
 func (r *Req) selectRequest(body *bytes.Buffer) (req *http.Request, err error) {
@@ -313,7 +318,7 @@ func (r *Req) Request() (req *http.Request, err error) {
 		req.AddCookie(c)
 	}
 
-	if r.form != nil {
+	if r.form != nil && req.Header.Get("Content-Type") == "" {
 		req.Header.Add("Content-Type", f.FormDataContentType())
 	}
 
@@ -333,7 +338,7 @@ func (r *Req) Request() (req *http.Request, err error) {
 	if r.userName != nil && r.password != nil {
 		req.SetBasicAuth(*r.userName, *r.password)
 	}
-	//运行请求中间件
+	// 运行请求中间件
 	for _, reqModify := range r.reqModify {
 		if err = reqModify.ModifyRequest(req); err != nil {
 			return nil, err
@@ -349,7 +354,7 @@ func (r *Req) encodeHeader(req *http.Request) (err error) {
 			continue
 		}
 
-		err = encode.Encode(h, encode.NewHeaderEncode(req))
+		err = encode.Encode(h, encode.NewHeaderEncode(req, r.rawHeader))
 		if err != nil {
 			return err
 		}
@@ -374,7 +379,6 @@ func (r *Req) GetContext() context.Context {
 
 // TODO 优化代码，每个decode都有自己的指针偏移直接指向流，减少大body的内存使用
 func (r *Req) decodeBody(req *http.Request, resp *http.Response) (err error) {
-
 	if r.bodyDecoder != nil {
 		var all []byte
 		if len(r.bodyDecoder) > 1 {
@@ -382,7 +386,7 @@ func (r *Req) decodeBody(req *http.Request, resp *http.Response) (err error) {
 			if err != nil {
 				return err
 			}
-			//已经取走数据，直接关闭body
+			// 已经取走数据，直接关闭body
 			resp.Body.Close()
 		}
 
@@ -429,7 +433,7 @@ func (r *Req) decode(req *http.Request, resp *http.Response, openDebug bool) (er
 			return err
 		}
 	}
-	//运行响应中间件。放到debug打印后面，避免混淆请求返回内容
+	// 运行响应中间件。放到debug打印后面，避免混淆请求返回内容
 	for _, modify := range r.responseModify {
 		err = modify.ModifyResponse(resp)
 		if err != nil {
@@ -458,7 +462,6 @@ func clearBody(resp *http.Response) error {
 }
 
 func (r *Req) Bind(req *http.Request, resp *http.Response) (err error) {
-
 	if err = r.decode(req, resp, r.Setting.Debug); err != nil {
 		return err
 	}
@@ -482,7 +485,6 @@ func (r *Req) Bind(req *http.Request, resp *http.Response) (err error) {
 	}
 
 	return nil
-
 }
 
 func (r *Req) Client() *http.Client {
@@ -525,11 +527,10 @@ func (r *Req) getReqAndRsp() (req *http.Request, rsp *http.Response, err error) 
 	// 如果调用Chunked()接口, 就使用chunked的数据包
 	r.maybeUseChunked(req)
 
-	//resp, err := r.Client().Do(req)
-	//TODO r.Client() 返回Do接口
+	// resp, err := r.Client().Do(req)
+	// TODO r.Client() 返回Do接口
 	rsp, err = opt.StartTrace(opt, r.canTrace(), req, r.Client())
 	return
-
 }
 
 // Response 获取原始http.Response数据结构
@@ -541,7 +542,6 @@ func (r *Req) Response() (rsp *http.Response, err error) {
 
 // Do Send function
 func (r *Req) Do() (err error) {
-
 	req, resp, err := r.getReqAndRsp()
 	if resp != nil {
 		defer resp.Body.Close()

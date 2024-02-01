@@ -10,13 +10,10 @@ import (
 // completionCmd represents the completion command
 var completionCmd = &cobra.Command{
 	Use:   "completion",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "completion自动命令补全工具",
+	Long: `生成bash ｜ zsh 的代码自动补全脚本
+配置方法在~/.zshrc or ~/.bashrc中配置：
+source <(showme completion zsh)`,
 	// Run: func(cmd *cobra.Command, args []string) {
 	// 	fmt.Println("completion called")
 	// },

@@ -15,11 +15,11 @@ import (
 )
 
 var (
-	addr              = flag.String("listen-address", ":8080", "The address to listen on for HTTP requests.")
-	uniformDomain     = flag.Float64("uniform.domain", 0.0002, "The domain for the uniform distribution.")
-	normDomain        = flag.Float64("normal.domain", 0.0002, "The domain for the normal distribution.")
-	normMean          = flag.Float64("normal.mean", 0.00001, "The mean for the normal distribution.")
-	oscillationPeriod = flag.Duration("oscillation-period", 10*time.Minute, "The duration of the rate oscillation period.")
+	addr              = flag.String("k8s-listen-address", ":8080", "The address to listen on for HTTP requests.")
+	uniformDomain     = flag.Float64("k8s-uniform.domain", 0.0002, "The domain for the uniform distribution.")
+	normDomain        = flag.Float64("k8s-normal.domain", 0.0002, "The domain for the normal distribution.")
+	normMean          = flag.Float64("k8s-normal.mean", 0.00001, "The mean for the normal distribution.")
+	oscillationPeriod = flag.Duration("k8s-oscillation-period", 10*time.Minute, "The duration of the rate oscillation period.")
 )
 
 var (

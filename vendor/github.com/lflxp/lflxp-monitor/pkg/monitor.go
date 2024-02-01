@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -12,11 +13,15 @@ func Run(cmd string) {
 	t := time.NewTicker(time.Second)
 	defer t.Stop()
 
-	// 获取退出信号
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, os.Kill)
-
 	ok := true
+	// 获取退出信号
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, os.Kill, syscall.SIGTERM)
+	go func() {
+		s := <-c
+		fmt.Printf("\n\033[1;4;31m%s:罒灬罒:小伙子走了哟！\033[0m\n", s)
+		ok = false
+	}()
 
 	interval := 20
 	num := 0
@@ -39,20 +44,16 @@ func Run(cmd string) {
 
 	FilterTitle(cmd, num, interval)
 
-	for {
+	for ok {
 		num++
 		select {
-		case s := <-c:
-			fmt.Printf("\n\033[1;4;31m%s:罒灬罒:小伙子走了哟！\033[0m\n", s)
-			ok = false
-			break
+		case <-c:
+			return
 		case <-t.C:
-			FilterTitle(cmd, num, interval)
-			FilterValue(cmd)
-		}
-		// 终止循环
-		if !ok {
-			break
+			if ok {
+				FilterTitle(cmd, num, interval)
+				FilterValue(cmd)
+			}
 		}
 	}
 }

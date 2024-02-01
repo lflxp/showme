@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/shirou/gopsutil/host"
+	"github.com/shirou/gopsutil/v3/host"
 )
 
 func (this *basic) GetHostAndIps() error {

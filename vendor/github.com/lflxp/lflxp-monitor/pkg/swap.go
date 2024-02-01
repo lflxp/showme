@@ -4,7 +4,7 @@ package pkg
 import (
 	"fmt"
 
-	"github.com/shirou/gopsutil/mem"
+	"github.com/shirou/gopsutil/v3/mem"
 )
 
 var beforeSwap *MonitorSwap

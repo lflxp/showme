@@ -1,0 +1,119 @@
+{{ define "admin/addmenu.html" }}
+
+{{ template "header" .}}
+
+{{if .Nav}}
+{{ template "nav" . }}
+{{end}}
+<div class="row">
+    <div class="col-md-4">
+        {{ template "menu" . }}
+    </div>
+    <div class="col-md-8">
+        <div class="row">
+            <div class="col-xs-12 col-sm-10">
+                <div class="row">
+                    <div class="col-xs-10 col-sm-10 col-md-offset-2">
+                        <h1>添加 {{.Name}} </h1>
+                        <br/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <form name="myform" id="myform" class="form-horizontal" enctype="multipart/form-data" role="form" method="POST" onSubmit="return false" action="/admin/add?table={{.Name}}">  
+                            {{.Col| formcolumns | str2html}}
+                            
+                            <div class="row">
+                                <div class="col-xs-10 col-sm-10 col-md-offset-2">
+                                    <div class="submit-row">
+                                        <input type="submit" value="保存" class="default" onclick="comfirm('back')" />
+                                        <input type="submit" value="保存并增加另一个" class="default" onclick="comfirm('reset')" />
+                                        <input type="submit" value="保存并继续编辑" class="default"  onclick="comfirm('')" />
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <!-- <a href="#" style="text-decoration: none;">使用ajax提交表单数据</a> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function onlyrefresh() {
+        // opener.location.reload();
+        // window.parent.location.reload();
+    }
+
+    function Add(name) {
+        window.location.href = "/admin/add?name="+name;
+    }
+
+    function back() {
+        // window.close();
+        // opener.location.reload();
+        window.location.href = "/admin/table?name={{.Name}}";
+    }
+    function reset() {
+        $('form')[0].reset();
+    }
+
+    $.fn.serializeObject = function() {
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function() {
+            if (o[this.name]) {
+                if (!o[this.name].push) {
+                    o[this.name] = [ o[this.name] ];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
+
+    function comfirm(info) {
+        console.log($('form').serializeObject(), info)
+        var formData = new FormData();
+        {{- range $index, $element := .Columns}}
+            {{- if eq $element.ColType "file"}}
+                formData.append('{{$element.Name}}', $('#{{$element.Name}}')[0].files[0]);
+            {{else}}
+                formData.append('{{$element.Name}}', $('[name="{{$element.Name}}"]').val());
+            {{- end}}
+        {{- end}}
+        var options = {
+            url: "/admin/add?table={{.Name}}",
+            type: 'post',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(data){
+                console.log(data)
+                if (info == 'back') {
+                    back()
+                } else if (info == 'reset') {
+                    reset()
+                } else {
+                    onlyrefresh() 
+                }
+            },
+            error: function(request, status) {
+                console.log(request, status)
+                alert(request.responseText)
+            }
+        }
+        $.ajax(options);
+    }
+
+</script>
+
+{{ template "footer" .}}
+{{ end }}
+
+
+

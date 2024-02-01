@@ -16,13 +16,8 @@ var smartDebugLevel bool
 // smartCmd represents the smart command
 var smartCmd = &cobra.Command{
 	Use:   "smart",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "智能命令数据补全工具",
+	Long:  `需配合completion，功能类似：kubectl + fzf + zsh-completion`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// 动态调整日志输出级别
 		if smartDebugLevel {
