@@ -12,6 +12,9 @@ import (
 
 var debugLevel bool
 
+// zsh kubectl api-resources固定配置
+var fast bool
+
 // smartCmd represents the smart command
 var smartCmd = &cobra.Command{
 	Use:   "smart",
@@ -45,4 +48,5 @@ func init() {
 	// is called directly, e.g.:
 	// smartCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	smartCmd.Flags().BoolVarP(&debugLevel, "debug", "d", false, "Log Level")
+	smartCmd.Flags().BoolVarP(&fast, "fast", "f", false, "是否开启快速api-resources对齐")
 }

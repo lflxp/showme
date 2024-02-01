@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	. "github.com/lflxp/smkubectl/completion"
+	"github.com/lflxp/smkubectl/utils"
 )
 
 func ContainsString(slice []string, s string) bool {
@@ -74,7 +75,7 @@ func ParseCmd(in string) {
 					slog.Error(err.Error())
 					return
 				}
-				fmt.Printf(strings.Join(rs, "\n"))
+				fmt.Printf("%s", strings.Join(rs, "\n"))
 			} else {
 				// 根据命令长度智能补全命令
 				if len(result) == 2 {
@@ -100,7 +101,7 @@ func ParseCmd(in string) {
 							t_one = append(t_one, strings.Replace(k, result[1], "", 1))
 						}
 					}
-					fmt.Printf(strings.Join(t_one, "\n"))
+					fmt.Printf("%s", strings.Join(t_one, "\n"))
 				} else if len(result) == 3 && !isLastWorkSpace {
 					// 补全命令
 					slog.Debug("智能补全三级命令")
@@ -112,7 +113,7 @@ func ParseCmd(in string) {
 							return
 						}
 					}
-					fmt.Printf(strings.Join(t_two, "\n"))
+					fmt.Printf("%s", strings.Join(t_two, "\n"))
 				} else {
 					// 补全数据
 					slog.Debug("智能补全多级命令")
@@ -124,20 +125,105 @@ func ParseCmd(in string) {
 						// 补全实时数据结果
 						// 补全数据 有空格
 						// 如果获取最后一个参数无数据 则执行该命令
-						slog.Debug("补全实时数据结果", "命令是否包含空格", isLastWorkSpace)
+						slog.Debug("补全实时数据结果", "命令是否包含空格", isLastWorkSpace, "FAST", fast)
 						var cmd string
 
 						switch result[0] {
 						case "kubectl", "k", "kk", "k8s":
 							// 判断最后一个参数是否是命令行参数
 							isCmds := false
-							// TODO: 查询速度慢 简写无法处理
-							// 要去kubectl api-resources结果中获取
-							for _, c := range value.Cmd {
-								if strings.HasPrefix(c, result[len(result)-1]) {
-									cmd = fmt.Sprintf("kubectl get %s -A", result[len(result)-1])
-									isCmds = true
-									break
+
+							if fast {
+								// 固定配置
+								// 优点：查询快
+								// 缺点：不能实时匹配
+								slog.Debug("启动FAST固定配置", "TYPE", "KUBECTL API-RESOURCES")
+								for _, c := range value.Daughter["get"].Cmd {
+									if strings.HasPrefix(c, result[len(result)-1]) {
+										cmd = fmt.Sprintf("kubectl get %s -A", result[len(result)-1])
+										isCmds = true
+										break
+									}
+								}
+							} else {
+								// 缓存文件解决查询速度问题
+								cacheData, err := utils.ReadYamlToStruct()
+								if err != nil {
+									slog.Error(err.Error())
+									return
+								}
+
+								// 查询集群信息
+								cluster_cmd := "kubectl cluster-info|head -1"
+								cluser_info, err := execCmdString(cluster_cmd)
+								if err != nil {
+									slog.Error("获取集群信息失败", "cmd", cluster_cmd, "error", err.Error())
+									return
+								}
+
+								// 判断cluster是否存在
+								isCluster := false
+								for _, c := range cacheData.Data {
+									if c.Cluster == cluser_info {
+										isCluster = true
+										break
+									}
+								}
+
+								// 过期或者集群不存在重新获取
+								if cacheData.IsExpire() || !isCluster {
+									slog.Debug("缓存过期或者集群不存在重新获取", "ISEXPIRE", cacheData.IsExpire(), "ISCLUSTER", isCluster)
+									// TODO: 查询速度慢 简写无法处理
+									// 要去kubectl api-resources结果中获取
+									// 硬编码：实时获取kubectl api-resources结果
+									cacheNew := utils.ResourceCache{
+										Cluster: cluser_info,
+									}
+
+									resourceList := []string{}
+									resource_cmd := "kubectl api-resources |sed 1d|awk '{print $1\" \"$2}'|xargs echo"
+									// 动态配置
+									resources, err := execCmdString(resource_cmd)
+									if err != nil {
+										slog.Error("获取资源失败", "cmd", resource_cmd, "error", err.Error())
+										return
+									}
+
+									// 动态配置
+									// 缺点：查询慢
+									// 优点：实时匹配
+									for _, c := range strings.Split(resources, " ") {
+										if c != " " && !strings.Contains(c, "v1") && !strings.Contains(c, "v2") {
+											resourceList = append(resourceList, strings.TrimSpace(strings.ReplaceAll(c, "\n", " ")))
+											if strings.HasPrefix(c, result[len(result)-1]) {
+												cmd = fmt.Sprintf("kubectl get %s -A", result[len(result)-1])
+												isCmds = true
+												// break
+											}
+										}
+									}
+
+									cacheNew.Resources = resourceList
+
+									err = utils.WriteResourcesToYaml(&cacheNew)
+									if err != nil {
+										slog.Error("写入资源失败", "error", err.Error())
+										return
+									}
+								} else {
+									// 读取缓存数据
+									slog.Debug("读取缓存数据", "cluster", cluser_info, "ISEXPIRE", cacheData.IsExpire(), "ISCLUSTER", isCluster)
+									for _, v := range cacheData.Data {
+										if v.Cluster == cluser_info {
+											for _, vv := range v.Resources {
+												if strings.HasPrefix(vv, result[len(result)-1]) {
+													cmd = fmt.Sprintf("kubectl get %s -A", result[len(result)-1])
+													isCmds = true
+													break
+												}
+											}
+										}
+									}
 								}
 							}
 
@@ -209,7 +295,7 @@ func ParseCmd(in string) {
 						// fmt.Printf("t_two %v %b\n", t_two, isLastWorkSpace)
 						slog.Debug("补全命令失败", "结果集", t_two, "命令是否包含空格", isLastWorkSpace)
 					}
-					fmt.Printf(strings.Join(t_two, "\n"))
+					fmt.Printf("%s", strings.Join(t_two, "\n"))
 				}
 			}
 		}

@@ -36,7 +36,7 @@ require (
 	github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee
 	github.com/lflxp/lflxp-static v1.0.3
 	github.com/lflxp/lflxp-tty v1.0.1
-	github.com/lflxp/smkubectl v0.1.3
+	github.com/lflxp/smkubectl v0.1.6
 	github.com/lithammer/fuzzysearch v1.1.5
 	github.com/mattn/go-runewidth v0.0.14
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
@@ -49,7 +49,7 @@ require (
 	github.com/ugorji/go/codec v1.2.11
 	github.com/ying32/govcl v2.2.0+incompatible
 	golang.org/x/term v0.16.0
-	k8s.io/client-go v0.29.0
+	k8s.io/client-go v0.29.1
 )
 
 require (
@@ -221,8 +221,8 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	howett.net/plist v1.0.0 // indirect
-	k8s.io/api v0.29.0 // indirect
-	k8s.io/apimachinery v0.29.0 // indirect
+	k8s.io/api v0.29.1 // indirect
+	k8s.io/apimachinery v0.29.1 // indirect
 	k8s.io/klog/v2 v2.110.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20231010175941-2dd684a91f00 // indirect
 	k8s.io/metrics v0.29.0 // indirect
