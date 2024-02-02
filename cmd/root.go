@@ -109,7 +109,7 @@ func init() {
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.showme.yaml)")
 	// rootCmd.PersistentFlags().BoolVarP(&debugs, "debug", "d", false, "是否打印debug日志")
-	rootCmd.PersistentFlags().BoolVarP(&islog, "log", "L", false, "是否文件输出")
+	rootCmd.PersistentFlags().BoolVarP(&islog, "log", "O", false, "是否文件输出")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
