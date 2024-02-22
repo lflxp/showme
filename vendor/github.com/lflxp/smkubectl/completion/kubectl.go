@@ -74,6 +74,19 @@ var kubectl = Completion{
 				"cs", "cm", "ep", "ev", "limits", "ns", "no", "pvc", "pv", "po", "rc", "quota", "sa", "svc", "crd", "crds", "ds", "deploy", "rs", "sts", "app", "apps", "appset", "appsets", "appproj", "appprojs", "hpa", "cj", "cr", "crs", "cert", "certs", "csr", "dwoc", "dwr", "ev", "dep", "cpol", "crcr", "gr", "pol", "rcr", "ur", "amcfg", "am", "pmon", "prb", "prom", "promrule", "smon", "ruler", "ing", "netpol", "pdb", "pc", "sc", "cpolr", "polr", "dw", "dwt",
 			},
 		},
+		"delete": Completion{
+			Level:   "delete",
+			IsShell: true,
+			Shell:   "kubectl api-resources",
+			Cmd: []string{"bindings", "componentstatuses", "configmaps", "endpoints", "events", "limitranges", "namespaces", "nodes", "persistentvolumeclaims", "persistentvolumes", "pods", "podtemplates", "replicationcontrollers", "resourcequotas", "secrets", "serviceaccounts", "services", "challenges", "orders", "mutatingwebhookconfigurations", "validatingwebhookconfigurations", "customresourcedefinitions", "apiservices", "controllerrevisions", "daemonsets", "deployments", "replicasets", "statefulsets", "applications", "applicationsets", "appprojects", "argocdextensions", "tokenreviews", "localsubjectaccessreviews", "selfsubjectaccessreviews", "selfsubjectrulesreviews", "subjectaccessreviews", "horizontalpodautoscalers", "cronjobs", "jobs", "certificaterequests", "certificates", "clusterissuers", "issuers", "certificatesigningrequests", "devworkspaceoperatorconfigs", "devworkspaceroutings", "leases", "bgpconfigurations", "bgppeers", "blockaffinities", "caliconodestatuses", "clusterinformations", "felixconfigurations", "globalnetworkpolicies", "globalnetworksets", "hostendpoints", "ipamblocks", "ipamconfigs", "ipamhandles", "ippools", "ipreservations", "kubecontrollersconfigurations", "networkpolicies", "networksets", "endpointslices", "events", "flowschemas", "prioritylevelconfigurations", "departments", "licenses", "products", "projects", "roletemplatebindings", "roletemplates", "users", "workzooms", "clusterpolicies", "clusterreportchangerequests", "generaterequests", "policies", "reportchangerequests", "updaterequests", "nodes", "pods", "alertmanagerconfigs", "alertmanagers", "podmonitors", "probes", "prometheuses", "prometheusrules", "servicemonitors", "thanosrulers", "ingressclasses", "ingresses", "networkpolicies", "runtimeclasses", "checlusters", "poddisruptionbudgets", "clusterrolebindings", "clusterroles", "rolebindings", "roles", "priorityclasses", "csidrivers", "csinodes", "csistoragecapacities", "storageclasses", "volumeattachments", "clusterpolicyreports", "policyreports", "devworkspaces", "devworkspacetemplates",
+				"cs", "cm", "ep", "ev", "limits", "ns", "no", "pvc", "pv", "po", "rc", "quota", "sa", "svc", "crd", "crds", "ds", "deploy", "rs", "sts", "app", "apps", "appset", "appsets", "appproj", "appprojs", "hpa", "cj", "cr", "crs", "cert", "certs", "csr", "dwoc", "dwr", "ev", "dep", "cpol", "crcr", "gr", "pol", "rcr", "ur", "amcfg", "am", "pmon", "prb", "prom", "promrule", "smon", "ruler", "ing", "netpol", "pdb", "pc", "sc", "cpolr", "polr", "dw", "dwt",
+			},
+		},
+		"cp": Completion{
+			Level:   "cp",
+			IsShell: true,
+			Shell:   "kubectl get po -A",
+		},
 		"create": Completion{
 			Level: "create",
 			Cmd: []string{

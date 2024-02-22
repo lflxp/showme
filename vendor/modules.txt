@@ -609,7 +609,7 @@ github.com/lflxp/lflxp-static/pkg/sync
 # github.com/lflxp/lflxp-tty v1.0.1
 ## explicit; go 1.21.6
 github.com/lflxp/lflxp-tty/pkg
-# github.com/lflxp/smkubectl v0.1.6
+# github.com/lflxp/smkubectl v0.1.7
 ## explicit; go 1.21.6
 github.com/lflxp/smkubectl/cmd
 github.com/lflxp/smkubectl/completion
