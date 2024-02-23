@@ -36,7 +36,7 @@ require (
 	github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee
 	github.com/lflxp/lflxp-static v1.0.3
 	github.com/lflxp/lflxp-tty v1.0.1
-	github.com/lflxp/smkubectl v0.1.7
+	github.com/lflxp/smkubectl v0.1.8
 	github.com/lithammer/fuzzysearch v1.1.5
 	github.com/mattn/go-runewidth v0.0.14
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
