@@ -202,6 +202,9 @@ github.com/emicklei/go-restful/v3/log
 # github.com/fatih/color v1.13.0
 ## explicit; go 1.13
 github.com/fatih/color
+# github.com/felixge/httpsnoop v1.0.3
+## explicit; go 1.13
+github.com/felixge/httpsnoop
 # github.com/fsnotify/fsnotify v1.6.0
 ## explicit; go 1.16
 github.com/fsnotify/fsnotify
@@ -432,8 +435,20 @@ github.com/google/gops/signal
 # github.com/google/uuid v1.4.0
 ## explicit
 github.com/google/uuid
-# github.com/gorilla/websocket v1.5.0
-## explicit; go 1.12
+# github.com/gorilla/handlers v1.5.2
+## explicit; go 1.20
+github.com/gorilla/handlers
+# github.com/gorilla/mux v1.8.1
+## explicit; go 1.20
+github.com/gorilla/mux
+# github.com/gorilla/securecookie v1.1.2
+## explicit; go 1.20
+github.com/gorilla/securecookie
+# github.com/gorilla/sessions v1.2.2
+## explicit; go 1.20
+github.com/gorilla/sessions
+# github.com/gorilla/websocket v1.5.1
+## explicit; go 1.20
 github.com/gorilla/websocket
 # github.com/guonaihong/gout v0.3.9
 ## explicit; go 1.17
@@ -484,6 +499,9 @@ github.com/inconshreveable/mousetrap
 # github.com/joeshaw/multierror v0.0.0-20140124173710-69b34d4ec901
 ## explicit
 github.com/joeshaw/multierror
+# github.com/joho/godotenv v1.5.1
+## explicit; go 1.12
+github.com/joho/godotenv
 # github.com/josharian/intern v1.0.0
 ## explicit; go 1.5
 github.com/josharian/intern
@@ -513,6 +531,9 @@ github.com/junegunn/fzf/src/util
 # github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 ## explicit
 github.com/kballard/go-shellquote
+# github.com/kelseyhightower/envconfig v1.4.0
+## explicit
+github.com/kelseyhightower/envconfig
 # github.com/klauspost/cpuid/v2 v2.2.4
 ## explicit; go 1.15
 github.com/klauspost/cpuid/v2
@@ -609,6 +630,20 @@ github.com/lflxp/lflxp-static/pkg/sync
 # github.com/lflxp/lflxp-tty v1.0.1
 ## explicit; go 1.21.6
 github.com/lflxp/lflxp-tty/pkg
+# github.com/lflxp/screego v0.0.3
+## explicit; go 1.18
+github.com/lflxp/screego/auth
+github.com/lflxp/screego/config
+github.com/lflxp/screego/config/ipdns
+github.com/lflxp/screego/config/mode
+github.com/lflxp/screego/logger
+github.com/lflxp/screego/router
+github.com/lflxp/screego/server
+github.com/lflxp/screego/turn
+github.com/lflxp/screego/ui
+github.com/lflxp/screego/util
+github.com/lflxp/screego/ws
+github.com/lflxp/screego/ws/outgoing
 # github.com/lflxp/smkubectl v0.1.8
 ## explicit; go 1.21.6
 github.com/lflxp/smkubectl/cmd
@@ -733,6 +768,54 @@ github.com/pelletier/go-toml/v2/internal/characters
 github.com/pelletier/go-toml/v2/internal/danger
 github.com/pelletier/go-toml/v2/internal/tracker
 github.com/pelletier/go-toml/v2/unstable
+# github.com/pion/dtls/v2 v2.2.7
+## explicit; go 1.13
+github.com/pion/dtls/v2
+github.com/pion/dtls/v2/internal/ciphersuite
+github.com/pion/dtls/v2/internal/ciphersuite/types
+github.com/pion/dtls/v2/internal/closer
+github.com/pion/dtls/v2/internal/util
+github.com/pion/dtls/v2/pkg/crypto/ccm
+github.com/pion/dtls/v2/pkg/crypto/ciphersuite
+github.com/pion/dtls/v2/pkg/crypto/clientcertificate
+github.com/pion/dtls/v2/pkg/crypto/elliptic
+github.com/pion/dtls/v2/pkg/crypto/hash
+github.com/pion/dtls/v2/pkg/crypto/prf
+github.com/pion/dtls/v2/pkg/crypto/signature
+github.com/pion/dtls/v2/pkg/crypto/signaturehash
+github.com/pion/dtls/v2/pkg/protocol
+github.com/pion/dtls/v2/pkg/protocol/alert
+github.com/pion/dtls/v2/pkg/protocol/extension
+github.com/pion/dtls/v2/pkg/protocol/handshake
+github.com/pion/dtls/v2/pkg/protocol/recordlayer
+# github.com/pion/logging v0.2.2
+## explicit; go 1.12
+github.com/pion/logging
+# github.com/pion/randutil v0.1.0
+## explicit; go 1.14
+github.com/pion/randutil
+# github.com/pion/stun v0.6.1
+## explicit; go 1.12
+github.com/pion/stun
+github.com/pion/stun/internal/hmac
+# github.com/pion/transport/v2 v2.2.1
+## explicit; go 1.12
+github.com/pion/transport/v2
+github.com/pion/transport/v2/connctx
+github.com/pion/transport/v2/deadline
+github.com/pion/transport/v2/packetio
+github.com/pion/transport/v2/replaydetector
+github.com/pion/transport/v2/stdnet
+github.com/pion/transport/v2/udp
+github.com/pion/transport/v2/utils/xor
+# github.com/pion/turn/v2 v2.1.5
+## explicit; go 1.13
+github.com/pion/turn/v2
+github.com/pion/turn/v2/internal/allocation
+github.com/pion/turn/v2/internal/client
+github.com/pion/turn/v2/internal/ipnet
+github.com/pion/turn/v2/internal/proto
+github.com/pion/turn/v2/internal/server
 # github.com/pkg/errors v0.9.1
 ## explicit
 github.com/pkg/errors
@@ -748,11 +831,12 @@ github.com/power-devops/perfstat
 # github.com/prometheus-community/go-runit v0.1.0
 ## explicit; go 1.20
 github.com/prometheus-community/go-runit/runit
-# github.com/prometheus/client_golang v1.17.0
+# github.com/prometheus/client_golang v1.18.0
 ## explicit; go 1.19
 github.com/prometheus/client_golang/prometheus
 github.com/prometheus/client_golang/prometheus/collectors
 github.com/prometheus/client_golang/prometheus/internal
+github.com/prometheus/client_golang/prometheus/promauto
 github.com/prometheus/client_golang/prometheus/promhttp
 # github.com/prometheus/client_model v0.5.0
 ## explicit; go 1.19
@@ -785,11 +869,17 @@ github.com/remyoudompheng/bigfft
 # github.com/rivo/uniseg v0.4.6
 ## explicit; go 1.18
 github.com/rivo/uniseg
-# github.com/rs/zerolog v1.25.0
+# github.com/rs/xid v1.5.0
+## explicit; go 1.12
+github.com/rs/xid
+# github.com/rs/zerolog v1.32.0
 ## explicit; go 1.15
 github.com/rs/zerolog
+github.com/rs/zerolog/hlog
+github.com/rs/zerolog/hlog/internal/mutil
 github.com/rs/zerolog/internal/cbor
 github.com/rs/zerolog/internal/json
+github.com/rs/zerolog/log
 # github.com/safchain/ethtool v0.3.0
 ## explicit; go 1.16
 github.com/safchain/ethtool
@@ -958,11 +1048,14 @@ go.uber.org/zap/zaptest/observer
 # golang.org/x/arch v0.3.0
 ## explicit; go 1.17
 golang.org/x/arch/x86/x86asm
-# golang.org/x/crypto v0.16.0
+# golang.org/x/crypto v0.19.0
 ## explicit; go 1.18
+golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
 golang.org/x/crypto/cast5
 golang.org/x/crypto/chacha20
+golang.org/x/crypto/cryptobyte
+golang.org/x/crypto/cryptobyte/asn1
 golang.org/x/crypto/curve25519
 golang.org/x/crypto/curve25519/internal/field
 golang.org/x/crypto/internal/alias
@@ -1008,7 +1101,7 @@ golang.org/x/oauth2/internal
 # golang.org/x/sync v0.5.0
 ## explicit; go 1.18
 golang.org/x/sync/errgroup
-# golang.org/x/sys v0.16.0
+# golang.org/x/sys v0.17.0
 ## explicit; go 1.18
 golang.org/x/sys/cpu
 golang.org/x/sys/plan9
@@ -1016,11 +1109,12 @@ golang.org/x/sys/unix
 golang.org/x/sys/windows
 golang.org/x/sys/windows/registry
 golang.org/x/sys/windows/svc/eventlog
-# golang.org/x/term v0.16.0
+# golang.org/x/term v0.17.0
 ## explicit; go 1.18
 golang.org/x/term
 # golang.org/x/text v0.14.0
 ## explicit; go 1.18
+golang.org/x/text/cases
 golang.org/x/text/encoding
 golang.org/x/text/encoding/charmap
 golang.org/x/text/encoding/internal
@@ -1030,6 +1124,7 @@ golang.org/x/text/encoding/korean
 golang.org/x/text/encoding/simplifiedchinese
 golang.org/x/text/encoding/traditionalchinese
 golang.org/x/text/encoding/unicode
+golang.org/x/text/internal
 golang.org/x/text/internal/language
 golang.org/x/text/internal/language/compact
 golang.org/x/text/internal/tag

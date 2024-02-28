@@ -36,6 +36,7 @@ require (
 	github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee
 	github.com/lflxp/lflxp-static v1.0.3
 	github.com/lflxp/lflxp-tty v1.0.1
+	github.com/lflxp/screego v0.0.3
 	github.com/lflxp/smkubectl v0.1.8
 	github.com/lithammer/fuzzysearch v1.1.5
 	github.com/mattn/go-runewidth v0.0.14
@@ -48,7 +49,7 @@ require (
 	github.com/swaggo/swag v1.16.2
 	github.com/ugorji/go/codec v1.2.11
 	github.com/ying32/govcl v2.2.0+incompatible
-	golang.org/x/term v0.16.0
+	golang.org/x/term v0.17.0
 	k8s.io/client-go v0.29.1
 )
 
@@ -81,6 +82,7 @@ require (
 	github.com/ema/qdisc v1.0.0 // indirect
 	github.com/emicklei/go-restful/v3 v3.11.0 // indirect
 	github.com/fatih/color v1.13.0 // indirect
+	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
@@ -111,7 +113,11 @@ require (
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/gops v0.3.22 // indirect
 	github.com/google/uuid v1.4.0 // indirect
-	github.com/gorilla/websocket v1.5.0 // indirect
+	github.com/gorilla/handlers v1.5.2 // indirect
+	github.com/gorilla/mux v1.8.1 // indirect
+	github.com/gorilla/securecookie v1.1.2 // indirect
+	github.com/gorilla/sessions v1.2.2 // indirect
+	github.com/gorilla/websocket v1.5.1 // indirect
 	github.com/guonaihong/gout v0.3.9 // indirect
 	github.com/hashicorp/go-envparse v0.1.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -120,11 +126,13 @@ require (
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/joeshaw/multierror v0.0.0-20140124173710-69b34d4ec901 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/josharian/native v1.1.0 // indirect
 	github.com/jsimonetti/rtnetlink v1.3.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
+	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
@@ -161,18 +169,25 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
+	github.com/pion/dtls/v2 v2.2.7 // indirect
+	github.com/pion/logging v0.2.2 // indirect
+	github.com/pion/randutil v0.1.0 // indirect
+	github.com/pion/stun v0.6.1 // indirect
+	github.com/pion/transport/v2 v2.2.1 // indirect
+	github.com/pion/turn/v2 v2.1.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/sftp v1.13.1 // indirect
 	github.com/pkg/term v1.2.0-beta.2 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/prometheus-community/go-runit v0.1.0 // indirect
-	github.com/prometheus/client_golang v1.17.0 // indirect
+	github.com/prometheus/client_golang v1.18.0 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
 	github.com/prometheus/common v0.45.0 // indirect
 	github.com/prometheus/node_exporter v1.7.0 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
-	github.com/rs/zerolog v1.25.0 // indirect
+	github.com/rs/xid v1.5.0 // indirect
+	github.com/rs/zerolog v1.32.0 // indirect
 	github.com/safchain/ethtool v0.3.0 // indirect
 	github.com/saracen/walker v0.1.3 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
@@ -201,13 +216,13 @@ require (
 	go.uber.org/multierr v1.9.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
-	golang.org/x/crypto v0.16.0 // indirect
+	golang.org/x/crypto v0.19.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/oauth2 v0.15.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
-	golang.org/x/sys v0.16.0 // indirect
+	golang.org/x/sys v0.17.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.16.1 // indirect

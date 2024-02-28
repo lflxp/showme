@@ -82,7 +82,7 @@ func Execute() {
 	// 其余都走parseCmd
 	if len(os.Args) >= 2 {
 		switch os.Args[1] {
-		case "completion", "smart", "api", "cmd", "dashboard", "help", "k8s", "martix", "music", "playbook", "proxy", "static", "tty", "watch", "scan", "django", "metrics", "monitor":
+		case "completion", "smart", "api", "cmd", "dashboard", "help", "k8s", "martix", "music", "playbook", "proxy", "static", "tty", "watch", "scan", "django", "metrics", "monitor", "screego":
 			slog.Debug("进入cobra命令模式", slog.Any("args", os.Args[1]))
 			err := rootCmd.Execute()
 			if err != nil {
