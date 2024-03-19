@@ -25,6 +25,7 @@ require (
 	github.com/jroimartin/gocui v0.5.0
 	github.com/juju/errors v1.0.0
 	github.com/junegunn/fzf v0.0.0-20240130022308-dd886d22f0b9
+	github.com/korandiz/v4l v1.1.0
 	github.com/lflxp/djangolang v0.2.6
 	github.com/lflxp/goproxys v0.0.0-20200308164541-294d52d6ffa9
 	github.com/lflxp/lflxp-api v0.0.0-20200323094405-0d69797bee92
@@ -42,13 +43,16 @@ require (
 	github.com/mattn/go-runewidth v0.0.14
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/rivo/uniseg v0.4.6
+	github.com/rs/zerolog v1.32.0
 	github.com/shadowsocks/shadowsocks-go v0.0.0-20200409064450-3e585ff90601
 	github.com/shirou/gopsutil/v3 v3.24.1
+	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.15.0
 	github.com/swaggo/swag v1.16.2
 	github.com/ugorji/go/codec v1.2.11
 	github.com/ying32/govcl v2.2.0+incompatible
+	golang.org/x/crypto v0.19.0
 	golang.org/x/term v0.17.0
 	k8s.io/client-go v0.29.1
 )
@@ -187,13 +191,11 @@ require (
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/rs/xid v1.5.0 // indirect
-	github.com/rs/zerolog v1.32.0 // indirect
 	github.com/safchain/ethtool v0.3.0 // indirect
 	github.com/saracen/walker v0.1.3 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
-	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 // indirect
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
@@ -216,7 +218,6 @@ require (
 	go.uber.org/multierr v1.9.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
-	golang.org/x/crypto v0.19.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/net v0.19.0 // indirect
