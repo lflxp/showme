@@ -9,7 +9,7 @@ import (
 
 	// kubectl "github.com/lflxp/lflxp-kubectl/pkg"
 	monitor "github.com/lflxp/lflxp-monitor/pkg"
-	mysql "github.com/lflxp/lflxp-orzdba/pkg"
+	// mysql "github.com/lflxp/lflxp-orzdba/pkg"
 	scan "github.com/lflxp/lflxp-scan/pkg"
 	"github.com/lflxp/showme/pkg/prompt/completers"
 	"github.com/lflxp/showme/pkg/prompt/executors/dashboard"
@@ -18,13 +18,16 @@ import (
 	"github.com/lflxp/showme/utils"
 )
 
-/** 解析执行命令函数
-else if in == "kubectl" {
-		result = func() {
-			kubectl.ManualInit()
+/*
+* 解析执行命令函数
+
+	else if in == "kubectl" {
+			result = func() {
+				kubectl.ManualInit()
+			}
+			status = true
 		}
-		status = true
-	}
+
 @param in   // command from
 @result func() // function
 @result bool // 状态 是否执行
@@ -67,14 +70,14 @@ func ParseExecutors(in string) (func(), bool) {
 			scan.Scan(in)
 		}
 		status = true
-	} else if strings.Contains(in, "mysql") {
-		result = func() {
-			err := mysql.BeforeRun(in)
-			if err != nil {
-				fmt.Println(err)
-			}
-		}
-		status = true
+		// } else if strings.Contains(in, "mysql") {
+		// 	result = func() {
+		// 		err := mysql.BeforeRun(in)
+		// 		if err != nil {
+		// 			fmt.Println(err)
+		// 		}
+		// 	}
+		// 	status = true
 	} else if strings.Contains(in, "tty") {
 		result = func() {
 			err := utils.CommandPty(strings.Replace(in, "tty", "showme tty", -1))

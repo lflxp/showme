@@ -82,6 +82,10 @@ github.com/beevik/ntp
 # github.com/beorn7/perks v1.0.1
 ## explicit; go 1.11
 github.com/beorn7/perks/quantile
+# github.com/blackjack/webcam v0.5.0
+## explicit; go 1.18
+github.com/blackjack/webcam
+github.com/blackjack/webcam/ioctl
 # github.com/bogem/id3v2/v2 v2.1.4
 ## explicit; go 1.13
 github.com/bogem/id3v2/v2
@@ -367,9 +371,6 @@ github.com/go-playground/universal-translator
 ## explicit; go 1.18
 github.com/go-playground/validator/v10
 github.com/go-playground/validator/v10/translations/en
-# github.com/go-sql-driver/mysql v1.6.0
-## explicit; go 1.10
-github.com/go-sql-driver/mysql
 # github.com/go-xorm/xorm v0.7.9
 ## explicit; go 1.11
 github.com/go-xorm/xorm
@@ -540,7 +541,6 @@ github.com/klauspost/cpuid/v2
 # github.com/korandiz/v4l v1.1.0
 ## explicit; go 1.15
 github.com/korandiz/v4l
-github.com/korandiz/v4l/fmt/mjpeg
 # github.com/kr/fs v0.1.0
 ## explicit
 github.com/kr/fs
@@ -618,9 +618,6 @@ github.com/lflxp/lflxp-music/core/pkg/proxy
 github.com/lflxp/lflxp-music/core/router
 github.com/lflxp/lflxp-music/core/tls
 github.com/lflxp/lflxp-music/core/utils
-# github.com/lflxp/lflxp-orzdba v0.1.0
-## explicit; go 1.21.6
-github.com/lflxp/lflxp-orzdba/pkg
 # github.com/lflxp/lflxp-scan v0.1.0
 ## explicit; go 1.21.6
 github.com/lflxp/lflxp-scan/pkg

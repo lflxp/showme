@@ -114,6 +114,8 @@ github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+Ce
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
+github.com/blackjack/webcam v0.5.0 h1:NImYpsAbWxglejopcQGQ3FClxhJZaBBgr5fV7nsGdvk=
+github.com/blackjack/webcam v0.5.0/go.mod h1:zs+RkUZzqpFPHPiwBZ6U5B34ZXXe9i+SiHLKnnukJuI=
 github.com/bogem/id3v2/v2 v2.1.4 h1:CEwe+lS2p6dd9UZRlPc1zbFNIha2mb2qzT1cCEoNWoI=
 github.com/bogem/id3v2/v2 v2.1.4/go.mod h1:l+gR8MZ6rc9ryPTPkX77smS5Me/36gxkMgDayZ9G1vY=
 github.com/bradfitz/gomemcache v0.0.0-20180710155616-bc664df96737/go.mod h1:PmM6Mmwb0LSuEubjR8N7PtNe1KxZLtOUHtbeikc5h60=
@@ -655,8 +657,6 @@ github.com/lflxp/lflxp-monitor v0.1.2 h1:Zxogsj1I89a1VvOyQL1MjWlTC8dHMVMWcWjQBp3
 github.com/lflxp/lflxp-monitor v0.1.2/go.mod h1:foLt3Mj8hlncM0VEu/XUTsW2yh7dlrqOrVYBleoFn4Y=
 github.com/lflxp/lflxp-music v0.0.8 h1:Y1nylyzeB1TOZ1zOV4mzs0XVgcdNmLjF44zLIFGSk4Y=
 github.com/lflxp/lflxp-music v0.0.8/go.mod h1:HoGr3rCbuEzfNUrn3J0X3TdeLbe/jjg44KnleqsefXg=
-github.com/lflxp/lflxp-orzdba v0.1.0 h1:QS3Cdsbdje4ZFg1zvkS4t8103xDK1u2hBw+S/PKCd10=
-github.com/lflxp/lflxp-orzdba v0.1.0/go.mod h1:AfCg601sJbB4mKX+UU5lQ9T+pZyofnj7UW69cCwWHmw=
 github.com/lflxp/lflxp-scan v0.1.0 h1:3+4aOMOaYnBwOYhjvipJlsQuneWZXmd37DtL3kkiiSo=
 github.com/lflxp/lflxp-scan v0.1.0/go.mod h1:HcyrfVfUctKunWLZ2VgXnfuCV6v/T4dGcYZHBwYmVI4=
 github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee h1:hFTosnSnlVZqdUExjGg6+yPq4IRx4mg/og9mp9y6Eik=

@@ -11,6 +11,7 @@ require (
 	gitee.com/lflxp/proxy v0.0.0-20211028153826-fadd0f7c6c77
 	gitee.com/lflxp/tcell/v2 v2.5.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
+	github.com/blackjack/webcam v0.5.0
 	github.com/briandowns/spinner v1.19.0
 	github.com/c-bata/go-prompt v0.2.6
 	github.com/coreos/bbolt v1.3.2
@@ -32,7 +33,6 @@ require (
 	github.com/lflxp/lflxp-k8s v0.1.5
 	github.com/lflxp/lflxp-monitor v0.1.2
 	github.com/lflxp/lflxp-music v0.0.8
-	github.com/lflxp/lflxp-orzdba v0.1.0
 	github.com/lflxp/lflxp-scan v0.1.0
 	github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee
 	github.com/lflxp/lflxp-static v1.0.3
@@ -105,7 +105,6 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.14.0 // indirect
-	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
