@@ -48,6 +48,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -58,7 +59,9 @@ import (
 	"github.com/skratchdot/open-golang/open"
 	"gocv.io/x/gocv"
 
+	"github.com/lflxp/showme/asset"
 	"github.com/spf13/cobra"
+	"k8s.io/client-go/util/homedir"
 )
 
 const MinimumArea = 3000
@@ -69,9 +72,13 @@ var (
 	cam_x       string
 	cam_motion  bool
 	cam_windows bool
+	cam_pic     bool
+	cam_video   bool
+	cam_detect  bool
 	err         error
 	webcam      *gocv.VideoCapture
 	stream      *mjpeg.Stream
+	targetPath  string
 )
 
 // cameraCmd represents the camera command
@@ -80,6 +87,35 @@ var cameraCmd = &cobra.Command{
 	Short: "本地摄像头webcam",
 	Long:  `浏览器webcam`,
 	Run: func(cmd *cobra.Command, args []string) {
+		if cam_detect {
+			log.Debug("请指定人脸识别模型文件")
+			_, err := os.Stat(cam_x)
+			if os.IsNotExist(err) {
+				// 制造数据
+				if home := homedir.HomeDir(); home != "" {
+					targetPath = filepath.Join(home, ".face.xml")
+				} else {
+					targetPath = "./face.xml"
+				}
+
+				f, err := os.OpenFile(targetPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+				if err != nil {
+					log.Error("create file error", "file", targetPath, "error", err.Error())
+					return
+				}
+				defer f.Close()
+
+				_, err = f.Write(asset.FaceXml)
+				if err != nil {
+					log.Error("write file error", "file", targetPath, "error", err.Error())
+					return
+				}
+			} else {
+				log.Error("file not found", "file", cam_x)
+				return
+			}
+		}
+
 		// open webcam
 		webcam, err = gocv.OpenVideoCapture(cam_d)
 		if err != nil {
@@ -152,6 +188,9 @@ func init() {
 	cameraCmd.Flags().StringVarP(&cam_x, "xml", "x", "", "人脸识别 [classifier XML file]")
 	cameraCmd.Flags().BoolVarP(&cam_motion, "motion", "m", false, "是否开启运动侦测")
 	cameraCmd.Flags().BoolVarP(&cam_windows, "windows", "w", false, "是否开启app显示 ｜ 浏览器显示")
+	cameraCmd.Flags().BoolVarP(&cam_pic, "pic", "p", false, "是否保存图片")
+	cameraCmd.Flags().BoolVarP(&cam_video, "video", "v", false, "是否保存视频")
+	cameraCmd.Flags().BoolVarP(&cam_detect, "detect", "D", false, "是否支持人脸识别")
 }
 
 func mjpegCapture() {
@@ -164,7 +203,40 @@ func mjpegCapture() {
 	img := gocv.NewMat()
 	defer img.Close()
 
+	var writer *gocv.VideoWriter
+	if cam_video {
+		if ok := webcam.Read(&img); !ok {
+			fmt.Printf("Cannot read device %v\n", cam_d)
+			return
+		}
+
+		writer, err = gocv.VideoWriterFile("output.avi", "MJPG", 25.0, img.Cols(), img.Rows(), true)
+		if err != nil {
+			log.Error("VideoWriterFile error", "err", err)
+			return
+		}
+		defer writer.Close()
+	}
+
+	var blue color.RGBA
+	var classifier gocv.CascadeClassifier
+	if cam_detect {
+		// color for the rect when faces detected
+		blue = color.RGBA{0, 0, 255, 0}
+
+		// load classifier to recognize faces
+		classifier = gocv.NewCascadeClassifier()
+		defer classifier.Close()
+
+		if !classifier.Load(targetPath) {
+			log.Info("Error reading cascade file: %v\n", targetPath)
+			return
+		}
+	}
+
+	count := 0
 	for {
+		count++
 		if ok := webcam.Read(&img); !ok {
 			log.Info("Device closed: %v\n", cam_d)
 			return
@@ -173,15 +245,73 @@ func mjpegCapture() {
 			continue
 		}
 
+		var isPerson bool
+		if cam_detect {
+			// detect faces
+			rects := classifier.DetectMultiScale(img)
+			log.Info("found %d faces\n", len(rects))
+			if len(rects) > 0 {
+				isPerson = true
+			}
+
+			// draw a rectangle around each face on the original image,
+			// along with text identifying as "Human"
+			for _, r := range rects {
+				gocv.Rectangle(&img, r, blue, 3)
+
+				size := gocv.GetTextSize("Human", gocv.FontHersheyPlain, 1.2, 2)
+				pt := image.Pt(r.Min.X+(r.Min.X/2)-(size.X/2), r.Min.Y-2)
+				gocv.PutText(&img, "Human", pt, gocv.FontHersheyPlain, 1.2, blue, 2)
+			}
+		}
+
 		if cam_windows {
 			window.IMShow(img)
 			if window.WaitKey(1) == 27 {
 				break
 			}
 		} else {
-			buf, _ := gocv.IMEncode(".jpg", img)
-			stream.UpdateJPEG(buf.GetBytes())
-			buf.Close()
+			if cam_detect && isPerson {
+				buf, _ := gocv.IMEncode(".jpg", img)
+				stream.UpdateJPEG(buf.GetBytes())
+				buf.Close()
+			} else if cam_detect && !isPerson {
+				log.Debug("No person detected")
+			} else {
+				buf, _ := gocv.IMEncode(".jpg", img)
+				stream.UpdateJPEG(buf.GetBytes())
+				buf.Close()
+			}
+		}
+
+		if count%100 == 0 && cam_pic {
+			// 读取图片
+			// src := gocv.IMRead("image.png", gocv.IMReadColor)
+			// croppedMat := src.Region(image.Rect(0, 0, src.Cols(), src.Rows()/2))
+			if cam_detect && isPerson {
+				log.Debug("检测到人脸")
+				rs := img.Clone()
+				gocv.IMWrite(fmt.Sprintf("./%d.jpg", count), rs)
+				log.Debug("保存图片", "COUNT", count)
+			} else if cam_detect && !isPerson {
+				log.Debug("No person detected")
+			} else {
+				rs := img.Clone()
+				gocv.IMWrite(fmt.Sprintf("./%d.jpg", count), rs)
+				log.Debug("保存图片", "COUNT", count)
+			}
+		}
+
+		if cam_video {
+			log.Debug("保存视频", "COUNT", count)
+			if cam_detect && isPerson {
+				writer.Write(img)
+			} else if cam_detect && !isPerson {
+				log.Debug("No person detected")
+			} else {
+				writer.Write(img)
+			}
+
 		}
 	}
 }
@@ -209,9 +339,43 @@ func motionCapture() {
 
 	log.Info("Start reading device: %v\n", cam_d)
 
+	var writer *gocv.VideoWriter
+	if cam_video {
+		if ok := webcam.Read(&img); !ok {
+			fmt.Printf("Cannot read device %v\n", cam_d)
+			return
+		}
+
+		writer, err = gocv.VideoWriterFile("output.avi", "MJPG", 20, img.Cols(), img.Rows(), true)
+		if err != nil {
+			log.Error("VideoWriterFile error", "err", err)
+			return
+		}
+		defer writer.Close()
+	}
+
+	// 人脸识别
+	var blue color.RGBA
+	var classifier gocv.CascadeClassifier
+	if cam_detect {
+		// color for the rect when faces detected
+		blue = color.RGBA{0, 0, 255, 0}
+
+		// load classifier to recognize faces
+		classifier = gocv.NewCascadeClassifier()
+		defer classifier.Close()
+
+		if !classifier.Load(targetPath) {
+			log.Info("Error reading cascade file: %v\n", targetPath)
+			return
+		}
+	}
+
+	count := 0
+
 	for {
 		if ok := webcam.Read(&img); !ok {
-			fmt.Printf("Device closed: %v\n", cam_d)
+			log.Info("Device closed: %v\n", cam_d)
 			return
 		}
 		if img.Empty() {
@@ -254,15 +418,74 @@ func motionCapture() {
 
 		gocv.PutText(&img, status, image.Pt(10, 20), gocv.FontHersheyPlain, 1.2, statusColor, 2)
 
+		var isPerson bool
+		if cam_detect {
+			// detect faces
+			rects := classifier.DetectMultiScale(img)
+			log.Debug("found %d faces\n", len(rects))
+			if len(rects) > 0 {
+				isPerson = true
+			}
+
+			// draw a rectangle around each face on the original image,
+			// along with text identifying as "Human"
+			for _, r := range rects {
+				gocv.Rectangle(&img, r, blue, 3)
+
+				size := gocv.GetTextSize("Human", gocv.FontHersheyPlain, 1.2, 2)
+				pt := image.Pt(r.Min.X+(r.Min.X/2)-(size.X/2), r.Min.Y-2)
+				gocv.PutText(&img, "Human", pt, gocv.FontHersheyPlain, 1.2, blue, 2)
+			}
+		}
+
 		if cam_windows {
 			window.IMShow(img)
 			if window.WaitKey(1) == 27 {
 				break
 			}
 		} else {
-			buf, _ := gocv.IMEncode(".jpg", img)
-			stream.UpdateJPEG(buf.GetBytes())
-			buf.Close()
+			if cam_detect && isPerson {
+				buf, _ := gocv.IMEncode(".jpg", img)
+				stream.UpdateJPEG(buf.GetBytes())
+				buf.Close()
+			} else if cam_detect && !isPerson {
+				log.Debug("No person detected")
+			} else {
+				buf, _ := gocv.IMEncode(".jpg", img)
+				stream.UpdateJPEG(buf.GetBytes())
+				buf.Close()
+			}
+
+		}
+
+		count++
+		// save image to file
+		// https://blog.csdn.net/m0_55708805/article/details/115467324
+		if count%100 == 0 && cam_pic {
+			// 读取图片
+			// src := gocv.IMRead("image.png", gocv.IMReadColor)
+			// croppedMat := src.Region(image.Rect(0, 0, src.Cols(), src.Rows()/2))
+			if cam_detect && isPerson {
+				rs := img.Clone()
+				gocv.IMWrite(fmt.Sprintf("./%d.jpg", count), rs)
+			} else if cam_detect && !isPerson {
+				log.Debug("No person detected")
+			} else {
+				rs := img.Clone()
+				gocv.IMWrite(fmt.Sprintf("./%d.jpg", count), rs)
+			}
+			log.Debug("保存图片", "COUNT", count)
+		}
+
+		if cam_video {
+			log.Debug("保存视频", "COUNT", count)
+			if cam_detect && isPerson {
+				writer.Write(img)
+			} else if cam_detect && !isPerson {
+				log.Debug("No person detected")
+			} else {
+				writer.Write(img)
+			}
 		}
 	}
 }
