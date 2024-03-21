@@ -46,7 +46,10 @@ import (
 	"image"
 	"image/color"
 	"net/http"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	log "log/slog"
@@ -85,39 +88,49 @@ var cameraCmd = &cobra.Command{
 		}
 		defer webcam.Close()
 
-		// create the mjpeg stream
-		stream = mjpeg.NewStream()
+		if !cam_windows {
+			// create the mjpeg stream
+			stream = mjpeg.NewStream()
+		}
 
-		// start motion capturing
 		if cam_motion {
+			// start motion capturing
 			go motionCapture()
 		} else {
 			// start capturing
 			go mjpegCapture()
 		}
-		log.Info("Capturing. Point your browser to " + cam_a)
 
-		// start http server
-		http.Handle("/", stream)
-
-		server := &http.Server{
-			Addr:         cam_a,
-			ReadTimeout:  60 * time.Second,
-			WriteTimeout: 60 * time.Second,
-		}
-
-		var url string
-		if strings.HasPrefix(cam_a, "http") {
-			url = cam_a
-		} else if strings.Contains(cam_a, "0.0.0.0") {
-			url = "http://" + strings.Replace(cam_a, "0.0.0.0", "localhost", -1)
+		if cam_windows {
+			quit := make(chan os.Signal)
+			signal.Notify(quit, []os.Signal{os.Interrupt, syscall.SIGTERM}...)
+			<-quit
+			log.Warn("receive interrupt signal")
 		} else {
-			url = "http://" + cam_a
-		}
-		open.Start(url)
-		err = server.ListenAndServe()
-		if err != nil {
-			log.Error(err.Error())
+			log.Info("Capturing. Point your browser to " + cam_a)
+
+			// start http server
+			http.Handle("/", stream)
+
+			server := &http.Server{
+				Addr:         cam_a,
+				ReadTimeout:  60 * time.Second,
+				WriteTimeout: 60 * time.Second,
+			}
+
+			var url string
+			if strings.HasPrefix(cam_a, "http") {
+				url = cam_a
+			} else if strings.Contains(cam_a, "0.0.0.0") {
+				url = "http://" + strings.Replace(cam_a, "0.0.0.0", "localhost", -1)
+			} else {
+				url = "http://" + cam_a
+			}
+			open.Start(url)
+			err = server.ListenAndServe()
+			if err != nil {
+				log.Error(err.Error())
+			}
 		}
 	},
 }
