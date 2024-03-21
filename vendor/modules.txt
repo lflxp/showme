@@ -488,6 +488,9 @@ github.com/hashicorp/hcl/json/token
 # github.com/hodgesds/perf-utils v0.7.0
 ## explicit; go 1.14
 github.com/hodgesds/perf-utils
+# github.com/hybridgroup/mjpeg v0.0.0-20140228234708-4680f319790e
+## explicit
+github.com/hybridgroup/mjpeg
 # github.com/illumos/go-kstat v0.0.0-20210513183136-173c9b0a9973
 ## explicit
 github.com/illumos/go-kstat
@@ -1046,6 +1049,9 @@ go.uber.org/zap/internal/color
 go.uber.org/zap/internal/exit
 go.uber.org/zap/zapcore
 go.uber.org/zap/zaptest/observer
+# gocv.io/x/gocv v0.35.0
+## explicit; go 1.13
+gocv.io/x/gocv
 # golang.org/x/arch v0.3.0
 ## explicit; go 1.17
 golang.org/x/arch/x86/x86asm

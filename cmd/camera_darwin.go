@@ -1,69 +1,75 @@
-//go:build !linux
-// +build !linux
+//go:build darwin
+// +build darwin
 
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
+// What it does:
+//
+// This example opens a video capture device, then streams MJPEG from it.
+// Once running point your browser to the hostname/port you passed in the
+// command line (for example http://localhost:8080) and you should see
+// the live video stream.
+//
+// How to run:
+//
+// mjpeg-streamer [camera ID] [host:port]
+//
+//		go get -u github.com/hybridgroup/mjpeg
+// 		go run ./cmd/mjpeg-streamer/main.go 1 0.0.0.0:8080
+//
+// # 安装
+
+// 参考：https://gocv.io/getting-started/macos/
+
+// # 摄像头启动命令
+
+// - go get -u -d gocv.io/x/gocv
+// - brew upgrade opencv
+// - brew install opencv
+// - brew install pkgconfig
+// - go run ./cmd/version/main.go
+
+// # 人脸识别
+
+// - brew install tbb numpy vtk
+// - brew install opencv
+// - go run face-detect.go 0 data/haarcascade_frontalface_default.xml
+
+// ## 参考：
+
+// - https://gocv.io/writing-code/face-detect/
+// - https://github.com/hybridgroup/gocv/tree/release/cmd
+// - https://gocv.io/writing-code/more-examples/
 
 package cmd
 
 import (
-	"bytes"
 	"fmt"
 	"image"
-	"image/jpeg"
-	"mime/multipart"
+	"image/color"
 	"net/http"
-	"net/textproto"
-	"os"
-	"sort"
-	"strconv"
 	"strings"
 	"time"
 
 	log "log/slog"
 
-	"github.com/blackjack/webcam"
+	"github.com/hybridgroup/mjpeg"
 	"github.com/skratchdot/open-golang/open"
+	"gocv.io/x/gocv"
+
 	"github.com/spf13/cobra"
 )
 
+const MinimumArea = 3000
+
 var (
-	cam_d string
-	cam_f string
-	cam_s string
-	cam_m bool
-	cam_l string
-	cam_p bool
+	cam_d       string
+	cam_a       string
+	cam_x       string
+	cam_motion  bool
+	cam_windows bool
+	err         error
+	webcam      *gocv.VideoCapture
+	stream      *mjpeg.Stream
 )
-
-const (
-	V4L2_PIX_FMT_PJPG = 0x47504A50
-	V4L2_PIX_FMT_YUYV = 0x56595559
-)
-
-type FrameSizes []webcam.FrameSize
-
-func (slice FrameSizes) Len() int {
-	return len(slice)
-}
-
-// For sorting purposes
-func (slice FrameSizes) Less(i, j int) bool {
-	ls := slice[i].MaxWidth * slice[i].MaxHeight
-	rs := slice[j].MaxWidth * slice[j].MaxHeight
-	return ls < rs
-}
-
-// For sorting purposes
-func (slice FrameSizes) Swap(i, j int) {
-	slice[i], slice[j] = slice[j], slice[i]
-}
-
-var supportedFormats = map[webcam.PixelFormat]bool{
-	V4L2_PIX_FMT_PJPG: true,
-	V4L2_PIX_FMT_YUYV: true,
-}
 
 // cameraCmd represents the camera command
 var cameraCmd = &cobra.Command{
@@ -71,139 +77,47 @@ var cameraCmd = &cobra.Command{
 	Short: "本地摄像头webcam",
 	Long:  `浏览器webcam`,
 	Run: func(cmd *cobra.Command, args []string) {
-		cam, err := webcam.Open(cam_d)
+		// open webcam
+		webcam, err = gocv.OpenVideoCapture(cam_d)
 		if err != nil {
-			panic(err.Error())
-		}
-		defer cam.Close()
-
-		// select pixel format
-		format_desc := cam.GetSupportedFormats()
-
-		fmt.Println("Available formats:")
-		for _, s := range format_desc {
-			fmt.Fprintln(os.Stderr, s)
-		}
-
-		var format webcam.PixelFormat
-	FMT:
-		for f, s := range format_desc {
-			if cam_f == "" {
-				if supportedFormats[f] {
-					format = f
-					break FMT
-				}
-
-			} else if cam_f == s {
-				if !supportedFormats[f] {
-					log.Info(format_desc[f], "format is not supported, exiting")
-					return
-				}
-				format = f
-				break
-			}
-		}
-		if format == 0 {
-			log.Info("No format found, exiting")
+			fmt.Printf("Error opening capture device: %v\n", cam_d)
 			return
 		}
+		defer webcam.Close()
 
-		// select frame size
-		frames := FrameSizes(cam.GetSupportedFrameSizes(format))
-		sort.Sort(frames)
+		// create the mjpeg stream
+		stream = mjpeg.NewStream()
 
-		fmt.Fprintln(os.Stderr, "Supported frame sizes for format", format_desc[format])
-		for _, f := range frames {
-			fmt.Fprintln(os.Stderr, f.GetString())
-		}
-		var size *webcam.FrameSize
-		if cam_s == "" {
-			size = &frames[len(frames)-1]
+		// start motion capturing
+		if cam_motion {
+			go motionCapture()
 		} else {
-			for _, f := range frames {
-				if cam_s == f.GetString() {
-					size = &f
-					break
-				}
-			}
+			// start capturing
+			go mjpegCapture()
 		}
-		if size == nil {
-			log.Info("No matching frame size, exiting")
-			return
+		log.Info("Capturing. Point your browser to " + cam_a)
+
+		// start http server
+		http.Handle("/", stream)
+
+		server := &http.Server{
+			Addr:         cam_a,
+			ReadTimeout:  60 * time.Second,
+			WriteTimeout: 60 * time.Second,
 		}
 
-		fmt.Fprintln(os.Stderr, "Requesting", format_desc[format], size.GetString())
-		f, w, h, err := cam.SetImageFormat(format, uint32(size.MaxWidth), uint32(size.MaxHeight))
-		if err != nil {
-			log.Info("SetImageFormat return error", err)
-			return
-
+		var url string
+		if strings.HasPrefix(cam_a, "http") {
+			url = cam_a
+		} else if strings.Contains(cam_a, "0.0.0.0") {
+			url = "http://" + strings.Replace(cam_a, "0.0.0.0", "localhost", -1)
+		} else {
+			url = "http://" + cam_a
 		}
-		fmt.Fprintf(os.Stderr, "Resulting image format: %s %dx%d\n", format_desc[f], w, h)
-
-		// start streaming
-		err = cam.StartStreaming()
+		open.Start(url)
+		err = server.ListenAndServe()
 		if err != nil {
 			log.Error(err.Error())
-			return
-		}
-
-		var (
-			li   chan *bytes.Buffer = make(chan *bytes.Buffer)
-			fi   chan []byte        = make(chan []byte)
-			back chan struct{}      = make(chan struct{})
-		)
-		go encodeToImage(cam, back, fi, li, w, h, f)
-		if cam_m {
-			go httpImage(cam_l, li)
-		} else {
-			go httpVideo(cam_l, li)
-		}
-
-		timeout := uint32(5) //5 seconds
-		start := time.Now()
-		var fr time.Duration
-
-		for {
-			err = cam.WaitForFrame(timeout)
-			if err != nil {
-				log.Error(err.Error())
-				return
-			}
-
-			switch err.(type) {
-			case nil:
-			case *webcam.Timeout:
-				log.Error(err.Error())
-				continue
-			default:
-				log.Error(err.Error())
-				return
-			}
-
-			frame, err := cam.ReadFrame()
-			if err != nil {
-				log.Error(err.Error())
-				return
-			}
-			if len(frame) != 0 {
-
-				// print framerate info every 10 seconds
-				fr++
-				if cam_p {
-					if d := time.Since(start); d > time.Second*10 {
-						fmt.Println(float64(fr)/(float64(d)/float64(time.Second)), "fps")
-						start = time.Now()
-						fr = 0
-					}
-				}
-
-				select {
-				case fi <- frame:
-					<-back
-				default:
-				}
-			}
 		}
 	},
 }
@@ -220,146 +134,122 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// cameraCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	cameraCmd.Flags().StringVarP(&cam_d, "device", "d", "/dev/video0", "摄像头设备 eg. /dev/video0")
-	cameraCmd.Flags().StringVarP(&cam_f, "fmtstr", "f", "", "video format to use, default first supported")
-	cameraCmd.Flags().StringVarP(&cam_s, "szstr", "s", "", "frame size to use, default largest one")
-	cameraCmd.Flags().StringVarP(&cam_l, "address", "l", ":8080", "addr to listien")
-	cameraCmd.Flags().BoolVarP(&cam_p, "fps", "p", false, "print fps info")
-	cameraCmd.Flags().BoolVarP(&cam_m, "single", "m", false, "single image http mode, default mjpeg video")
+	cameraCmd.Flags().StringVarP(&cam_d, "id", "d", "0", "[camera ID] eg. /dev/video0")
+	cameraCmd.Flags().StringVarP(&cam_a, "address", "a", "0.0.0.0:8080", "[host:port] eg. 127.0.0.1:8080 ")
+	cameraCmd.Flags().StringVarP(&cam_x, "xml", "x", "", "人脸识别 [classifier XML file]")
+	cameraCmd.Flags().BoolVarP(&cam_motion, "motion", "m", false, "是否开启运动侦测")
+	cameraCmd.Flags().BoolVarP(&cam_windows, "windows", "w", false, "是否开启app显示 ｜ 浏览器显示")
 }
 
-func encodeToImage(wc *webcam.Webcam, back chan struct{}, fi chan []byte, li chan *bytes.Buffer, w, h uint32, format webcam.PixelFormat) {
+func mjpegCapture() {
+	var window *gocv.Window
+	if cam_windows {
+		window = gocv.NewWindow("Cam Window")
+		defer window.Close()
+	}
 
-	var (
-		frame []byte
-		img   image.Image
-	)
+	img := gocv.NewMat()
+	defer img.Close()
+
 	for {
-		bframe := <-fi
-		// copy frame
-		if len(frame) < len(bframe) {
-			frame = make([]byte, len(bframe))
-		}
-		copy(frame, bframe)
-		back <- struct{}{}
-
-		switch format {
-		case V4L2_PIX_FMT_YUYV:
-			yuyv := image.NewYCbCr(image.Rect(0, 0, int(w), int(h)), image.YCbCrSubsampleRatio422)
-			for i := range yuyv.Cb {
-				ii := i * 4
-				yuyv.Y[i*2] = frame[ii]
-				yuyv.Y[i*2+1] = frame[ii+2]
-				yuyv.Cb[i] = frame[ii+1]
-				yuyv.Cr[i] = frame[ii+3]
-
-			}
-			img = yuyv
-		default:
-			log.Error("invalid format ?")
-		}
-		//convert to jpeg
-		buf := &bytes.Buffer{}
-		if err := jpeg.Encode(buf, img, nil); err != nil {
-			log.Error(err.Error())
+		if ok := webcam.Read(&img); !ok {
+			log.Info("Device closed: %v\n", cam_d)
 			return
 		}
+		if img.Empty() {
+			continue
+		}
 
-		const N = 50
-		// broadcast image up to N ready clients
-		nn := 0
-	FOR:
-		for ; nn < N; nn++ {
-			select {
-			case li <- buf:
-			default:
-				break FOR
+		if cam_windows {
+			window.IMShow(img)
+			if window.WaitKey(1) == 27 {
+				break
 			}
+		} else {
+			buf, _ := gocv.IMEncode(".jpg", img)
+			stream.UpdateJPEG(buf.GetBytes())
+			buf.Close()
 		}
-		if nn == 0 {
-			li <- buf
-		}
-
 	}
 }
 
-func httpImage(addr string, li chan *bytes.Buffer) {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		log.Info("connect from", r.RemoteAddr, r.URL)
-		if r.URL.Path != "/" {
-			http.NotFound(w, r)
-			return
-		}
-
-		//remove stale image
-		<-li
-
-		img := <-li
-
-		w.Header().Set("Content-Type", "image/jpeg")
-
-		if _, err := w.Write(img.Bytes()); err != nil {
-			log.Error(err.Error())
-			return
-		}
-
-	})
-
-	var url string
-	if strings.HasPrefix(addr, ":") {
-		url = "http://localhost" + addr
-	} else {
-		url = "http://" + addr
+func motionCapture() {
+	var window *gocv.Window
+	if cam_windows {
+		window = gocv.NewWindow("Motion Window")
+		defer window.Close()
 	}
-	open.Start(url)
-	err := http.ListenAndServe(addr, nil)
-	if err != nil {
-		log.Error(err.Error())
-	}
-}
 
-func httpVideo(addr string, li chan *bytes.Buffer) {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		log.Info("connect from", r.RemoteAddr, r.URL)
-		if r.URL.Path != "/" {
-			http.NotFound(w, r)
+	img := gocv.NewMat()
+	defer img.Close()
+
+	imgDelta := gocv.NewMat()
+	defer imgDelta.Close()
+
+	imgThresh := gocv.NewMat()
+	defer imgThresh.Close()
+
+	mog2 := gocv.NewBackgroundSubtractorMOG2()
+	defer mog2.Close()
+
+	status := "Ready"
+
+	log.Info("Start reading device: %v\n", cam_d)
+
+	for {
+		if ok := webcam.Read(&img); !ok {
+			fmt.Printf("Device closed: %v\n", cam_d)
 			return
 		}
+		if img.Empty() {
+			continue
+		}
 
-		//remove stale image
-		<-li
-		const boundary = `frame`
-		w.Header().Set("Content-Type", `multipart/x-mixed-replace;boundary=`+boundary)
-		multipartWriter := multipart.NewWriter(w)
-		multipartWriter.SetBoundary(boundary)
-		for {
-			img := <-li
-			image := img.Bytes()
-			iw, err := multipartWriter.CreatePart(textproto.MIMEHeader{
-				"Content-type":   []string{"image/jpeg"},
-				"Content-length": []string{strconv.Itoa(len(image))},
-			})
-			if err != nil {
-				log.Error(err.Error())
-				return
+		status = "Ready"
+		statusColor := color.RGBA{0, 255, 0, 0}
+
+		// first phase of cleaning up image, obtain foreground only
+		mog2.Apply(img, &imgDelta)
+
+		// remaining cleanup of the image to use for finding contours.
+		// first use threshold
+		gocv.Threshold(imgDelta, &imgThresh, 25, 255, gocv.ThresholdBinary)
+
+		// then dilate
+		kernel := gocv.GetStructuringElement(gocv.MorphRect, image.Pt(3, 3))
+		gocv.Dilate(imgThresh, &imgThresh, kernel)
+		kernel.Close()
+
+		// now find contours
+		contours := gocv.FindContours(imgThresh, gocv.RetrievalExternal, gocv.ChainApproxSimple)
+
+		for i := 0; i < contours.Size(); i++ {
+			area := gocv.ContourArea(contours.At(i))
+			if area < MinimumArea {
+				continue
 			}
-			_, err = iw.Write(image)
-			if err != nil {
-				log.Error(err.Error())
-				return
-			}
-		}
-	})
 
-	var url string
-	if strings.HasPrefix(addr, ":") {
-		url = "http://localhost" + addr
-	} else {
-		url = "http://" + addr
-	}
-	open.Start(url)
-	err := http.ListenAndServe(addr, nil)
-	if err != nil {
-		log.Error(err.Error())
+			status = "Motion detected"
+			statusColor = color.RGBA{255, 0, 0, 0}
+			gocv.DrawContours(&img, contours, i, statusColor, 2)
+
+			rect := gocv.BoundingRect(contours.At(i))
+			gocv.Rectangle(&img, rect, color.RGBA{0, 0, 255, 0}, 2)
+		}
+
+		contours.Close()
+
+		gocv.PutText(&img, status, image.Pt(10, 20), gocv.FontHersheyPlain, 1.2, statusColor, 2)
+
+		if cam_windows {
+			window.IMShow(img)
+			if window.WaitKey(1) == 27 {
+				break
+			}
+		} else {
+			buf, _ := gocv.IMEncode(".jpg", img)
+			stream.UpdateJPEG(buf.GetBytes())
+			buf.Close()
+		}
 	}
 }

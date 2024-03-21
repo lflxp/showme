@@ -23,6 +23,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-xorm/xorm v0.7.9
 	github.com/google/gopacket v1.1.19
+	github.com/hybridgroup/mjpeg v0.0.0-20140228234708-4680f319790e
 	github.com/jroimartin/gocui v0.5.0
 	github.com/juju/errors v1.0.0
 	github.com/junegunn/fzf v0.0.0-20240130022308-dd886d22f0b9
@@ -52,6 +53,7 @@ require (
 	github.com/swaggo/swag v1.16.2
 	github.com/ugorji/go/codec v1.2.11
 	github.com/ying32/govcl v2.2.0+incompatible
+	gocv.io/x/gocv v0.35.0
 	golang.org/x/crypto v0.19.0
 	golang.org/x/term v0.17.0
 	k8s.io/client-go v0.29.1
