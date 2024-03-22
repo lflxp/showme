@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"fmt"
+	"os"
+
 	"gopkg.in/gomail.v2"
 )
 
@@ -29,9 +32,22 @@ func (e *Email) Send(mailTo []string, subject string, body string, attachs ...st
 	m.SetBody("text/html", body)                        // 设置邮件正文
 	// 附件
 	for _, v := range attachs {
-		m.Attach(v)
+		m.Attach(v, gomail.SetHeader(map[string][]string{
+			"Content-ID":          {"<myImage>"},
+			"Content-Disposition": {fmt.Sprintf("inline; filename='%s'", v)},
+		}))
 	}
 	d := gomail.NewDialer(e.Host, e.Port, e.User, e.Password) // 设置邮件正文
 	err := d.DialAndSend(m)
+	defer func() {
+		for _, v := range attachs {
+			e.Clean(v)
+		}
+	}()
 	return err
+}
+
+// 清空文件
+func (e *Email) Clean(path string) error {
+	return os.Remove(path)
 }

@@ -42,6 +42,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"image/color"
@@ -60,6 +61,7 @@ import (
 	"gocv.io/x/gocv"
 
 	"github.com/lflxp/showme/asset"
+	"github.com/lflxp/showme/utils"
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/util/homedir"
 )
@@ -67,25 +69,32 @@ import (
 const MinimumArea = 3000
 
 var (
-	cam_d       string
-	cam_a       string
-	cam_x       string
-	cam_motion  bool
-	cam_windows bool
-	cam_pic     bool
-	cam_video   bool
-	cam_detect  bool
-	err         error
-	webcam      *gocv.VideoCapture
-	stream      *mjpeg.Stream
-	targetPath  string
+	cam_d        string
+	cam_a        string
+	cam_x        string
+	cam_motion   bool
+	cam_windows  bool
+	cam_pic      bool
+	cam_video    bool
+	cam_detect   bool
+	err          error
+	webcam       *gocv.VideoCapture
+	stream       *mjpeg.Stream
+	targetPath   string
+	email_user   string
+	email_pwd    string
+	email_sendto string
+	email_host   string
+	email_port   int
 )
 
 // cameraCmd represents the camera command
 var cameraCmd = &cobra.Command{
 	Use:   "camera",
-	Short: "本地摄像头webcam",
-	Long:  `浏览器webcam`,
+	Short: "opencv本地视频流处理",
+	Long: `前置条件：编译安装opencv和gocv 安装文档【https://gocv.io/getting-started/】
+	支持：人脸识别｜人脸侦测｜运动侦测等
+	支持：webcam ｜ window GUI`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if cam_detect {
 			log.Debug("请指定人脸识别模型文件")
@@ -191,6 +200,11 @@ func init() {
 	cameraCmd.Flags().BoolVarP(&cam_pic, "pic", "p", false, "是否保存图片")
 	cameraCmd.Flags().BoolVarP(&cam_video, "video", "v", false, "是否保存视频")
 	cameraCmd.Flags().BoolVarP(&cam_detect, "detect", "D", false, "是否支持人脸识别")
+	cameraCmd.Flags().StringVarP(&email_user, "email_user", "U", "", "邮件发送用户名")
+	cameraCmd.Flags().StringVarP(&email_pwd, "email_pwd", "W", "", "邮件发送密码")
+	cameraCmd.Flags().StringVarP(&email_sendto, "email_sendto", "T", "", "邮件接收地址")
+	cameraCmd.Flags().StringVarP(&email_host, "email_host", "H", "smtp.163.com", "邮件发送用户名")
+	cameraCmd.Flags().IntVarP(&email_port, "email_port", "P", 465, "邮件发送端口")
 }
 
 func mjpegCapture() {
@@ -249,8 +263,8 @@ func mjpegCapture() {
 		if cam_detect {
 			// detect faces
 			rects := classifier.DetectMultiScale(img)
-			log.Info("found %d faces\n", len(rects))
 			if len(rects) > 0 {
+				log.Info("found faces", "Num", len(rects))
 				isPerson = true
 			}
 
@@ -291,13 +305,15 @@ func mjpegCapture() {
 			if cam_detect && isPerson {
 				log.Debug("检测到人脸")
 				rs := img.Clone()
-				gocv.IMWrite(fmt.Sprintf("./%d.jpg", count), rs)
+				pic_path := fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count)
+				gocv.IMWrite(pic_path, rs)
+				sendEmail(pic_path, fmt.Sprintf("%s 检测到人脸", time.Now().String()), "")
 				log.Debug("保存图片", "COUNT", count)
 			} else if cam_detect && !isPerson {
 				log.Debug("No person detected")
 			} else {
 				rs := img.Clone()
-				gocv.IMWrite(fmt.Sprintf("./%d.jpg", count), rs)
+				gocv.IMWrite(fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count), rs)
 				log.Debug("保存图片", "COUNT", count)
 			}
 		}
@@ -314,6 +330,32 @@ func mjpegCapture() {
 
 		}
 	}
+}
+
+// 设置内联图片
+func sendEmail(path, title, body string) error {
+	if email_user == "" || email_pwd == "" || email_host == "" || email_sendto == "" {
+		return errors.New("Email config error")
+	}
+	to := strings.Split(email_sendto, ",")
+	if body == "" {
+		body = `<html>
+		<body>
+			<p>TITLE:</p>
+			<img src="cid:myImage">
+		</body>
+	</html>`
+		body = strings.Replace(body, "TITLE", title, -1)
+	}
+
+	hostname, err := os.Hostname()
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+
+	title = fmt.Sprintf("%s: %s", hostname, title)
+	return utils.NewEmail(email_user, email_pwd, email_host, email_port).Send(to, title, body, path)
 }
 
 func motionCapture() {
@@ -467,12 +509,14 @@ func motionCapture() {
 			// croppedMat := src.Region(image.Rect(0, 0, src.Cols(), src.Rows()/2))
 			if cam_detect && isPerson {
 				rs := img.Clone()
-				gocv.IMWrite(fmt.Sprintf("./%d.jpg", count), rs)
+				pic_path := fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count)
+				gocv.IMWrite(pic_path, rs)
+				sendEmail(pic_path, fmt.Sprintf("%s 检测到人脸", time.Now().String()), "")
 			} else if cam_detect && !isPerson {
 				log.Debug("No person detected")
 			} else {
 				rs := img.Clone()
-				gocv.IMWrite(fmt.Sprintf("./%d.jpg", count), rs)
+				gocv.IMWrite(fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count), rs)
 			}
 			log.Debug("保存图片", "COUNT", count)
 		}

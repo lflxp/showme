@@ -108,7 +108,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.showme.yaml)")
-	// rootCmd.PersistentFlags().BoolVarP(&debugs, "debug", "d", false, "是否打印debug日志")
+	rootCmd.PersistentFlags().BoolVarP(&debugs, "debug", "G", false, "是否打印debug日志")
 	rootCmd.PersistentFlags().BoolVarP(&islog, "log", "O", false, "是否文件输出")
 
 	// Cobra also supports local flags, which will only run
@@ -129,7 +129,8 @@ func initConfig() {
 	// Output to stdout instead of the default stderr
 	// Can be any io.Writer, see below for File example
 	// 日志配置
-	lvl.Set(slog.LevelError)
+	// lvl.Set(slog.LevelError)
+	lvl.Set(slog.LevelInfo)
 	opts := slog.HandlerOptions{
 		AddSource: true,
 		Level:     &lvl,
