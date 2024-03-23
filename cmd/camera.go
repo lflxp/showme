@@ -1,6 +1,3 @@
-//go:build darwin
-// +build darwin
-
 // What it does:
 //
 // This example opens a video capture device, then streams MJPEG from it.
@@ -38,6 +35,7 @@
 // - https://gocv.io/writing-code/face-detect/
 // - https://github.com/hybridgroup/gocv/tree/release/cmd
 // - https://gocv.io/writing-code/more-examples/
+// - https://kebingzao.com/2021/05/27/opencv-gocv/
 
 package cmd
 
@@ -67,6 +65,7 @@ import (
 )
 
 const MinimumArea = 3000
+const videoName = "output.avi"
 
 var (
 	cam_d        string
@@ -92,7 +91,10 @@ var (
 var cameraCmd = &cobra.Command{
 	Use:   "camera",
 	Short: "opencv本地视频流处理",
-	Long: `前置条件：编译安装opencv和gocv 安装文档【https://gocv.io/getting-started/】
+	Long: `前置条件：编译安装opencv和gocv 
+	安装文档:
+	1.【https://gocv.io/getting-started/】
+	2. [https://kebingzao.com/2021/05/27/opencv-gocv/]
 	支持：人脸识别｜人脸侦测｜运动侦测等
 	支持：webcam ｜ window GUI`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -224,7 +226,7 @@ func mjpegCapture() {
 			return
 		}
 
-		writer, err = gocv.VideoWriterFile("output.avi", "MJPG", 25.0, img.Cols(), img.Rows(), true)
+		writer, err = gocv.VideoWriterFile(videoName, "MJPG", 25.0, img.Cols(), img.Rows(), true)
 		if err != nil {
 			log.Error("VideoWriterFile error", "err", err)
 			return
@@ -264,7 +266,7 @@ func mjpegCapture() {
 			// detect faces
 			rects := classifier.DetectMultiScale(img)
 			if len(rects) > 0 {
-				log.Info("found faces", "Num", len(rects))
+				log.Info("found faces", "Num", len(rects), "Count", count)
 				isPerson = true
 			}
 
@@ -298,42 +300,82 @@ func mjpegCapture() {
 			}
 		}
 
-		if count%100 == 0 && cam_pic {
-			// 读取图片
-			// src := gocv.IMRead("image.png", gocv.IMReadColor)
-			// croppedMat := src.Region(image.Rect(0, 0, src.Cols(), src.Rows()/2))
+		if cam_pic && !cam_video {
+			if count%100 == 0 {
+				// 读取图片
+				// src := gocv.IMRead("image.png", gocv.IMReadColor)
+				// croppedMat := src.Region(image.Rect(0, 0, src.Cols(), src.Rows()/2))
+				if cam_detect && isPerson {
+					log.Debug("检测到人脸")
+					rs := img.Clone()
+					pic_path := fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count)
+					gocv.IMWrite(pic_path, rs)
+					sendEmail(pic_path, fmt.Sprintf("%s 检测到人脸", time.Now().String()), "", "")
+					log.Debug("保存图片", "COUNT", count)
+				} else if cam_detect && !isPerson {
+					log.Debug("No person detected")
+				} else {
+					rs := img.Clone()
+					gocv.IMWrite(fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count), rs)
+					log.Debug("保存图片", "COUNT", count)
+				}
+			}
+		} else if !cam_pic && cam_video {
+			log.Debug("保存视频", "COUNT", count)
 			if cam_detect && isPerson {
-				log.Debug("检测到人脸")
-				rs := img.Clone()
-				pic_path := fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count)
-				gocv.IMWrite(pic_path, rs)
-				sendEmail(pic_path, fmt.Sprintf("%s 检测到人脸", time.Now().String()), "")
-				log.Debug("保存图片", "COUNT", count)
+				if _, err := os.Stat(videoName); err != nil {
+					if !os.IsExist(err) {
+						writer, err = gocv.VideoWriterFile(videoName, "MJPG", 25.0, img.Cols(), img.Rows(), true)
+						if err != nil {
+							log.Error("VideoWriterFile error", "err", err)
+							return
+						}
+					}
+				}
+				writer.Write(img)
+				if count%100 == 0 {
+					log.Info("发送视频邮件", "FILE", videoName)
+					sendEmail("", fmt.Sprintf("%s 检测到人脸", time.Now().String()), "", videoName)
+				}
 			} else if cam_detect && !isPerson {
 				log.Debug("No person detected")
 			} else {
+				writer.Write(img)
+			}
+		} else if cam_pic && cam_video {
+			log.Debug("保存视频", "COUNT", count)
+			if cam_detect && isPerson {
+				if _, err := os.Stat(videoName); err != nil {
+					if !os.IsExist(err) {
+						writer, err = gocv.VideoWriterFile(videoName, "MJPG", 25.0, img.Cols(), img.Rows(), true)
+						if err != nil {
+							log.Error("VideoWriterFile error", "err", err)
+							return
+						}
+					}
+				}
+				writer.Write(img)
+				if count%100 == 0 {
+					log.Info("发送视频邮件", "FILE", videoName)
+					rs := img.Clone()
+					pic_path := fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count)
+					gocv.IMWrite(pic_path, rs)
+					sendEmail(pic_path, fmt.Sprintf("%s 检测到人脸", time.Now().String()), "", videoName)
+				}
+			} else if cam_detect && !isPerson {
+				log.Debug("No person detected")
+			} else {
+				writer.Write(img)
 				rs := img.Clone()
 				gocv.IMWrite(fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count), rs)
 				log.Debug("保存图片", "COUNT", count)
 			}
 		}
-
-		if cam_video {
-			log.Debug("保存视频", "COUNT", count)
-			if cam_detect && isPerson {
-				writer.Write(img)
-			} else if cam_detect && !isPerson {
-				log.Debug("No person detected")
-			} else {
-				writer.Write(img)
-			}
-
-		}
 	}
 }
 
 // 设置内联图片
-func sendEmail(path, title, body string) error {
+func sendEmail(path, title, body, video string) error {
 	if email_user == "" || email_pwd == "" || email_host == "" || email_sendto == "" {
 		return errors.New("Email config error")
 	}
@@ -355,7 +397,11 @@ func sendEmail(path, title, body string) error {
 	}
 
 	title = fmt.Sprintf("%s: %s", hostname, title)
-	return utils.NewEmail(email_user, email_pwd, email_host, email_port).Send(to, title, body, path)
+	if path == "" {
+		return utils.NewEmail(email_user, email_pwd, email_host, email_port).Send(to, title, body, video)
+	} else {
+		return utils.NewEmail(email_user, email_pwd, email_host, email_port).Send(to, title, body, video, path)
+	}
 }
 
 func motionCapture() {
@@ -388,7 +434,7 @@ func motionCapture() {
 			return
 		}
 
-		writer, err = gocv.VideoWriterFile("output.avi", "MJPG", 20, img.Cols(), img.Rows(), true)
+		writer, err = gocv.VideoWriterFile(videoName, "MJPG", 20, img.Cols(), img.Rows(), true)
 		if err != nil {
 			log.Error("VideoWriterFile error", "err", err)
 			return
@@ -464,7 +510,7 @@ func motionCapture() {
 		if cam_detect {
 			// detect faces
 			rects := classifier.DetectMultiScale(img)
-			log.Debug("found %d faces\n", len(rects))
+			log.Debug("found faces", "Num", len(rects), "Count", count)
 			if len(rects) > 0 {
 				isPerson = true
 			}
@@ -503,33 +549,76 @@ func motionCapture() {
 		count++
 		// save image to file
 		// https://blog.csdn.net/m0_55708805/article/details/115467324
-		if count%100 == 0 && cam_pic {
+		if cam_pic && !cam_video {
+			if count%100 == 0 {
+				// 读取图片
+				// src := gocv.IMRead("image.png", gocv.IMReadColor)
+				// croppedMat := src.Region(image.Rect(0, 0, src.Cols(), src.Rows()/2))
+				if cam_detect && isPerson {
+					rs := img.Clone()
+					pic_path := fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count)
+					gocv.IMWrite(pic_path, rs)
+					sendEmail(pic_path, fmt.Sprintf("%s 检测到人脸", time.Now().String()), "", "")
+				} else if cam_detect && !isPerson {
+					log.Debug("No person detected")
+				} else {
+					rs := img.Clone()
+					gocv.IMWrite(fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count), rs)
+				}
+				log.Debug("保存图片", "COUNT", count)
+			}
+		} else if !cam_pic && cam_video {
+			log.Debug("保存视频", "COUNT", count)
+			if cam_detect && isPerson {
+				if _, err := os.Stat(videoName); err != nil {
+					if !os.IsExist(err) {
+						writer, err = gocv.VideoWriterFile(videoName, "MJPG", 25.0, img.Cols(), img.Rows(), true)
+						if err != nil {
+							log.Error("VideoWriterFile error", "err", err)
+							return
+						}
+					}
+				}
+				writer.Write(img)
+				if count%100 == 0 {
+					log.Info("发送视频邮件", "FILE", videoName)
+					sendEmail("", fmt.Sprintf("%s 检测到人脸", time.Now().String()), "", videoName)
+				}
+			} else if cam_detect && !isPerson {
+				log.Debug("No person detected")
+			} else {
+				writer.Write(img)
+			}
+		} else if cam_pic && cam_video {
 			// 读取图片
 			// src := gocv.IMRead("image.png", gocv.IMReadColor)
 			// croppedMat := src.Region(image.Rect(0, 0, src.Cols(), src.Rows()/2))
 			if cam_detect && isPerson {
-				rs := img.Clone()
-				pic_path := fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count)
-				gocv.IMWrite(pic_path, rs)
-				sendEmail(pic_path, fmt.Sprintf("%s 检测到人脸", time.Now().String()), "")
+				if _, err := os.Stat(videoName); err != nil {
+					if !os.IsExist(err) {
+						writer, err = gocv.VideoWriterFile(videoName, "MJPG", 25.0, img.Cols(), img.Rows(), true)
+						if err != nil {
+							log.Error("VideoWriterFile error", "err", err)
+							return
+						}
+					}
+				}
+				writer.Write(img)
+				if count%100 == 0 {
+					rs := img.Clone()
+					pic_path := fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count)
+					gocv.IMWrite(pic_path, rs)
+					sendEmail(pic_path, fmt.Sprintf("%s 检测到人脸", time.Now().String()), "", videoName)
+				}
+
 			} else if cam_detect && !isPerson {
 				log.Debug("No person detected")
 			} else {
+				writer.Write(img)
 				rs := img.Clone()
 				gocv.IMWrite(fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count), rs)
 			}
 			log.Debug("保存图片", "COUNT", count)
-		}
-
-		if cam_video {
-			log.Debug("保存视频", "COUNT", count)
-			if cam_detect && isPerson {
-				writer.Write(img)
-			} else if cam_detect && !isPerson {
-				log.Debug("No person detected")
-			} else {
-				writer.Write(img)
-			}
 		}
 	}
 }

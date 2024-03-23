@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	log "log/slog"
+
 	"gopkg.in/gomail.v2"
 )
 
@@ -23,7 +25,7 @@ func NewEmail(user string, password string, host string, port int) *Email {
 	}
 }
 
-func (e *Email) Send(mailTo []string, subject string, body string, attachs ...string) error {
+func (e *Email) Send(mailTo []string, subject string, body string, video string, attachs ...string) error {
 	// 设置邮箱主体
 	m := gomail.NewMessage()
 	m.SetHeader("From", m.FormatAddress(e.User, "补网人")) // 添加别名
@@ -31,18 +33,27 @@ func (e *Email) Send(mailTo []string, subject string, body string, attachs ...st
 	m.SetHeader("Subject", subject)                     // 设置邮件主题
 	m.SetBody("text/html", body)                        // 设置邮件正文
 	// 附件
+	log.Info("发送邮件", "MailTo", mailTo, "attachs", attachs, "video", video)
 	for _, v := range attachs {
 		m.Attach(v, gomail.SetHeader(map[string][]string{
 			"Content-ID":          {"<myImage>"},
 			"Content-Disposition": {fmt.Sprintf("inline; filename='%s'", v)},
 		}))
+		m.Attach(v)
+	}
+	if video != "" {
+		m.Attach(video)
 	}
 	d := gomail.NewDialer(e.Host, e.Port, e.User, e.Password) // 设置邮件正文
 	err := d.DialAndSend(m)
+	if err != nil {
+		log.Error(err.Error())
+	}
 	defer func() {
 		for _, v := range attachs {
 			e.Clean(v)
 		}
+		e.Clean(video)
 	}()
 	return err
 }

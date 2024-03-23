@@ -11,7 +11,6 @@ require (
 	gitee.com/lflxp/proxy v0.0.0-20211028153826-fadd0f7c6c77
 	gitee.com/lflxp/tcell/v2 v2.5.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
-	github.com/blackjack/webcam v0.5.0
 	github.com/briandowns/spinner v1.19.0
 	github.com/c-bata/go-prompt v0.2.6
 	github.com/coreos/bbolt v1.3.2
@@ -27,7 +26,6 @@ require (
 	github.com/jroimartin/gocui v0.5.0
 	github.com/juju/errors v1.0.0
 	github.com/junegunn/fzf v0.0.0-20240130022308-dd886d22f0b9
-	github.com/korandiz/v4l v1.1.0
 	github.com/lflxp/djangolang v0.2.6
 	github.com/lflxp/goproxys v0.0.0-20200308164541-294d52d6ffa9
 	github.com/lflxp/lflxp-api v0.0.0-20200323094405-0d69797bee92
@@ -56,6 +54,7 @@ require (
 	gocv.io/x/gocv v0.35.0
 	golang.org/x/crypto v0.19.0
 	golang.org/x/term v0.17.0
+	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	k8s.io/client-go v0.29.1
 )
 
@@ -231,7 +230,6 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
-	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/olivere/elastic.v5 v5.0.84 // indirect
