@@ -73,6 +73,7 @@ var (
 	cam_x        string
 	cam_motion   bool
 	cam_windows  bool
+	cam_web      bool
 	cam_pic      bool
 	cam_video    bool
 	cam_detect   bool
@@ -85,6 +86,14 @@ var (
 	email_sendto string
 	email_host   string
 	email_port   int
+	cam_count    int // 摄像头计数
+)
+
+type Motion string
+
+const (
+	MotionReady  Motion = "Ready"
+	MotionDetect Motion = "Motion Detect"
 )
 
 // cameraCmd represents the camera command
@@ -148,12 +157,7 @@ var cameraCmd = &cobra.Command{
 			go mjpegCapture()
 		}
 
-		if cam_windows {
-			quit := make(chan os.Signal)
-			signal.Notify(quit, []os.Signal{os.Interrupt, syscall.SIGTERM}...)
-			<-quit
-			log.Warn("receive interrupt signal")
-		} else {
+		if cam_web {
 			log.Info("Capturing. Point your browser to " + cam_a)
 
 			// start http server
@@ -178,6 +182,11 @@ var cameraCmd = &cobra.Command{
 			if err != nil {
 				log.Error(err.Error())
 			}
+		} else {
+			quit := make(chan os.Signal)
+			signal.Notify(quit, []os.Signal{os.Interrupt, syscall.SIGTERM}...)
+			<-quit
+			log.Warn("receive interrupt signal")
 		}
 	},
 }
@@ -199,6 +208,7 @@ func init() {
 	cameraCmd.Flags().StringVarP(&cam_x, "xml", "x", "", "人脸识别 [classifier XML file]")
 	cameraCmd.Flags().BoolVarP(&cam_motion, "motion", "m", false, "是否开启运动侦测")
 	cameraCmd.Flags().BoolVarP(&cam_windows, "windows", "w", false, "是否开启app显示 ｜ 浏览器显示")
+	cameraCmd.Flags().BoolVarP(&cam_web, "web", "B", false, "是否开启浏览器显示")
 	cameraCmd.Flags().BoolVarP(&cam_pic, "pic", "p", false, "是否保存图片")
 	cameraCmd.Flags().BoolVarP(&cam_video, "video", "v", false, "是否保存视频")
 	cameraCmd.Flags().BoolVarP(&cam_detect, "detect", "D", false, "是否支持人脸识别")
@@ -207,6 +217,7 @@ func init() {
 	cameraCmd.Flags().StringVarP(&email_sendto, "email_sendto", "T", "", "邮件接收地址")
 	cameraCmd.Flags().StringVarP(&email_host, "email_host", "H", "smtp.163.com", "邮件发送用户名")
 	cameraCmd.Flags().IntVarP(&email_port, "email_port", "P", 465, "邮件发送端口")
+	cameraCmd.Flags().IntVarP(&cam_count, "count", "C", 100, "摄像头计数")
 }
 
 func mjpegCapture() {
@@ -281,27 +292,28 @@ func mjpegCapture() {
 			}
 		}
 
+		// 窗口模式无论是否侦测到人脸或者运动都显示
 		if cam_windows {
 			window.IMShow(img)
 			if window.WaitKey(1) == 27 {
 				break
 			}
-		} else {
-			if cam_detect && isPerson {
-				buf, _ := gocv.IMEncode(".jpg", img)
-				stream.UpdateJPEG(buf.GetBytes())
-				buf.Close()
-			} else if cam_detect && !isPerson {
-				log.Debug("No person detected")
-			} else {
-				buf, _ := gocv.IMEncode(".jpg", img)
-				stream.UpdateJPEG(buf.GetBytes())
-				buf.Close()
-			}
+		} else if cam_web {
+			// 未探测到人依然可以视频或者
+			buf, _ := gocv.IMEncode(".jpg", img)
+			stream.UpdateJPEG(buf.GetBytes())
+			buf.Close()
 		}
 
+		// 前提条件： 必须侦测到人脸且有运动侦测启动的情况下才会执行以下操作
+		// 1. 如果侦测到人脸且处于运动状态，则保存图片
+		// 2. 如果侦测到人脸且处于运动状态，则保存图片且发送邮件
+		// 3. 如果侦测到人脸且处于运动状态，则保存视频
+		// 4. 如果侦测到人脸且处于运动状态，则保存视频且发送邮件
+		// 5. 如果侦测到人脸且处于运动状态，则保存视频且保存图片
+		// 6. 如果侦测到人脸且处于运动状态，则保存视频且保存图片且发送邮件
 		if cam_pic && !cam_video {
-			if count%100 == 0 {
+			if count%cam_count == 0 {
 				// 读取图片
 				// src := gocv.IMRead("image.png", gocv.IMReadColor)
 				// croppedMat := src.Region(image.Rect(0, 0, src.Cols(), src.Rows()/2))
@@ -333,7 +345,7 @@ func mjpegCapture() {
 					}
 				}
 				writer.Write(img)
-				if count%100 == 0 {
+				if count%cam_count == 0 {
 					log.Info("发送视频邮件", "FILE", videoName)
 					sendEmail("", fmt.Sprintf("%s 检测到人脸", time.Now().String()), "", videoName)
 				}
@@ -355,7 +367,7 @@ func mjpegCapture() {
 					}
 				}
 				writer.Write(img)
-				if count%100 == 0 {
+				if count%cam_count == 0 {
 					log.Info("发送视频邮件", "FILE", videoName)
 					rs := img.Clone()
 					pic_path := fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count)
@@ -423,7 +435,7 @@ func motionCapture() {
 	mog2 := gocv.NewBackgroundSubtractorMOG2()
 	defer mog2.Close()
 
-	status := "Ready"
+	status := MotionReady
 
 	log.Info("Start reading device: %v\n", cam_d)
 
@@ -470,7 +482,7 @@ func motionCapture() {
 			continue
 		}
 
-		status = "Ready"
+		status = MotionReady
 		statusColor := color.RGBA{0, 255, 0, 0}
 
 		// first phase of cleaning up image, obtain foreground only
@@ -494,7 +506,7 @@ func motionCapture() {
 				continue
 			}
 
-			status = "Motion detected"
+			status = MotionDetect
 			statusColor = color.RGBA{255, 0, 0, 0}
 			gocv.DrawContours(&img, contours, i, statusColor, 2)
 
@@ -504,7 +516,7 @@ func motionCapture() {
 
 		contours.Close()
 
-		gocv.PutText(&img, status, image.Pt(10, 20), gocv.FontHersheyPlain, 1.2, statusColor, 2)
+		gocv.PutText(&img, string(status), image.Pt(10, 20), gocv.FontHersheyPlain, 1.2, statusColor, 2)
 
 		var isPerson bool
 		if cam_detect {
@@ -531,45 +543,33 @@ func motionCapture() {
 			if window.WaitKey(1) == 27 {
 				break
 			}
-		} else {
-			if cam_detect && isPerson {
-				buf, _ := gocv.IMEncode(".jpg", img)
-				stream.UpdateJPEG(buf.GetBytes())
-				buf.Close()
-			} else if cam_detect && !isPerson {
-				log.Debug("No person detected")
-			} else {
-				buf, _ := gocv.IMEncode(".jpg", img)
-				stream.UpdateJPEG(buf.GetBytes())
-				buf.Close()
-			}
-
+		} else if cam_web {
+			buf, _ := gocv.IMEncode(".jpg", img)
+			stream.UpdateJPEG(buf.GetBytes())
+			buf.Close()
 		}
 
 		count++
 		// save image to file
 		// https://blog.csdn.net/m0_55708805/article/details/115467324
 		if cam_pic && !cam_video {
-			if count%100 == 0 {
+			if count%cam_count == 0 {
 				// 读取图片
 				// src := gocv.IMRead("image.png", gocv.IMReadColor)
 				// croppedMat := src.Region(image.Rect(0, 0, src.Cols(), src.Rows()/2))
-				if cam_detect && isPerson {
+				if cam_detect && isPerson && status == MotionDetect {
+					log.Debug("保存图片", "COUNT", count)
 					rs := img.Clone()
 					pic_path := fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count)
 					gocv.IMWrite(pic_path, rs)
 					sendEmail(pic_path, fmt.Sprintf("%s 检测到人脸", time.Now().String()), "", "")
-				} else if cam_detect && !isPerson {
-					log.Debug("No person detected")
 				} else {
-					rs := img.Clone()
-					gocv.IMWrite(fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count), rs)
+					log.Debug("No person detected")
 				}
-				log.Debug("保存图片", "COUNT", count)
 			}
 		} else if !cam_pic && cam_video {
 			log.Debug("保存视频", "COUNT", count)
-			if cam_detect && isPerson {
+			if cam_detect && isPerson && status == MotionDetect {
 				if _, err := os.Stat(videoName); err != nil {
 					if !os.IsExist(err) {
 						writer, err = gocv.VideoWriterFile(videoName, "MJPG", 25.0, img.Cols(), img.Rows(), true)
@@ -580,20 +580,18 @@ func motionCapture() {
 					}
 				}
 				writer.Write(img)
-				if count%100 == 0 {
+				if count%cam_count == 0 {
 					log.Info("发送视频邮件", "FILE", videoName)
 					sendEmail("", fmt.Sprintf("%s 检测到人脸", time.Now().String()), "", videoName)
 				}
-			} else if cam_detect && !isPerson {
-				log.Debug("No person detected")
 			} else {
-				writer.Write(img)
+				log.Debug("No person detected")
 			}
 		} else if cam_pic && cam_video {
 			// 读取图片
 			// src := gocv.IMRead("image.png", gocv.IMReadColor)
 			// croppedMat := src.Region(image.Rect(0, 0, src.Cols(), src.Rows()/2))
-			if cam_detect && isPerson {
+			if cam_detect && isPerson && status == MotionDetect {
 				if _, err := os.Stat(videoName); err != nil {
 					if !os.IsExist(err) {
 						writer, err = gocv.VideoWriterFile(videoName, "MJPG", 25.0, img.Cols(), img.Rows(), true)
@@ -604,19 +602,15 @@ func motionCapture() {
 					}
 				}
 				writer.Write(img)
-				if count%100 == 0 {
+				if count%cam_count == 0 {
 					rs := img.Clone()
 					pic_path := fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count)
 					gocv.IMWrite(pic_path, rs)
 					sendEmail(pic_path, fmt.Sprintf("%s 检测到人脸", time.Now().String()), "", videoName)
 				}
 
-			} else if cam_detect && !isPerson {
-				log.Debug("No person detected")
 			} else {
-				writer.Write(img)
-				rs := img.Clone()
-				gocv.IMWrite(fmt.Sprintf("./%d-%d.jpg", time.Now().UnixMicro(), count), rs)
+				log.Debug("No person detected")
 			}
 			log.Debug("保存图片", "COUNT", count)
 		}
