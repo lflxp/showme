@@ -1,0 +1,21 @@
+# to build this docker image:
+#   docker buildx build -f Dockerfile-static -t gocv-static --platform=linux/amd64,linux/arm64 .
+#
+FROM --platform=$BUILDPLATFORM ghcr.io/hybridgroup/opencv:4.11.0-static AS gocv-build
+
+ENV GOPATH /go
+
+COPY . /go/src/gocv.io/x/gocv/
+
+WORKDIR /go/src/gocv.io/x/gocv
+
+RUN --mount=target=. \
+    --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg/mod \
+    go build -tags static -o /build/gocv_version ./cmd/version/
+
+FROM debian:bullseye AS final
+
+COPY --from=gocv-build /build/gocv_version /run/gocv_version
+
+CMD ["/run/gocv_version"]

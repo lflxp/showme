@@ -1,3 +1,188 @@
+0.40.0
+---
+* **all**
+    - Add support for OpenCV 4.11.0
+    - Update license year to 2025
+- **bugfix**
+    - Correct signature for FindHomography, since dst is actually target format for the operation, not something changed by the operation
+- **core**
+    - Added new Mat constructor and tests
+    - Added NewMatFromPoint2fVector function
+- **videoio**
+    - Change type of VideoCaptureProperties to int32
+    - Added VideoWriterFile with API and API Params
+- **docker**
+    - Alpine static improved (#1243)
+- **make**
+    - Improve Linux distro dtection code, and add specific dependendcies for Ubunutu 24.04
+- **examples**
+    - GStreamer VideoWriter example
+- **build**
+    - Update homebrew when running macOS tests
+    - Update GH actions in linux build to latest versions
+
+0.39.0
+---
+- **bugfix**
+  - Fixed MinGW link typo in README.md.
+  - Fixed function name typo (#1236).
+- **core**
+  - Added `FaceDetectorYN` example.
+  - Query I/O API backends registry (#1237).
+  - Face detector YN face recognizer SF (#1232).
+- **cuda**
+  - Added `createLookUpTable` and `split` functions.
+  - Added missing CUDA `imgproc` standalone functions.
+  - Added `XXXWithStream` standalone functions.
+- **docker**
+  - Added Dockerfile for container that can perform static builds of your own GoCV project (HighGUI not supported by static builds).
+  - Added Dockerfile example showing how to build using static linking.
+  - Added static build examples.
+  - Updated version for `gocv-static-builder` image.
+- **build**
+  - Updated workflow for Docker builds to latest versions.
+  - Used most recent NVIDIA CUDA base image.
+  - Used static FFmpeg build for static OpenCV build.
+  - Downgraded static build to Go 1.22 to avoid [Go issue #68976](https://github.com/golang/go/issues/68976).
+  - Modified Dockerfile used for static builds to build own versions for static linking.
+  - Corrected build options for OpenCV on arm64 for static builds.
+  - Separated build tags and linker flags for arm64 and amd64 targets.
+  - Modified LDFLAGS for correct static compilation.
+  - Removed extra file to clear space for static build/standard dev build images.
+  - Added options for Linux arm64 and separate Darwin builds.
+- **cgo**
+  - Changed tags for static OpenCV to `opencvstatic`.
+  - Added options for Linux arm64 and separate Darwin builds.
+  - Removed unneeded lib from link for Linux/arm64.
+  - Modified LDFLAGS for correct static compilation.
+- **docs**
+  - Added missing `videoio` functions to ROADMAP.
+  - Updated ROADMAP with missing `objdetect` functions for DNN faces, and moved `aruco` under `objdetect` module.
+  - Simplified the YOLO example.
+
+0.38.0
+---
+* **bugfix**
+    * aruco: correct test from latest OpenCV update
+    * exclude freetype.cpp file from being included in windows build
+    * feat(demosaicing): release mat when conversion to bayer encounters invalid pattern
+    * imgproc HomographyMethod const values typo fixed
+* **build**
+    * add macOS build for GH actions CI
+    * adjust make and docker build files to build freetype support
+    * correct ONNX DNN tests on Linux/macOS
+    * move download for GOTURN models into testdata subdirectory
+    * remove Caffe tests
+    * run DNN tests on Windows
+    * make: add task to run all cuda tests
+    * make: build non-free modules when building opencv with cuda support
+    * skip tests on macOS that are not passing due to OpenCV different results on macOS. See https://forum.opencv.org/t/match-template-different-results-on-mac-m1/10026 and other similar issues.
+    * update all generated docker images to Go 1.23.1
+* **examples**
+    * add asciicam video to ascii in your terminal
+    * add object detection example using YOLOv8
+* **core**
+    * add Closed() function to Mat
+    * add OpenCV types for half-float values
+    * add TransposeND() function
+    * persistance implement Filestorage roadmap (#1208)
+    * RotatedRect type constructors
+* **dnn**
+    * add BlobFromImageWithParams() and BlobFromImagesWithParams() functions
+    * add BlobRectToImageRect() and BlobRectsToImageRects() functions
+    * allow ReadNet() function to only pass model file, and remove tests for Caffe
+* **features2d**
+    * SIFT with params (#1186)
+* **highgui**
+    * added window pollkey function (#1198)
+    * added window WaitKeyEx support (#1195)
+    * Window set mouse callback (#1220)
+* **imgcodecs**
+    * added immultiread support
+* **imgproc**
+    * feat(imgproc): demosaicing wrapper
+    * add HomographyMethodRHO HomographyMethod added
+* **objdetect**
+    * change QRCodeDetector signature to avoid pointer to slice
+* **video**
+    * added TrackerGOTURN (see roadmap)
+* **videoio**
+    * Capture from device and file with HW acceleration
+* **cuda**
+    * add Closed() function to Mat/GpuMat
+    * add DeviceSupports function
+    * add implementations for AddWeighted and CopyMakeBorder functions
+    * add Merge and Transpose functions
+    * add support for convertFp16 function
+    * add tests for demosaicing
+    * feat(imgproc): demosaicing wrapper
+    * correct go fmt error
+* **contrib/face**
+    * added face recognizer interface (#1211)
+    * BasicFaceRecognizer + EigenFaceRecognizer + FisherFaceRecognizer (#1213)
+    * extra setters and getters for LBPHFaceRecognizer (#1194)
+* **contrib/freetype**
+    * imported freetype code by lz1998 from PR 873
+
+0.37.0
+---
+* **all**
+    * Add support for OpenCV 4.10.0
+
+0.36.1
+---
+* **bugfix**
+    * Correct error in CUDA function signature
+* **test**
+    * correct CUDA tests
+* **docker**
+    * add test image for CUDA 12
+
+0.36.0
+---
+* **all**
+    * Add support for OpenCV 4.9.0
+    * update Go to version 1.22
+    * update minimum go version to 1.21
+* **bugfix**
+    * aruco: correct test from latest OpenCV update
+* **build**
+    * add GH action for Windows
+    * remove appveyor
+    * adjusted Makefile to build for debian bookworm
+* **core**
+    * Add additional signature for MinMaxLoc.
+    * add color conversion alias
+    * add Mahalanobis(), Inv(), Row(), amd Col() functions
+    * add MulTransposed() function
+    * add PCABackProject() and PCAProject() functions
+    * add PSNR() function
+    * add SVBackSubst() and SVDecomp() functions
+* **calib3d**
+    * add FisheyeCalibrate, FisheyeDistortPoints, and CheckChessboard functions
+    * Add func comments and update readme
+    * add Rodrigues function
+    * add SolvePnP function
+    * Add more smoke tests
+    * Initial commit of more stereo bindings
+* **feature2d**
+    * Add interface for `Feature2D` algorithms
+    * Asserting some algorithms conform to `Feature2D`
+    * Prepend "Feature2D" prefix to component interfaces of Feature2D
+* **imgproc**
+    * add CreateHanningWindow()
+    * add EMD()
+    * Add float version of BoxPoints and MinAreaRect
+    * Add new binding for cv::Erode.
+* **videoio**
+    * add Retrieve function
+* **contrib/xfeatures2d**
+    * Add BriefDescriptorExtractor to xfeatures2d (#1114)
+    * add NewSURFWithParams func
+    * Add separate "Compute" bindings for detection algorithms (#1117)
+* **cuda/core**
+    * ADD Cuda MultiplyWithStream (#1142)
+
 0.35.0
 ---
 * **all**

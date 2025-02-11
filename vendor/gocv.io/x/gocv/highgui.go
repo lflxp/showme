@@ -3,12 +3,26 @@ package gocv
 /*
 #include <stdlib.h>
 #include "highgui_gocv.h"
+
+void go_onmouse_dispatcher(int event, int x, int y, int flags, void *userdata);
 */
 import "C"
 import (
 	"image"
 	"runtime"
 	"unsafe"
+)
+
+type MouseHandlerFunc func(event int, x int, y int, flags int, userdata interface{})
+
+type mouseHandlerInfo struct {
+	c_name_ptr *C.char
+	fn         MouseHandlerFunc
+	userdata   interface{}
+}
+
+var (
+	onMouseHandlers = map[string]mouseHandlerInfo{}
 )
 
 // Window is a wrapper around OpenCV's "HighGUI" named windows.
@@ -46,6 +60,14 @@ func NewWindow(name string) *Window {
 func (w *Window) Close() error {
 	cName := C.CString(w.name)
 	defer C.free(unsafe.Pointer(cName))
+
+	mcbInfo, exists := onMouseHandlers[w.name]
+	if exists {
+		mcbInfo.fn = nil
+		mcbInfo.userdata = nil
+		C.free(unsafe.Pointer(mcbInfo.c_name_ptr))
+		delete(onMouseHandlers, w.name)
+	}
 
 	C.Window_Close(cName)
 	w.open = false
@@ -160,6 +182,35 @@ func (w *Window) IMShow(img Mat) {
 // http://docs.opencv.org/master/d7/dfc/group__highgui.html#ga5628525ad33f52eab17feebcfba38bd7
 func (w *Window) WaitKey(delay int) int {
 	return int(C.Window_WaitKey(C.int(delay)))
+}
+
+// WaitKeyEx Similar to waitKey, but returns full key code.
+// Note
+// Key code is implementation specific and depends on used backend: QT/GTK/Win32/etc
+//
+// For further details, please see:
+// https://docs.opencv.org/4.x/d7/dfc/group__highgui.html#gafa15c0501e0ddd90918f17aa071d3dd0
+func (w *Window) WaitKeyEx(delay int) int {
+	return int(C.Window_WaitKey(C.int(delay)))
+}
+
+// PollKey polls for a pressed key.
+// The function pollKey polls for a key event without waiting.
+// It returns the code of the pressed key or -1 if no key was pressed since
+// the last invocation. To wait until a key was pressed, use waitKey.
+//
+// The functions waitKey and pollKey are the only methods in HighGUI that can
+// fetch and handle GUI events, so one of them needs to be called periodically
+// for normal event processing unless HighGUI is used within an environment that
+// takes care of event processing.
+// The function only works if there is at least one HighGUI window created and
+// the window is active. If there are several HighGUI windows, any of them can
+// be active.
+//
+// For further details, please see:
+// https://docs.opencv.org/4.x/d7/dfc/group__highgui.html#ga6d20fbd3100ec3badc1eaa653aff99d7
+func (w *Window) PollKey() int {
+	return int(C.Window_PollKey())
 }
 
 // MoveWindow moves window to the specified position.
@@ -339,4 +390,28 @@ func (t *Trackbar) SetMax(pos int) {
 	defer C.free(unsafe.Pointer(tName))
 
 	C.Trackbar_SetMax(cName, tName, C.int(pos))
+}
+
+//export go_onmouse_dispatcher
+func go_onmouse_dispatcher(event C.int, x C.int, y C.int, flags C.int, userdata unsafe.Pointer) {
+
+	c_winname := (*C.char)(unsafe.Pointer(userdata))
+	winName := C.GoString(c_winname)
+	info, exists := onMouseHandlers[winName]
+	if !exists {
+		return
+	}
+	info.fn(int(event), int(x), int(y), int(flags), info.userdata)
+}
+
+func (w *Window) SetMouseHandler(onMOuse MouseHandlerFunc, userdata interface{}) {
+	c_winname := C.CString(w.name)
+
+	onMouseHandlers[w.name] = mouseHandlerInfo{
+		c_name_ptr: c_winname,
+		fn:         onMOuse,
+		userdata:   userdata,
+	}
+
+	C.Window_SetMouseCallback(c_winname, C.mouse_callback(C.go_onmouse_dispatcher))
 }

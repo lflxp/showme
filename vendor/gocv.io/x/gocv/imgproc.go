@@ -57,6 +57,16 @@ func CvtColor(src Mat, dst *Mat, code ColorConversionCode) {
 	C.CvtColor(src.p, dst.p, C.int(code))
 }
 
+// Demosaicing converts an image from Bayer pattern to RGB or grayscale.
+// It converts the src Mat image to the dst Mat using the
+// code param containing the desired ColorConversionCode color space.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d7/d1b/group__imgproc__color__conversions.html#ga57261f12fccf872a2b2d66daf29d5bd0
+func Demosaicing(src Mat, dst *Mat, code ColorConversionCode) {
+	C.Demosaicing(src.p, dst.p, C.int(code))
+}
+
 // EqualizeHist normalizes the brightness and increases the contrast of the image.
 //
 // For further details, please see:
@@ -174,6 +184,14 @@ const (
 // https://docs.opencv.org/master/d6/dc7/group__imgproc__hist.html#gaf4190090efa5c47cb367cf97a9a519bd
 func CompareHist(hist1 Mat, hist2 Mat, method HistCompMethod) float32 {
 	return float32(C.CompareHist(hist1.p, hist2.p, C.int(method)))
+}
+
+// EMD Computes the "minimal work" distance between two weighted point configurations.
+//
+// For further details, please see:
+// https://docs.opencv.org/4.x/d6/dc7/group__imgproc__hist.html#ga902b8e60cc7075c8947345489221e0e0
+func EMD(signature1, signature2 Mat, typ DistanceTypes) float32 {
+	return float32(C.EMD(signature1.p, signature2.p, C.int(typ)))
 }
 
 // ClipLine clips the line against the image rectangle.
@@ -332,6 +350,28 @@ func ErodeWithParams(src Mat, dst *Mat, kernel Mat, anchor image.Point, iteratio
 	C.ErodeWithParams(src.p, dst.p, kernel.p, cAnchor, C.int(iterations), C.int(borderType))
 }
 
+// ErodeWithParamsAndBorderValue erodes an image by using a specific structuring
+// element. Same as ErodeWithParams but requires an additional borderValue
+// parameter.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html#gaeb1e0c1033e3f6b891a25d0511362aeb
+func ErodeWithParamsAndBorderValue(src Mat, dst *Mat, kernel Mat, anchor image.Point, iterations, borderType int, borderValue Scalar) {
+	cAnchor := C.struct_Point{
+		x: C.int(anchor.X),
+		y: C.int(anchor.Y),
+	}
+
+	bv := C.struct_Scalar{
+		val1: C.double(borderValue.Val1),
+		val2: C.double(borderValue.Val2),
+		val3: C.double(borderValue.Val3),
+		val4: C.double(borderValue.Val4),
+	}
+
+	C.ErodeWithParamsAndBorderValue(src.p, dst.p, kernel.p, cAnchor, C.int(iterations), C.int(borderType), bv)
+}
+
 // RetrievalMode is the mode of the contour retrieval algorithm.
 type RetrievalMode int
 
@@ -428,6 +468,41 @@ func BoxPoints(rect RotatedRect, pts *Mat) {
 	C.BoxPoints(r, pts.p)
 }
 
+// BoxPoints finds the four vertices of a rotated rect. Useful to draw the rotated rectangle.
+//
+// For further Details, please see:
+// https://docs.opencv.org/3.3.0/d3/dc0/group__imgproc__shape.html#gaf78d467e024b4d7936cf9397185d2f5c
+func BoxPoints2f(rect RotatedRect2f, pts *Mat) {
+	rPoints := toCPoints2f(rect.Points)
+
+	rRect := C.struct_Rect{
+		x:      C.int(rect.BoundingRect.Min.X),
+		y:      C.int(rect.BoundingRect.Min.Y),
+		width:  C.int(rect.BoundingRect.Max.X - rect.BoundingRect.Min.X),
+		height: C.int(rect.BoundingRect.Max.Y - rect.BoundingRect.Min.Y),
+	}
+
+	rCenter := C.struct_Point2f{
+		x: C.float(rect.Center.X),
+		y: C.float(rect.Center.Y),
+	}
+
+	rSize := C.struct_Size2f{
+		width:  C.float(rect.Width),
+		height: C.float(rect.Height),
+	}
+
+	r := C.struct_RotatedRect2f{
+		pts:          rPoints,
+		boundingRect: rRect,
+		center:       rCenter,
+		size:         rSize,
+		angle:        C.double(rect.Angle),
+	}
+
+	C.BoxPoints2f(r, pts.p)
+}
+
 // ContourArea calculates a contour area.
 //
 // For further details, please see:
@@ -443,6 +518,15 @@ type RotatedRect struct {
 	Center       image.Point
 	Width        int
 	Height       int
+	Angle        float64
+}
+
+type RotatedRect2f struct {
+	Points       []Point2f
+	BoundingRect image.Rectangle
+	Center       Point2f
+	Width        float32
+	Height       float32
 	Angle        float64
 }
 
@@ -465,6 +549,25 @@ func toPoints(points C.Contour) []image.Point {
 	return points4
 }
 
+// toPoints2f converts C.Contour2f to []Point2f
+func toPoints2f(points C.Contour2f) []Point2f {
+	pArray := points.points
+	pLength := int(points.length)
+
+	pHdr := reflect.SliceHeader{
+		Data: uintptr(unsafe.Pointer(pArray)),
+		Len:  pLength,
+		Cap:  pLength,
+	}
+	sPoints := *(*[]C.Point)(unsafe.Pointer(&pHdr))
+
+	points4 := make([]Point2f, pLength)
+	for j, pt := range sPoints {
+		points4[j] = NewPoint2f(float32(pt.x), float32(pt.y))
+	}
+	return points4
+}
+
 // MinAreaRect finds a rotated rectangle of the minimum area enclosing the input 2D point set.
 //
 // For further details, please see:
@@ -479,6 +582,24 @@ func MinAreaRect(points PointVector) RotatedRect {
 		Center:       image.Pt(int(result.center.x), int(result.center.y)),
 		Width:        int(result.size.width),
 		Height:       int(result.size.height),
+		Angle:        float64(result.angle),
+	}
+}
+
+// MinAreaRect finds a rotated rectangle of the minimum area enclosing the input 2D point set.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d3/dc0/group__imgproc__shape.html#ga3d476a3417130ae5154aea421ca7ead9
+func MinAreaRect2f(points PointVector) RotatedRect2f {
+	result := C.MinAreaRect2f(points.p)
+	defer C.Points2f_Close(result.pts)
+
+	return RotatedRect2f{
+		Points:       toPoints2f(result.pts),
+		BoundingRect: image.Rect(int(result.boundingRect.x), int(result.boundingRect.y), int(result.boundingRect.x)+int(result.boundingRect.width), int(result.boundingRect.y)+int(result.boundingRect.height)),
+		Center:       NewPoint2f(float32(result.center.x), float32(result.center.y)),
+		Width:        float32(result.size.width),
+		Height:       float32(result.size.height),
 		Angle:        float64(result.angle),
 	}
 }
@@ -1708,17 +1829,18 @@ func GetAffineTransform2f(src, dst Point2fVector) Mat {
 type HomographyMethod int
 
 const (
-	HomograpyMethodAllPoints HomographyMethod = 0
-	HomograpyMethodLMEDS     HomographyMethod = 4
-	HomograpyMethodRANSAC    HomographyMethod = 8
+	HomographyMethodAllPoints HomographyMethod = 0
+	HomographyMethodLMEDS     HomographyMethod = 4
+	HomographyMethodRANSAC    HomographyMethod = 8
+	HomographyMethodRHO       HomographyMethod = 16
 )
 
 // FindHomography finds an optimal homography matrix using 4 or more point pairs (as opposed to GetPerspectiveTransform, which uses exactly 4)
 //
 // For further details, please see:
 // https://docs.opencv.org/master/d9/d0c/group__calib3d.html#ga4abc2ece9fab9398f2e560d53c8c9780
-func FindHomography(srcPoints Mat, dstPoints *Mat, method HomographyMethod, ransacReprojThreshold float64, mask *Mat, maxIters int, confidence float64) Mat {
-	return newMat(C.FindHomography(srcPoints.Ptr(), dstPoints.Ptr(), C.int(method), C.double(ransacReprojThreshold), mask.Ptr(), C.int(maxIters), C.double(confidence)))
+func FindHomography(srcPoints Mat, targetPoints Mat, method HomographyMethod, ransacReprojThreshold float64, mask *Mat, maxIters int, confidence float64) Mat {
+	return newMat(C.FindHomography(srcPoints.Ptr(), targetPoints.Ptr(), C.int(method), C.double(ransacReprojThreshold), mask.Ptr(), C.int(maxIters), C.double(confidence)))
 }
 
 // DrawContours draws contours outlines or filled contours.
@@ -1919,6 +2041,19 @@ func PhaseCorrelate(src1, src2, window Mat) (phaseShift Point2f, response float6
 		X: float32(result.x),
 		Y: float32(result.y),
 	}, float64(responseDouble)
+}
+
+// CreateHanningWindow computes a Hanning window coefficients in two dimensions.
+//
+// For further details, please see:
+// https://docs.opencv.org/4.x/d7/df3/group__imgproc__motion.html#ga80e5c3de52f6bab3a7c1e60e89308e1b
+func CreateHanningWindow(img *Mat, size image.Point, typ MatType) {
+	sz := C.struct_Size{
+		width:  C.int(size.X),
+		height: C.int(size.Y),
+	}
+
+	C.CreateHanningWindow(img.p, sz, C.int(typ))
 }
 
 // ToImage converts a Mat to a image.Image.

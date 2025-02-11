@@ -55,6 +55,9 @@ const (
 	// MatTypeCV64F is a Mat of 64-bit float
 	MatTypeCV64F MatType = 6
 
+	// MatTypeCV16F is a Mat of 16-bit (half) float
+	MatTypeCV16F MatType = 7
+
 	// MatTypeCV8UC1 is a Mat of 8-bit unsigned int with a single channel
 	MatTypeCV8UC1 = MatTypeCV8U + MatChannels1
 
@@ -135,6 +138,18 @@ const (
 
 	// MatTypeCV64FC4 is a Mat of 64-bit float int with 4 channels
 	MatTypeCV64FC4 = MatTypeCV64F + MatChannels4
+
+	// MatTypeCV16FC1 is a Mat of 16-bit float with a single channel
+	MatTypeCV16FC1 = MatTypeCV16F + MatChannels1
+
+	// MatTypeCV16FC2 is a Mat of 16-bit float with 2 channels
+	MatTypeCV16FC2 = MatTypeCV16F + MatChannels2
+
+	// MatTypeCV16FC3 is a Mat of 16-bit float with 3 channels
+	MatTypeCV16FC3 = MatTypeCV16F + MatChannels3
+
+	// MatTypeCV16FC4 is a Mat of 16-bit float with 4 channels
+	MatTypeCV16FC4 = MatTypeCV16F + MatChannels4
 )
 
 // CompareType is used for Compare operations to indicate which kind of
@@ -191,6 +206,11 @@ func NewMat() Mat {
 	return newMat(C.Mat_New())
 }
 
+// NewMatFromCMat returns a new Mat from an unsafe.Pointer(C.Mat).
+func NewMatFromCMat(c_mat unsafe.Pointer) Mat {
+	return newMat(C.Mat(c_mat))
+}
+
 // NewMatWithSize returns a new Mat with a specific size and type.
 func NewMatWithSize(rows int, cols int, mt MatType) Mat {
 	return newMat(C.Mat_NewWithSize(C.int(rows), C.int(cols), C.int(mt)))
@@ -230,7 +250,7 @@ func NewMatWithSizesWithScalar(sizes []int, mt MatType, s Scalar) Mat {
 	return newMat(C.Mat_NewWithSizesFromScalar(sizesVector, C.int(mt), sVal))
 }
 
-// NewMatWithSizesWithScalar returns a new multidimensional Mat with a specific size, type and preexisting data.
+// NewMatWithSizesFromBytes returns a new multidimensional Mat with a specific size, type and preexisting data.
 func NewMatWithSizesFromBytes(sizes []int, mt MatType, data []byte) (Mat, error) {
 	cBytes, err := toByteArray(data)
 	if err != nil {
@@ -292,6 +312,18 @@ func NewMatFromBytes(rows int, cols int, mt MatType, data []byte) (Mat, error) {
 	return mat, nil
 }
 
+// NewMatFromPoint2fVector returns a new Mat from a gocv.Point2fVector.
+func NewMatFromPoint2fVector(pfv Point2fVector, copyData bool) Mat {
+	mat := newMat(C.Mat_NewFromPoint2fVector(pfv.p, C.bool(copyData)))
+	return mat
+}
+
+// NewMatFromPointVector returns a new Mat from a gocv.PointVector.
+func NewMatFromPointVector(pv PointVector, copyData bool) Mat {
+	mat := newMat(C.Mat_NewFromPointVector(pv.p, C.bool(copyData)))
+	return mat
+}
+
 // Returns an identity matrix of the specified size and type.
 //
 // The method returns a Matlab-style identity matrix initializer, similarly to Mat::zeros. Similarly to Mat::ones.
@@ -335,12 +367,37 @@ func (m *Mat) Empty() bool {
 	return isEmpty != 0
 }
 
+// Closed determines if the Mat is closed or not.
+func (m *Mat) Closed() bool {
+	return m.p == nil
+}
+
 // IsContinuous determines if the Mat is continuous.
 //
 // For further details, please see:
 // https://docs.opencv.org/master/d3/d63/classcv_1_1Mat.html#aa90cea495029c7d1ee0a41361ccecdf3
 func (m *Mat) IsContinuous() bool {
 	return bool(C.Mat_IsContinuous(m.p))
+}
+
+// Inv inverses a matrix.
+//
+// For further details, please see:
+// https://docs.opencv.org/4.x/d3/d63/classcv_1_1Mat.html#a039eb3c6740a850696a12519a4b8bfc6
+func (m *Mat) Inv() {
+	C.Mat_Inv(m.p)
+}
+
+// Col creates a matrix header for the specified matrix column.
+// The underlying data of the new matrix is shared with the original matrix.
+func (m *Mat) Col(col int) Mat {
+	return newMat(C.Mat_Col(m.p, C.int(col)))
+}
+
+// Row creates a matrix header for the specified matrix row.
+// The underlying data of the new matrix is shared with the original matrix.
+func (m *Mat) Row(row int) Mat {
+	return newMat(C.Mat_Row(m.p, C.int(row)))
 }
 
 // Clone returns a cloned full copy of the Mat.
@@ -1176,6 +1233,14 @@ func EigenNonSymmetric(src Mat, eigenvalues *Mat, eigenvectors *Mat) {
 	C.Mat_EigenNonSymmetric(src.p, eigenvalues.p, eigenvectors.p)
 }
 
+// PCABackProject reconstructs vectors from their PC projections.
+//
+// For further details, please see:
+// https://docs.opencv.org/4.x/d2/de8/group__core__array.html#gab26049f30ee8e94f7d69d82c124faafc
+func PCABackProject(data Mat, mean Mat, eigenvectors Mat, result *Mat) {
+	C.Mat_PCABackProject(data.p, mean.p, eigenvectors.p, result.p)
+}
+
 // PCACompute performs PCA.
 //
 // The computed eigenvalues are sorted from the largest to the smallest and the corresponding
@@ -1187,6 +1252,38 @@ func EigenNonSymmetric(src Mat, eigenvalues *Mat, eigenvectors *Mat) {
 // https://docs.opencv.org/4.x/d2/de8/group__core__array.html#ga27a565b31d820b05dcbcd47112176b6e
 func PCACompute(src Mat, mean *Mat, eigenvectors *Mat, eigenvalues *Mat, maxComponents int) {
 	C.Mat_PCACompute(src.p, mean.p, eigenvectors.p, eigenvalues.p, C.int(maxComponents))
+}
+
+// PCAProject projects vector(s) to the principal component subspace.
+//
+// For further details, please see:
+// https://docs.opencv.org/4.x/d2/de8/group__core__array.html#ga6b9fbc7b3a99ebfd441bbec0a6bc4f88
+func PCAProject(data Mat, mean Mat, eigenvectors Mat, result *Mat) {
+	C.Mat_PCAProject(data.p, mean.p, eigenvectors.p, result.p)
+}
+
+// PSNR computes the Peak Signal-to-Noise Ratio (PSNR) image quality metric.
+//
+// For further details, please see:
+// https://docs.opencv.org/4.x/d2/de8/group__core__array.html#ga3119e3ea73010a6f810bb05aa36ac8d6
+func PSNR(src1 Mat, src2 Mat) float64 {
+	return float64(C.PSNR(src1.p, src2.p))
+}
+
+// SVBackSubst performs a singular value back substitution.
+//
+// For further details, please see:
+// https://docs.opencv.org/4.x/d2/de8/group__core__array.html#gab4e620e6fc6c8a27bb2be3d50a840c0b
+func SVBackSubst(w Mat, u Mat, vt Mat, rhs Mat, dst *Mat) {
+	C.SVBackSubst(w.p, u.p, vt.p, rhs.p, dst.p)
+}
+
+// SVDecomp decomposes matrix and stores the results to user-provided matrices.
+//
+// For further details, please see:
+// https://docs.opencv.org/4.x/d2/de8/group__core__array.html#gab477b5b7b39b370bb03e75b19d2d5109
+func SVDecomp(src Mat, w *Mat, u *Mat, vt *Mat) {
+	C.SVDecomp(src.p, w.p, u.p, vt.p)
 }
 
 // Exp calculates the exponent of every array element.
@@ -1391,6 +1488,22 @@ func Magnitude(x, y Mat, magnitude *Mat) {
 	C.Mat_Magnitude(x.p, y.p, magnitude.p)
 }
 
+// Mahalanobis calculates the Mahalanobis distance between two vectors.
+//
+// For further details, please see:
+// https://docs.opencv.org/4.x/d2/de8/group__core__array.html#ga4493aee129179459cbfc6064f051aa7d
+func Mahalanobis(v1, v2, icovar Mat) float64 {
+	return float64(C.Mat_Mahalanobis(v1.p, v2.p, icovar.p))
+}
+
+// MulTransposed calculates the product of a matrix and its transposition.
+//
+// For further details, please see:
+// https://docs.opencv.org/4.x/d2/de8/group__core__array.html#gadc4e49f8f7a155044e3be1b9e3b270ab
+func MulTransposed(src Mat, dest *Mat, ata bool) {
+	C.MulTransposed(src.p, dest.p, C.bool(ata))
+}
+
 // Max calculates per-element maximum of two arrays or an array and a scalar.
 //
 // For further details, please see:
@@ -1458,6 +1571,24 @@ func MinMaxLoc(input Mat) (minVal, maxVal float32, minLoc, maxLoc image.Point) {
 	var cMaxLoc C.struct_Point
 
 	C.Mat_MinMaxLoc(input.p, &cMinVal, &cMaxVal, &cMinLoc, &cMaxLoc)
+
+	minLoc = image.Pt(int(cMinLoc.x), int(cMinLoc.y))
+	maxLoc = image.Pt(int(cMaxLoc.x), int(cMaxLoc.y))
+
+	return float32(cMinVal), float32(cMaxVal), minLoc, maxLoc
+}
+
+// MinMaxLocWithMask finds the global minimum and maximum in an array with a mask used to select a sub-array.
+//
+// For further details, please see:
+// https://docs.opencv.org/4.x/d2/de8/group__core__array.html#gab473bf2eb6d14ff97e89b355dac20707
+func MinMaxLocWithMask(input, mask Mat) (minVal, maxVal float32, minLoc, maxLoc image.Point) {
+	var cMinVal C.double
+	var cMaxVal C.double
+	var cMinLoc C.struct_Point
+	var cMaxLoc C.struct_Point
+
+	C.Mat_MinMaxLocWithMask(input.p, &cMinVal, &cMaxVal, &cMinLoc, &cMaxLoc, mask.p)
 
 	minLoc = image.Pt(int(cMinLoc.x), int(cMinLoc.y))
 	maxLoc = image.Pt(int(cMaxLoc.x), int(cMaxLoc.y))
@@ -1811,6 +1942,24 @@ func Transpose(src Mat, dst *Mat) {
 	C.Mat_Transpose(src.p, dst.p)
 }
 
+// TransposeND transpose for n-dimensional matrices.
+//
+// For further details, please see:
+// https://docs.opencv.org/master/d2/de8/group__core__array.html#gab1b1274b4a563be34cdfa55b8919a4ec
+func TransposeND(src Mat, order []int, dst *Mat) {
+	cOrderArray := make([]C.int, len(order))
+	for i, o := range order {
+		cOrderArray[i] = C.int(o)
+	}
+
+	cOrderVector := C.IntVector{
+		val:    (*C.int)(&cOrderArray[0]),
+		length: C.int(len(order)),
+	}
+
+	C.Mat_TransposeND(src.p, cOrderVector, dst.p)
+}
+
 // Pow raises every array element to a power.
 //
 // For further details, please see:
@@ -1846,6 +1995,11 @@ type TermCriteria struct {
 // NewTermCriteria returns a new TermCriteria.
 func NewTermCriteria(typ TermCriteriaType, maxCount int, epsilon float64) TermCriteria {
 	return TermCriteria{p: C.TermCriteria_New(C.int(typ), C.int(maxCount), C.double(epsilon))}
+}
+
+// Ptr returns the underlying C.TermCriteria
+func (tc *TermCriteria) Ptr() C.TermCriteria {
+	return tc.p
 }
 
 // Scalar is a 4-element vector widely used in OpenCV to pass pixel values.
@@ -2742,4 +2896,51 @@ func SetNumThreads(n int) {
 // Get the number of threads for OpenCV.
 func GetNumThreads() int {
 	return int(C.GetNumThreads())
+}
+
+// NewRotatedRect creates [RotatedRect] (i.e. not up-right) rectangle on a plane.
+//
+// For further information, see:
+// https://docs.opencv.org/4.x/db/dd6/classcv_1_1RotatedRect.html#aba20dfc8444fff72bd820b616f0297ee
+func NewRotatedRect(center image.Point, width int, height int, angle float64) RotatedRect {
+
+	p2f := C.struct_Point2f{
+		x: C.float(float32(center.X)),
+		y: C.float(float32(center.Y)),
+	}
+
+	c_rotRect := C.RotatedRect_Create(p2f, C.int(width), C.int(height), C.float(angle))
+	defer C.Points_Close(c_rotRect.pts)
+
+	return RotatedRect{
+		Points:       toPoints(c_rotRect.pts),
+		BoundingRect: image.Rect(int(c_rotRect.boundingRect.x), int(c_rotRect.boundingRect.y), int(c_rotRect.boundingRect.x)+int(c_rotRect.boundingRect.width), int(c_rotRect.boundingRect.y)+int(c_rotRect.boundingRect.height)),
+		Center:       image.Pt(int(c_rotRect.center.x), int(c_rotRect.center.y)),
+		Width:        int(c_rotRect.size.width),
+		Height:       int(c_rotRect.size.height),
+		Angle:        float64(c_rotRect.angle),
+	}
+
+}
+
+// NewRotatedRect2f creates [RotatedRect2f] (i.e. not up-right) rectangle on a plane.
+//
+// For further information, see:
+// https://docs.opencv.org/4.x/db/dd6/classcv_1_1RotatedRect.html#aba20dfc8444fff72bd820b616f0297ee
+func NewRotatedRect2f(center Point2f, width float32, height float32, angle float64) RotatedRect2f {
+	p2f := C.struct_Point2f{
+		x: C.float(center.X),
+		y: C.float(center.Y),
+	}
+	c_rotRect2f := C.RotatedRect2f_Create(p2f, C.float(width), C.float(height), C.float(angle))
+	defer C.Points2f_Close(c_rotRect2f.pts)
+
+	return RotatedRect2f{
+		Points:       toPoints2f(c_rotRect2f.pts),
+		BoundingRect: image.Rect(int(c_rotRect2f.boundingRect.x), int(c_rotRect2f.boundingRect.y), int(c_rotRect2f.boundingRect.x)+int(c_rotRect2f.boundingRect.width), int(c_rotRect2f.boundingRect.y)+int(c_rotRect2f.boundingRect.height)),
+		Center:       NewPoint2f(float32(c_rotRect2f.center.x), float32(c_rotRect2f.center.y)),
+		Width:        float32(c_rotRect2f.size.width),
+		Height:       float32(c_rotRect2f.size.height),
+		Angle:        float64(c_rotRect2f.angle),
+	}
 }

@@ -1,5 +1,9 @@
 #include "highgui_gocv.h"
 
+void Window_SetMouseCallback(char* winname, mouse_callback on_mouse) {
+    cv::setMouseCallback(winname, on_mouse, (void*)winname);
+}
+
 // Window
 void Window_New(const char* winname, int flags) {
     cv::namedWindow(winname, flags);
@@ -27,6 +31,14 @@ void Window_SetTitle(const char* winname, const char* title) {
 
 int Window_WaitKey(int delay = 0) {
     return cv::waitKey(delay);
+}
+
+int Window_WaitKeyEx(int delay = 0) {
+    return cv::waitKeyEx(delay);
+}
+
+int Window_PollKey(void) {
+    return cv::pollKey();
 }
 
 void Window_Move(const char* winname, int x, int y) {

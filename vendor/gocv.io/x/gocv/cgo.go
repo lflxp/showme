@@ -1,5 +1,4 @@
-//go:build !customenv && !static
-// +build !customenv,!static
+//go:build !customenv && !opencvstatic
 
 package gocv
 
@@ -9,6 +8,6 @@ package gocv
 #cgo !windows pkg-config: opencv4
 #cgo CXXFLAGS:   --std=c++11
 #cgo windows  CPPFLAGS:   -IC:/opencv/build/install/include
-#cgo windows  LDFLAGS:    -LC:/opencv/build/install/x64/mingw/lib -lopencv_core481 -lopencv_face481 -lopencv_videoio481 -lopencv_imgproc481 -lopencv_highgui481 -lopencv_imgcodecs481 -lopencv_objdetect481 -lopencv_features2d481 -lopencv_video481 -lopencv_dnn481 -lopencv_xfeatures2d481 -lopencv_plot481 -lopencv_tracking481 -lopencv_img_hash481 -lopencv_calib3d481 -lopencv_bgsegm481 -lopencv_photo481 -lopencv_aruco481 -lopencv_wechat_qrcode481 -lopencv_ximgproc481
+#cgo windows  LDFLAGS:    -LC:/opencv/build/install/x64/mingw/lib -lopencv_core4110 -lopencv_face4110 -lopencv_videoio4110 -lopencv_imgproc4110 -lopencv_highgui4110 -lopencv_imgcodecs4110 -lopencv_objdetect4110 -lopencv_features2d4110 -lopencv_video4110 -lopencv_dnn4110 -lopencv_xfeatures2d4110 -lopencv_plot4110 -lopencv_tracking4110 -lopencv_img_hash4110 -lopencv_calib3d4110 -lopencv_bgsegm4110 -lopencv_photo4110 -lopencv_aruco4110 -lopencv_wechat_qrcode4110 -lopencv_ximgproc4110
 */
 import "C"

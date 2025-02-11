@@ -1042,8 +1042,8 @@ go.uber.org/zap/internal/color
 go.uber.org/zap/internal/exit
 go.uber.org/zap/zapcore
 go.uber.org/zap/zaptest/observer
-# gocv.io/x/gocv v0.35.0
-## explicit; go 1.13
+# gocv.io/x/gocv v0.40.0
+## explicit; go 1.21
 gocv.io/x/gocv
 # golang.org/x/arch v0.3.0
 ## explicit; go 1.17

@@ -1,10 +1,10 @@
 # To build:
-#   docker build -f Dockerfile-test.gpu-cuda-11 -t gocv-test-gpu-cuda-11 .
+#   docker build -f Dockerfile-test.gpu-cuda-12 -t gocv-test-gpu-cuda-12 .
 #
 # To run tests:
-#   docker run -it --rm --gpus all gocv-test-gpu-cuda-11
+#   docker run -it --rm --gpus all gocv-test-gpu-cuda-12
 #
-FROM ghcr.io/hybridgroup/opencv:4.11.0-gpu-cuda-11 AS gocv-gpu-test-cuda-11
+FROM ghcr.io/hybridgroup/opencv:4.11.0-gpu-cuda-12 AS gocv-gpu-test-cuda-12
 
 ENV GOPATH /go
 ENV PATH="${PATH}:/go/bin"

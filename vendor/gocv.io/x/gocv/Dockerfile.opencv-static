@@ -1,29 +1,43 @@
 # OpenCV 4 prebuilt multiarchitecture image
 #
 # To build release:
-#   docker buildx build -f Dockerfile.opencv-static -t ghcr.io/hybridgroup/opencv:4.8.1-static --platform=linux/arm64,linux/amd64 --push .
+#   docker buildx build -f Dockerfile.opencv-static -t ghcr.io/hybridgroup/opencv:4.11.0-static --platform=linux/arm64,linux/amd64 --push .
 #
 # To build prerelease:
-#   docker buildx build --build-arg OPENCV_VERSION="4.x" --build-arg OPENCV_FILE="https://github.com/opencv/opencv/archive/refs/heads/4.x.zip" --build-arg OPENCV_CONTRIB_FILE="https://github.com/opencv/opencv_contrib/archive/refs/heads/4.x.zip" -f Dockerfile.opencv -t ghcr.io/hybridgroup/opencv:4.8.1-dev --platform=linux/arm64,linux/amd64 --push .
+#   docker buildx build --build-arg OPENCV_VERSION="4.x" --build-arg OPENCV_FILE="https://github.com/opencv/opencv/archive/refs/heads/4.x.zip" --build-arg OPENCV_CONTRIB_FILE="https://github.com/opencv/opencv_contrib/archive/refs/heads/4.x.zip" -f Dockerfile.opencv-static -t ghcr.io/hybridgroup/opencv:4.11.0-static-dev --platform=linux/arm64,linux/amd64 --push .
 
 
 ###################
 # amd64 build stage
 ###################
 
-FROM --platform=linux/amd64 golang:1.21-bullseye AS opencv-base-amd64
+FROM --platform=linux/amd64 golang:1.22-bullseye AS opencv-base-amd64
 LABEL maintainer="hybridgroup"
-
-RUN apt-get update && apt-get install -y \
-      git build-essential cmake pkg-config unzip libgtk2.0-dev \
+RUN apt-get update && apt-get -y install \
+      autoconf automake libass-dev libgnutls28-dev \
+      libmp3lame-dev libtool libvorbis-dev \
+      meson ninja-build pkg-config \
+      texinfo wget yasm \
+      zlib1g-dev libx264-dev libvpx-dev \
+      libopus-dev libdav1d-dev \
+      git build-essential cmake pkg-config unzip \
       curl ca-certificates libcurl4-openssl-dev libssl-dev \
-      libavcodec-dev libavformat-dev libswscale-dev libtbb2 libtbb-dev \
-      libjpeg62-turbo-dev libpng-dev libtiff-dev libdc1394-22-dev nasm && \
+      libharfbuzz-dev libfreetype6-dev \
+      nasm && \
       rm -rf /var/lib/apt/lists/*
+
+RUN wget -O ffmpeg-5.0.tar.bz2 "https://www.ffmpeg.org/releases/ffmpeg-5.0.3.tar.bz2" && \
+      tar -xf ffmpeg-5.0.tar.bz2
+
+RUN cd ffmpeg-5.0.3 && \
+      ./configure --pkg-config-flags="--static" \
+      --enable-static --disable-shared --enable-gpl --enable-libx264 --enable-libvpx --enable-zlib \
+      --disable-sdl2 --disable-vaapi --disable-vdpau --disable-v4l2-m2m --disable-doc && \
+      make -j $(nproc --all) && make install && ldconfig
 
 FROM --platform=linux/amd64 opencv-base-amd64 AS opencv-build-amd64
 
-ARG OPENCV_VERSION="4.8.1"
+ARG OPENCV_VERSION="4.11.0"
 ENV OPENCV_VERSION $OPENCV_VERSION
 
 ARG OPENCV_FILE="https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip"
@@ -33,58 +47,86 @@ ARG OPENCV_CONTRIB_FILE="https://github.com/opencv/opencv_contrib/archive/${OPEN
 ENV OPENCV_CONTRIB_FILE $OPENCV_CONTRIB_FILE
 
 RUN curl -Lo opencv.zip ${OPENCV_FILE} && \
-            unzip -q opencv.zip && \
-            curl -Lo opencv_contrib.zip ${OPENCV_CONTRIB_FILE} && \
-            unzip -q opencv_contrib.zip && \
-            rm opencv.zip opencv_contrib.zip
+      unzip -q opencv.zip && \
+      curl -Lo opencv_contrib.zip ${OPENCV_CONTRIB_FILE} && \
+      unzip -q opencv_contrib.zip && \
+      rm opencv.zip opencv_contrib.zip
 
 RUN cd opencv-${OPENCV_VERSION} && \
-            mkdir build && cd build && \
-            cmake -D CMAKE_BUILD_TYPE=RELEASE \
-                  -D WITH_IPP=ON \
-                  -D BUILD_WITH_DYNAMIC_IPP=OFF \
-                  -D BUILD_IPP_IW=ON \
-                  -D WITH_OPENGL=OFF \
-                  -D WITH_QT=OFF \
-                  -D CMAKE_INSTALL_PREFIX=/usr/local \
-                  -D BUILD_SHARED_LIBS=OFF \
-                  -D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib-${OPENCV_VERSION}/modules \
-                  -D OPENCV_ENABLE_NONFREE=ON \
-                  -D WITH_JASPER=OFF \
-                  -D WITH_TBB=ON \
-                  -D BUILD_JPEG=ON \
-                  -D WITH_SIMD=ON \
-                  -D ENABLE_LIBJPEG_TURBO_SIMD=ON \
-                  -D BUILD_DOCS=OFF \
-                  -D BUILD_EXAMPLES=OFF \
-                  -D BUILD_TESTS=OFF \
-                  -D BUILD_PERF_TESTS=ON \
-                  -D BUILD_opencv_java=NO \
-                  -D BUILD_opencv_python=NO \
-                  -D BUILD_opencv_python2=NO \
-                  -D BUILD_opencv_python3=NO \
-                  -D OPENCV_GENERATE_PKGCONFIG=ON .. && \
-            make -j $(nproc --all) && \
-            make preinstall && make install && ldconfig && \
-            cd / && rm -rf opencv*
+      mkdir build && cd build && \
+      cmake -D CMAKE_BUILD_TYPE=RELEASE \
+      -D WITH_IPP=ON \
+      -D BUILD_WITH_DYNAMIC_IPP=OFF \
+      -D BUILD_IPP_IW=ON \
+      -D WITH_OPENGL=ON \
+      -D BUILD_OPENGL=ON \
+      -D WITH_QT=OFF \
+      -D WITH_FREETYPE=ON \
+      -D CMAKE_INSTALL_PREFIX=/usr/local \
+      -D BUILD_SHARED_LIBS=OFF \
+      -D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib-${OPENCV_VERSION}/modules \
+      -D OPENCV_ENABLE_NONFREE=ON \
+      -D WITH_JASPER=OFF \
+      -D WITH_TBB=ON \
+      -D BUILD_TBB=ON \
+      -D BUILD_JPEG=ON \
+      -D WITH_SIMD=ON \
+      -D ENABLE_LIBJPEG_TURBO_SIMD=OFF \
+      -D WITH_QUIRC=ON \
+      -D WITH_GTK=OFF \
+      -D WITH_FFMPEG=ON \
+      -D WITH_1394=ON \
+      -D BUILD_1394=ON \
+      -D WITH_WEBP=ON \
+      -D BUILD_WEBP=ON \
+      -D WITH_OPENJPEG=ON \
+      -D BUILD_OPENJPEG=ON \
+      -D WITH_TIFF=ON \
+      -D BUILD_TIFF=ON \
+      -D BUILD_DOCS=OFF \
+      -D BUILD_EXAMPLES=OFF \
+      -D BUILD_TESTS=OFF \
+      -D BUILD_PERF_TESTS=ON \
+      -D BUILD_opencv_java=NO \
+      -D BUILD_opencv_python=NO \
+      -D BUILD_opencv_python2=NO \
+      -D BUILD_opencv_python3=NO \
+      -D OPENCV_GENERATE_PKGCONFIG=ON .. && \
+      make -j $(nproc --all) && \
+      make preinstall && make install && ldconfig && \
+      cd / && rm -rf opencv*
 
 ###################
 # arm64 build stage
 ###################
 
-FROM --platform=linux/arm64 golang:1.21-bullseye AS opencv-base-arm64
+FROM --platform=linux/arm64 golang:1.22-bullseye AS opencv-base-arm64
 LABEL maintainer="hybridgroup"
+RUN apt-get update && apt-get -y install \
+      autoconf automake libass-dev libgnutls28-dev \
+      libmp3lame-dev libtool libvorbis-dev \
+      meson ninja-build pkg-config \
+      texinfo wget yasm \
+      zlib1g-dev libx264-dev libvpx-dev \
+      libopus-dev libdav1d-dev \
+      git build-essential cmake pkg-config unzip \
+      curl ca-certificates libcurl4-openssl-dev libssl-dev \
+      libharfbuzz-dev libfreetype6-dev \
+      nasm && \
+      rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-            git build-essential cmake pkg-config unzip libgtk2.0-dev \
-            curl ca-certificates libcurl4-openssl-dev libssl-dev \
-            libavcodec-dev libavformat-dev libswscale-dev libtbb2 libtbb-dev \
-            libjpeg62-turbo-dev libpng-dev libtiff-dev libdc1394-22-dev && \
-            rm -rf /var/lib/apt/lists/*
+RUN wget -O ffmpeg-5.0.tar.bz2 "https://www.ffmpeg.org/releases/ffmpeg-5.0.3.tar.bz2" && \
+      tar -xf ffmpeg-5.0.tar.bz2
+
+RUN cd ffmpeg-5.0.3 && \
+      ./configure --pkg-config-flags="--static" \
+      --enable-static --disable-shared --enable-gpl --enable-libx264 --enable-libvpx --enable-zlib \
+      --disable-sdl2 --disable-vaapi --disable-vdpau --disable-v4l2-m2m --disable-doc && \
+      make -j $(nproc --all) && make install && ldconfig
 
 FROM --platform=linux/arm64 opencv-base-arm64 AS opencv-build-arm64
 
-ARG OPENCV_VERSION="4.8.1"
+ARG OPENCV_VERSION="4.11.0"
 ENV OPENCV_VERSION $OPENCV_VERSION
 
 ARG OPENCV_FILE="https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip"
@@ -94,38 +136,53 @@ ARG OPENCV_CONTRIB_FILE="https://github.com/opencv/opencv_contrib/archive/${OPEN
 ENV OPENCV_CONTRIB_FILE $OPENCV_CONTRIB_FILE
 
 RUN curl -Lo opencv.zip ${OPENCV_FILE} && \
-            unzip -q opencv.zip && \
-            curl -Lo opencv_contrib.zip ${OPENCV_CONTRIB_FILE} && \
-            unzip -q opencv_contrib.zip && \
-            rm opencv.zip opencv_contrib.zip
+      unzip -q opencv.zip && \
+      curl -Lo opencv_contrib.zip ${OPENCV_CONTRIB_FILE} && \
+      unzip -q opencv_contrib.zip && \
+      rm opencv.zip opencv_contrib.zip
 
 RUN cd opencv-${OPENCV_VERSION} && \
-            mkdir build && cd build && \
-            cmake -D CMAKE_BUILD_TYPE=RELEASE \
-                  -D WITH_IPP=OFF \
-                  -D WITH_OPENGL=OFF \
-                  -D WITH_QT=OFF \
-                  -D CMAKE_INSTALL_PREFIX=/usr/local \
-                  -D BUILD_SHARED_LIBS=OFF \
-                  -D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib-${OPENCV_VERSION}/modules \
-                  -D OPENCV_ENABLE_NONFREE=ON \
-                  -D WITH_JASPER=OFF \
-                  -D WITH_TBB=ON \
-                  -D BUILD_JPEG=ON \
-                  -D WITH_SIMD=ON \
-                  -D ENABLE_LIBJPEG_TURBO_SIMD=ON \
-                  -D BUILD_DOCS=OFF \
-                  -D BUILD_EXAMPLES=OFF \
-                  -D BUILD_TESTS=OFF \
-                  -D BUILD_PERF_TESTS=ON \
-                  -D BUILD_opencv_java=NO \
-                  -D BUILD_opencv_python=NO \
-                  -D BUILD_opencv_python2=NO \
-                  -D BUILD_opencv_python3=NO \
-                  -D OPENCV_GENERATE_PKGCONFIG=ON .. && \
-            make -j $(nproc --all) && \
-            make preinstall && make install && ldconfig && \
-            cd / && rm -rf opencv*
+      mkdir build && cd build && \
+      cmake -D CMAKE_BUILD_TYPE=RELEASE \
+      -D WITH_IPP=OFF \
+      -D WITH_OPENGL=ON \
+      -D BUILD_OPENGL=ON \
+      -D WITH_QT=OFF \
+      -D WITH_FREETYPE=ON \
+      -D CMAKE_INSTALL_PREFIX=/usr/local \
+      -D BUILD_SHARED_LIBS=OFF \
+      -D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib-${OPENCV_VERSION}/modules \
+      -D OPENCV_ENABLE_NONFREE=ON \
+      -D WITH_JASPER=OFF \
+      -D ENABLE_NEON=ON \
+      -D WITH_TBB=ON \
+      -D BUILD_TBB=ON \
+      -D BUILD_JPEG=ON \
+      -D WITH_SIMD=ON \
+      -D ENABLE_LIBJPEG_TURBO_SIMD=OFF \
+      -D WITH_QUIRC=ON \
+      -D WITH_GTK=OFF \
+      -D WITH_FFMPEG=ON \
+      -D WITH_1394=ON \
+      -D BUILD_1394=ON \
+      -D WITH_WEBP=ON \
+      -D BUILD_WEBP=ON \
+      -D WITH_OPENJPEG=ON \
+      -D BUILD_OPENJPEG=ON \
+      -D WITH_TIFF=ON \
+      -D BUILD_TIFF=ON \
+      -D BUILD_DOCS=OFF \
+      -D BUILD_EXAMPLES=OFF \
+      -D BUILD_TESTS=OFF \
+      -D BUILD_PERF_TESTS=ON \
+      -D BUILD_opencv_java=NO \
+      -D BUILD_opencv_python=NO \
+      -D BUILD_opencv_python2=NO \
+      -D BUILD_opencv_python3=NO \
+      -D OPENCV_GENERATE_PKGCONFIG=ON .. && \
+      make -j $(nproc --all) && \
+      make preinstall && make install && ldconfig && \
+      cd / && rm -rf opencv*
 
 ARG TARGETARCH
 
@@ -133,6 +190,6 @@ ARG TARGETARCH
 # multiarch build stage
 ###################
 
-FROM opencv-build-${TARGETARCH} as opencv-final
+FROM opencv-build-${TARGETARCH} AS opencv-final
 
 CMD ["opencv_version", "-b"]
