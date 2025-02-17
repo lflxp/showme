@@ -92,7 +92,8 @@ func RegisterTty(router *gin.Engine, data *Tty, isLocal bool) {
 	if data.Username == "" && data.Password == "" {
 		apiGroup = router.Group(rootPath)
 	} else {
-		apiGroup = router.Group(rootPath, gin.BasicAuth(gin.Accounts{data.Username: data.Password}))
+		// apiGroup = router.Group(rootPath, gin.BasicAuth(gin.Accounts{data.Username: data.Password}))
+		apiGroup = router.Group(rootPath, AuthMiddleware(gin.Accounts{data.Username: data.Password}))
 	}
 
 	if data.IsAudit {
@@ -107,6 +108,66 @@ func RegisterTty(router *gin.Engine, data *Tty, isLocal bool) {
 	// via an HTTP server. "/metrics" is the usual endpoint for that.
 	doMetrics()
 	apiGroup.GET("/metrics", ginprom.PromHandler(promhttp.Handler()))
+}
+
+// 包装gin.BasicAuth 过滤用户密码输入三次错误后锁定
+// 锁定IP和用户
+var loginAttempts = make(map[string]int)
+var ipLoginAttempts = make(map[string]int)
+var lockoutDuration = time.Hour * 12
+var lockedOutUsers = make(map[string]time.Time)
+var lockedOutIPs = make(map[string]time.Time)
+
+func AuthMiddleware(accounts gin.Accounts) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		username, password, hasAuth := c.Request.BasicAuth()
+		clientIP := c.ClientIP()
+		if !hasAuth {
+			c.Header("WWW-Authenticate", `Basic realm="Authorization Required"`)
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		if lockoutTime, locked := lockedOutUsers[username]; locked {
+			if time.Now().Before(lockoutTime) {
+				c.String(http.StatusForbidden, fmt.Sprintf("Account locked due to multiple failed login User attempts. Try again later %s.", lockoutTime.Format(time.RFC3339)))
+				c.Abort()
+				return
+			}
+			delete(lockedOutUsers, username)
+			delete(loginAttempts, username)
+		}
+
+		if lockoutTime, locked := lockedOutIPs[clientIP]; locked {
+			if time.Now().Before(lockoutTime) {
+				c.String(http.StatusForbidden, fmt.Sprintf("IP locked due to multiple failed login IP attempts. Try again later %s.", lockoutTime.Format(time.RFC3339)))
+				c.Abort()
+				return
+			}
+			delete(lockedOutIPs, clientIP)
+			delete(ipLoginAttempts, clientIP)
+		}
+
+		if expectedPassword, ok := accounts[username]; ok && expectedPassword == password {
+			loginAttempts[username] = 0
+			ipLoginAttempts[clientIP] = 0
+			c.Next()
+			return
+		}
+
+		loginAttempts[username]++
+		ipLoginAttempts[clientIP]++
+		if loginAttempts[username] >= 3 {
+			lockedOutUsers[username] = time.Now().Add(lockoutDuration)
+			c.String(http.StatusForbidden, "Account locked due to multiple failed login User attempts. Try again later.")
+		} else if ipLoginAttempts[clientIP] >= 3 {
+			lockedOutIPs[clientIP] = time.Now().Add(lockoutDuration)
+			c.String(http.StatusForbidden, "IP locked due to multiple failed login IP attempts. Try again later.")
+		} else {
+			c.Header("WWW-Authenticate", `Basic realm="Authorization Required"`)
+			c.AbortWithStatus(http.StatusUnauthorized)
+		}
+	}
 }
 
 func Check(c *gin.Context) {

@@ -35,7 +35,7 @@ require (
 	github.com/lflxp/lflxp-scan v0.1.0
 	github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee
 	github.com/lflxp/lflxp-static v1.0.3
-	github.com/lflxp/lflxp-tty v1.0.1
+	github.com/lflxp/lflxp-tty v1.0.2
 	github.com/lflxp/screego v0.0.3
 	github.com/lflxp/smkubectl v0.1.8
 	github.com/lithammer/fuzzysearch v1.1.5

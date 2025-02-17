@@ -661,8 +661,8 @@ github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee h1:hFTosnSnl
 github.com/lflxp/lflxp-sflowtool v0.0.0-20200323103145-8e12626667ee/go.mod h1:UXB47QOO7Vhv7YpXgWjZ9FT0XXsNI45/aBYf90ybIjo=
 github.com/lflxp/lflxp-static v1.0.3 h1:BEiMTcZ/PJe52yO4y9GbEDaz5z4LbGxIV3+UXJcGkco=
 github.com/lflxp/lflxp-static v1.0.3/go.mod h1:aQMJHATJybwd+2GlJEEECKIxROGxFybIWkV7AYnmjCE=
-github.com/lflxp/lflxp-tty v1.0.1 h1:Lvphf8Sa/3Oc2O2/vih6MD1oKb1PU68XsSmi59abpJY=
-github.com/lflxp/lflxp-tty v1.0.1/go.mod h1:FztgAiLI4LAipR2jtmTvDSlb3SOLbWGuikZsBnxnL58=
+github.com/lflxp/lflxp-tty v1.0.2 h1:jtBuc8g+hS7diz+NI7qHpeXCRjXJyJsOplSL27/6mfM=
+github.com/lflxp/lflxp-tty v1.0.2/go.mod h1:tWKSYk7rHxbv0ElZpJBWrbtqY5BUPiA7t9q0tVoxlpo=
 github.com/lflxp/screego v0.0.3 h1:8bfD78OeOLPSrgA+02DojxL8p4jtNJnwc3Imsyi66E8=
 github.com/lflxp/screego v0.0.3/go.mod h1:SJTI5CtPB9dvBpx5Yy+wazW089F2HO4WmSQbZCpkMtI=
 github.com/lflxp/sflowtool v0.0.0-20200320153314-630933f4918a/go.mod h1:eHScap6gPi9BndOq7P2dLGiZAcbzae2pnh77z3G+t9I=

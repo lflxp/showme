@@ -624,7 +624,7 @@ github.com/lflxp/lflxp-sflowtool/pkg
 ## explicit; go 1.16
 github.com/lflxp/lflxp-static/pkg
 github.com/lflxp/lflxp-static/pkg/sync
-# github.com/lflxp/lflxp-tty v1.0.1
+# github.com/lflxp/lflxp-tty v1.0.2
 ## explicit; go 1.21.6
 github.com/lflxp/lflxp-tty/pkg
 # github.com/lflxp/screego v0.0.3
