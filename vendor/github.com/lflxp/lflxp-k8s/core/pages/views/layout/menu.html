@@ -1,0 +1,31 @@
+{{ define "menu" }}
+<ul class="list-group" style="margin: 10px 10px;">
+  {{.Data | beegoli | str2html}}
+  <li class="list-group-item list-group-item-info">AUTHENTICATION AND AUTHORIZATION</li>
+  <li class="list-group-item">
+      <a class="badge" href="/admin/table?name=Groups"><span class="glyphicon glyphicon-edit"></span>Change</a>
+      <a class="badge" href="/admin/add?name=Groups"><span class="glyphicon glyphicon-plus"></span>Add</a>
+      <a href="/admin/table?name=Groups" target="_blank">Groups</a>
+  </li>
+  <li class="list-group-item">
+      <a class="badge" href="/admin/table?name=Userauth"><span class="glyphicon glyphicon-edit"></span>Change</a>
+      <a class="badge" href="/admin/add?name=Userauth"><span class="glyphicon glyphicon-plus"></span>Add</a>
+      <a href="/admin/table?name=Userauth" target="_blank">Userauth</a>
+  </li>
+  <li class="list-group-item">
+      <a class="badge" href="/admin/table?name=User"><span class="glyphicon glyphicon-edit"></span>Change</a>
+      <a class="badge" href="/admin/add?name=User"><span class="glyphicon glyphicon-plus"></span>Add</a>
+      <a href="/admin/table?name=User" target="_blank">User</a>
+  </li>
+  <li class="list-group-item">
+      <a class="badge" href="/admin/table?name=Claims"><span class="glyphicon glyphicon-edit"></span>Change</a>
+      <a class="badge" href="/admin/add?name=Claims"><span class="glyphicon glyphicon-plus"></span>Add</a>
+      <a href="/admin/table?name=Claims" target="_blank">Claims</a>
+  </li>
+  <li class="list-group-item">
+      <a class="badge" href="/admin/table?name=History"><span class="glyphicon glyphicon-edit"></span>Change</a>
+      <a class="badge" href="/admin/add?name=History"><span class="glyphicon glyphicon-plus"></span>Add</a>
+      <a href="/admin/table?name=History" target="_blank">History</a>
+  </li>
+</ul>
+{{ end }}

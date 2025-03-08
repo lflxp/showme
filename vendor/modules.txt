@@ -567,15 +567,19 @@ github.com/lflxp/goproxys/protocol
 ## explicit; go 1.13
 github.com/lflxp/lflxp-api/pkg
 github.com/lflxp/lflxp-api/pkg/docs
-# github.com/lflxp/lflxp-k8s v0.1.5
+# github.com/lflxp/lflxp-k8s v0.1.7
 ## explicit; go 1.21.6
 github.com/lflxp/lflxp-k8s/asset
 github.com/lflxp/lflxp-k8s/core
+github.com/lflxp/lflxp-k8s/core/controller
 github.com/lflxp/lflxp-k8s/core/middlewares
 github.com/lflxp/lflxp-k8s/core/middlewares/jwt/framework
 github.com/lflxp/lflxp-k8s/core/middlewares/jwt/model
 github.com/lflxp/lflxp-k8s/core/middlewares/jwt/services
+github.com/lflxp/lflxp-k8s/core/middlewares/template
 github.com/lflxp/lflxp-k8s/core/model/admin
+github.com/lflxp/lflxp-k8s/core/model/test
+github.com/lflxp/lflxp-k8s/core/pages
 github.com/lflxp/lflxp-k8s/core/router
 github.com/lflxp/lflxp-k8s/pkg/apiserver
 github.com/lflxp/lflxp-k8s/pkg/apiserver/model

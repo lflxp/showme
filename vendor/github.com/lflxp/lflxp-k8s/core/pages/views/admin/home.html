@@ -1,0 +1,93 @@
+{{ define "admin/home.html" }}
+
+{{ template "headereasy" .}}
+{{if .Nav}}
+{{ template "nav" . }}
+{{end}}
+<div class="col-md-8">  
+    <div class="row">
+        <div class="col-sm-1">
+        </div>
+        <div class="col-xs-12 col-sm-11">
+            <h3>Site Administrator</h3>
+            <br/>
+            <div class="row">
+                <div class="col-sm-12">
+                    <ul class="list-group">
+                        {{.Data | beegoli | str2html}}
+                        <!-- <li class="list-group-item list-group-item-info">VPN</li>
+                        <li class="list-group-item">
+                            <a class="badge" href="#">Change</a>
+                            <a class="badge" href="#">Add</a>
+                            IDC 
+                        </li>
+                        <li class="list-group-item">
+                            <a class="badge" href="#">Change</a>
+                            <a class="badge" href="#">Add</a>
+                            IDRAC 
+                        </li>
+                        <li class="list-group-item">
+                            <a class="badge" href="#">Change</a>
+                            <a class="badge" href="#">Add</a>
+                            IDRAC 
+                        </li>
+                        <li class="list-group-item">
+                            <a class="badge" href="#">Change</a>
+                            <a class="badge" href="#">Add</a>
+                            IDRAC 
+                        </li> -->
+                    </ul>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <ul class="list-group">
+                        <li class="list-group-item list-group-item-info">AUTHENTICATION AND AUTHORIZATION</li>
+                        <li class="list-group-item">
+                            <a class="badge" href="/admin/table?name=Groups"><span class="glyphicon glyphicon-edit"></span>Change</a>
+                            <a class="badge" href="/admin/add?name=Groups"><span class="glyphicon glyphicon-plus"></span>Add</a>
+                            <a href="/admin/table?name=Groups" target="_blank">Groups</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a class="badge" href="/admin/table?name=Userauth"><span class="glyphicon glyphicon-edit"></span>Change</a>
+                            <a class="badge" href="/admin/add?name=Userauth"><span class="glyphicon glyphicon-plus"></span>Add</a>
+                            <a href="/admin/table?name=Userauth" target="_blank">Userauth</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a class="badge" href="/admin/table?name=User"><span class="glyphicon glyphicon-edit"></span>Change</a>
+                            <a class="badge" href="/admin/add?name=User"><span class="glyphicon glyphicon-plus"></span>Add</a>
+                            <a href="/admin/table?name=User" target="_blank">User</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a class="badge" href="/admin/table?name=Claims"><span class="glyphicon glyphicon-edit"></span>Change</a>
+                            <a class="badge" href="/admin/add?name=Claims"><span class="glyphicon glyphicon-plus"></span>Add</a>
+                            <a href="/admin/table?name=Claims" target="_blank">Claims</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a class="badge" href="/admin/table?name=History"><span class="glyphicon glyphicon-edit"></span>Change</a>
+                            <a class="badge" href="/admin/add?name=History"><span class="glyphicon glyphicon-plus"></span>Add</a>
+                            <a href="/admin/table?name=History" target="_blank">History</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-md-4">
+    <div class="row">
+        <div class="col-xs-11 col-sm-10">
+            <ul class="list-group">
+                <h3> &nbsp;</h3>
+                <br/>
+                <li class="list-group-item list-group-item-success">Recent actions</li>
+                {{range .History}}
+                    <li class="list-group-item"><span class="badge">{{.Id}}</span> {{.Name}} {{.Op}} {{.Common}}</li>
+                {{end}}
+            </ul>
+        </div>
+    </div>
+</div>
+{{ template "footer" . }}
+
+{{ end }}

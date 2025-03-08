@@ -29,7 +29,7 @@ require (
 	github.com/lflxp/djangolang v0.2.6
 	github.com/lflxp/goproxys v0.0.0-20200308164541-294d52d6ffa9
 	github.com/lflxp/lflxp-api v0.0.0-20200323094405-0d69797bee92
-	github.com/lflxp/lflxp-k8s v0.1.5
+	github.com/lflxp/lflxp-k8s v0.1.7
 	github.com/lflxp/lflxp-monitor v0.1.2
 	github.com/lflxp/lflxp-music v0.0.8
 	github.com/lflxp/lflxp-scan v0.1.0

@@ -3,7 +3,9 @@ package router
 import (
 	"log/slog"
 
+	"github.com/lflxp/lflxp-k8s/core/controller"
 	"github.com/lflxp/lflxp-k8s/core/middlewares"
+	"github.com/lflxp/lflxp-k8s/core/pages"
 	"github.com/lflxp/lflxp-k8s/pkg/apiserver"
 	"github.com/lflxp/lflxp-k8s/pkg/monitor"
 	"github.com/lflxp/lflxp-k8s/pkg/vela/appshop"
@@ -59,8 +61,8 @@ func PreGinServe(r *gin.Engine) {
 	auth.RegisterAuth(r)
 
 	asset.RegisterAsset(r)
-	// pages.RegisterTemplate(r)
-	// controller.RegisterAdmin(r)
+	pages.RegisterTemplate(r)
+	controller.RegisterAdmin(r)
 	// controller.Registertest(r)
 	apiserver.RegisterApiserver(r)
 	apiserver.RegisterApiserverWS(r)

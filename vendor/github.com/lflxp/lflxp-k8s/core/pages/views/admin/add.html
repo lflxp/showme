@@ -1,0 +1,178 @@
+{{ define "admin/add.html" }}
+
+{{ template "header" .}}
+
+{{if .Nav}}
+{{ template "nav" . }}
+{{end}}
+
+<div class="col-md-11">  
+    <div class="row">
+        <div class="col-xs-12 col-sm-10 col-md-offset-2">
+            <h3>Add {{.Name}} </h3>
+            <!-- <ul class="pager">
+                <li class="previous disabled">site administrator</li>
+                <li class="next"><a href="#">newer <span aria-hidden="true">&rarr;</span></a></li>
+            </ul> -->
+            <br/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <!-- <iframe name="targetIfr" style="display:none"></iframe>  -->
+            <form name="myform" id="myform" class="form-horizontal" role="form" method="POST" onSubmit="return false" action="/admin/add?table={{.Name}}">  
+            <!-- <form id="myform" class="form-horizontal" role="form" method="POST" action="/admin/add?table={{.Name}}" target="targetIfr">   -->
+            <!-- <form class="form-horizontal" role="form" id="myform">   -->
+                {{.Col| formcolumns | str2html}}
+                <!-- <div class="form-group">
+                    <label class="col-sm-2 control-label no-padding-right" for="form-field-1"> text field </label>
+                    <div class="col-sm-10">
+                        <input id="form-field-1" placeholder="username" class="col-xs-10 col-sm-10" type="text">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label no-padding-right" for="form-field-1"> text field998 </label>
+                    <div class="col-sm-10">
+                        <input id="form-field-1" placeholder="username" class="col-xs-10 col-sm-10" type="file">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label no-padding-right" for="form-field-1"> text field </label>
+                    <div class="col-sm-10">
+                        <input id="form-field-1" placeholder="username" class="col-xs-10 col-sm-10" type="number">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label no-padding-right" for="form-field-1"> text field </label>
+                    <div class="col-sm-10">
+                        <textarea name="textarea" class="col-xs-10 col-sm-10" rows="10"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label no-padding-right" for="form-field-1"> text field </label>
+                    <div class="col-sm-10">
+                        男性
+                        <input type="radio" checked="checked" name="sex" value="male"> 
+                        女性
+                        <input type="radio" name="sex" value="female">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label no-padding-right" for="form-field-1"> text field </label>
+                    <div class="col-sm-10">
+                        <select class="col-xs-10 col-sm-10" name="cars">
+                            <option value="volvo">volvo</option>
+                            <option value="saab">saab</option>
+                            <option value="fiat">fiat</option>
+                            <option value="audi">audi</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-top" for="duallist"> dual listbox </label>
+                    <div class="col-sm-8">
+                        <select multiple="multiple" size="10" name="duallistbox_demo1[]" id="duallist">
+                            <option value="option1">option 1</option>
+                            <option value="option2">option 2</option>
+                            <option value="option3" selected="selected">option 3</option>
+                            <option value="option4">option 4</option>
+                            <option value="option5">option 5</option>
+                            <option value="option6" selected="selected">option 6</option>
+                            <option value="option7">option 7</option>
+                            <option value="option8">option 8</option>
+                            <option value="option9">option 9</option>
+                            <option value="option0">option 10</option>
+                        </select>
+
+                        <div class="hr hr-16 hr-dotted"></div>
+                    </div>
+                </div> 
+                <div class="form-group">
+                    <label class="col-sm-2 control-label no-padding-top" for="date-timepicker1">Date/Time Picker</label>
+
+                    <div class="col-sm-10">
+                        <input id="date-timepicker1" name="dsa" type="text" class="col-xs-2 col-sm-2" />
+                    </div>
+                </div> -->
+                <div class="submit-row">
+                    <input type="submit" value="保存" class="default" onclick="comfirm('back')" />
+                    <input type="submit" value="保存并增加另一个" class="default" onclick="comfirm('reset')" />
+                    <input type="submit" value="保存并继续编辑" class="default"  onclick="comfirm('')" />
+                </div>
+            </form>
+            <!-- <a href="#" style="text-decoration: none;">使用ajax提交表单数据</a> -->
+        </div>
+    </div>
+</div>
+<!-- <script>
+    $(document).ready(function(){
+        $("a").click(function(){
+             $.ajax({    
+                type:'post',        
+                url:"/admin/add?table={{.Name}}",    
+                data:$("#myform").serialize(),    
+                cache:false,    
+                dataType:'json',    
+                success:function(data){   
+                    alert("请求成功");
+                    alert(data);
+                }    
+            });    
+        });
+    });
+</script>  -->
+<script>
+function onlyrefresh() {
+    opener.location.reload();
+}
+
+function back() {
+    window.close();
+    opener.location.reload();
+}
+function reset() {
+    $('form')[0].reset();
+}
+
+$.fn.serializeObject = function() {
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function() {
+        if (o[this.name]) {
+            if (!o[this.name].push) {
+                o[this.name] = [ o[this.name] ];
+            }
+            o[this.name].push(this.value || '');
+        } else {
+            o[this.name] = this.value || '';
+        }
+    });
+    return o;
+};
+
+function comfirm(info) {
+    var options = {
+        url: "/admin/add?table={{.Name}}",
+        type: 'post',
+        data: $('form').serializeObject(),
+        success: function(data){
+            console.log(data)
+            if (info == 'back') {
+                back()
+            } else if (info == 'reset') {
+                reset()
+            } else {
+                onlyrefresh() 
+            }
+        }
+    }
+    $.ajax(options);
+}
+
+</script>
+
+{{ template "footer" .}}
+{{ end }}
+
+
+

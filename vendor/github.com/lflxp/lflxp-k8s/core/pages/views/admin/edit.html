@@ -1,0 +1,99 @@
+{{ define "admin/edit.html" }}
+    {{ template "header" .}}
+
+    <div class="col-md-11">  
+        <div class="row">
+            <div class="col-xs-12 col-sm-10 col-md-offset-2">
+                <h3>Change {{.Name}} </h3>
+                <!-- <ul class="pager">
+                    <li class="previous disabled">site administrator</li>
+                    <li class="next"><a href="#">newer <span aria-hidden="true">&rarr;</span></a></li>
+                </ul> -->
+                <br/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <!-- <iframe name="targetIfr" style="display:none"></iframe>  -->
+                <form id="myform" class="form-horizontal" role="form" method="POST" onSubmit="return false" action="/admin/edit?table={{.Name}}">  
+
+                    {{.Col| str2html}}
+            
+                    <div class="submit-row">
+                        <input type="submit" value="修改" class="default" onclick="comfirm('back')" />
+                        <input type="submit" value="取消" class="default"  onclick="comfirm('')" />
+                    </div>
+                </form>
+                <!-- <a href="#" style="text-decoration: none;">使用ajax提交表单数据</a> -->
+            </div>
+        </div>
+    </div>
+    <!-- <script>
+        $(document).ready(function(){
+            $("a").click(function(){
+                 $.ajax({    
+                    type:'post',        
+                    url:"/admin/add?table={{.Name}}",    
+                    data:$("#myform").serialize(),    
+                    cache:false,    
+                    dataType:'json',    
+                    success:function(data){   
+                        alert("请求成功");
+                        alert(data);
+                    }    
+                });    
+            });
+        });
+    </script>  -->
+    <script>
+    function onlyrefresh() {
+        window.close();
+    }
+
+    function back() {
+        window.close();
+        opener.location.reload();
+    }
+    function reset() {
+        $('form')[0].reset();
+    }
+    $.fn.serializeObject = function() {
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function() {
+            if (o[this.name]) {
+                if (!o[this.name].push) {
+                    o[this.name] = [ o[this.name] ];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
+
+    function comfirm(info) {
+        var options = {
+            url: "/admin/edit?table={{.Name}}"+'&' + window.location.search.substr(1),
+            type: 'post',
+            data: $('form').serializeObject(),
+            success: function(data){
+                console.log(data)
+                if (info == 'back') {
+                    back()
+                } else if (info == 'reset') {
+                    reset()
+                } else {
+                    onlyrefresh() 
+                }
+            }
+        }
+        $.ajax(options);
+    }
+    </script>
+
+    {{ template "footer" . }}
+{{ end }}
+
+

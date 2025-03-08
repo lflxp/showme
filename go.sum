@@ -647,8 +647,8 @@ github.com/lflxp/goproxys v0.0.0-20200308164541-294d52d6ffa9 h1:Q4GrSSdFFkqlyqs3
 github.com/lflxp/goproxys v0.0.0-20200308164541-294d52d6ffa9/go.mod h1:2m6b238ZvBIOmc664SWkTDogpXtwvmk9Nr34r1HTJug=
 github.com/lflxp/lflxp-api v0.0.0-20200323094405-0d69797bee92 h1:Wd7E+OL1Aswo8B9f5YsQ+T5wiFa09kjRDD6R8NtLbDs=
 github.com/lflxp/lflxp-api v0.0.0-20200323094405-0d69797bee92/go.mod h1:5ShmtfhBerRx/oRm+jDwvc/ZkEt7IjfFAmpYHNr2E80=
-github.com/lflxp/lflxp-k8s v0.1.5 h1:QUIsYXqot/8ZNGQnAg++oNKf7uFM5CIu7jSMfF41q9E=
-github.com/lflxp/lflxp-k8s v0.1.5/go.mod h1:pq4zYocYmR9NyKKpdQz0syvQwVBqbictwa7VHtvZw8M=
+github.com/lflxp/lflxp-k8s v0.1.7 h1:FD3i972YVYcMBs4eFUUImtie6hTaUjbbVB5oRyx6Onw=
+github.com/lflxp/lflxp-k8s v0.1.7/go.mod h1:ljnHVxdRuEyINfUe9MyT+4RfWOHsuQm69ttk0arxZCk=
 github.com/lflxp/lflxp-kubectl v0.0.0-20200324075201-2c87c15ee42c h1:tBrC4KJBs+C9jrqJiFK6LOC+gxFwAECj+e2XM44RdK0=
 github.com/lflxp/lflxp-kubectl v0.0.0-20200324075201-2c87c15ee42c/go.mod h1:Vh8hP+RRpn6xQAAQEBf8DX/1NH/scvCKu0AoLpvvEwE=
 github.com/lflxp/lflxp-monitor v0.1.2 h1:Zxogsj1I89a1VvOyQL1MjWlTC8dHMVMWcWjQBp3PTeY=
