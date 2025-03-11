@@ -53,7 +53,7 @@ func ServeGin(data *Tty) {
 	// ginprom.PromMiddleware(&ginprom.PromOpts{ExcludeRegexEndpoint: "^/prefix"})
 	router.Use(ginprom.PromMiddleware(nil))
 
-	RegisterTty(router, data, true)
+	RegisterTty(router, data)
 
 	// automatically add routers for net/http/pprof
 	// e.g. /debug/pprof, /debug/pprof/heap, etc.
@@ -119,10 +119,11 @@ func ServeGin(data *Tty) {
 	if data.Host == "0.0.0.0" {
 		ips := GetIPs()
 		for _, ip := range ips {
-			slog.Info("Listening and serving HTTPS on http://%s:%s", ip, data.Port)
+			slog.With("protocal", "http", "ip", ip, "port", data.Port).Info("Listening and serving HTTPS on")
+			// slog.Info("Listening and serving HTTPS on ", fmt.Sprintf("http://%s:%s", ip, data.Port))
 		}
 	} else {
-		slog.Info("Listening and serving HTTPS on http://%s:%s", data.Host, data.Port)
+		slog.With("protocal", "http", "ip", data.Host, "port", data.Port).Info("Listening and serving HTTPS on", data.Host, data.Port)
 	}
 
 	if httpXterm.Options.EnableTLS {
@@ -131,7 +132,7 @@ func ServeGin(data *Tty) {
 				if err == http.ErrServerClosed {
 					slog.Info("Server closed under request")
 				} else {
-					slog.Error("Server closed unexpect", err.Error())
+					slog.With("error", err.Error()).Error("Server closed unexpect")
 				}
 			}
 		} else {
@@ -142,7 +143,7 @@ func ServeGin(data *Tty) {
 			if err == http.ErrServerClosed {
 				slog.Info("Server closed under request")
 			} else {
-				slog.Error("Server closed unexpect", err.Error())
+				slog.With("error", err.Error()).Error("Server closed unexpect")
 			}
 		}
 	}

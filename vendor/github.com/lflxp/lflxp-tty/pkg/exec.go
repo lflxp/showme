@@ -33,6 +33,7 @@ type Tty struct {
 	Port           string
 	Host           string
 	Cmds           []string
+	Url            string
 }
 
 func (this *Tty) Check() error {

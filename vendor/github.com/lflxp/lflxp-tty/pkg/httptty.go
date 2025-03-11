@@ -37,7 +37,7 @@ func init() {
 }
 
 // isLocal 参数是用于判断是否为第三方引用，进而改变访问路径
-func RegisterTty(router *gin.Engine, data *Tty, isLocal bool) {
+func RegisterTty(router *gin.Engine, data *Tty) {
 	if data.IsDebug {
 		// 设置日志级别为warn以上
 		lvl.Set(slog.LevelDebug)
@@ -82,11 +82,8 @@ func RegisterTty(router *gin.Engine, data *Tty, isLocal bool) {
 	tmp := template.Must(template.New("").ParseFS(Views, "views/*"))
 	router.SetHTMLTemplate(tmp)
 
-	if isLocal {
-		rootPath = "/"
-	} else {
-		rootPath = "/tty"
-	}
+	rootPath = data.Url
+
 	var apiGroup *gin.RouterGroup
 	// 是否密码登录
 	if data.Username == "" && data.Password == "" {
